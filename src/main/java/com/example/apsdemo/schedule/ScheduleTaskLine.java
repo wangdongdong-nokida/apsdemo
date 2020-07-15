@@ -4,22 +4,22 @@ import com.example.apsdemo.dao.businessData.ScheduleTaskLineData;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
-import java.util.Calendar;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 public class ScheduleTaskLine extends ScheduleTaskLineData {
 
     @JsonIgnore
-    @OneToOne(targetEntity = Equipment.class,fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Equipment.class, fetch = FetchType.LAZY)
     private Equipment equipment;
 
     @JsonIgnore
-    @OneToMany(targetEntity = ScheduleTask.class,mappedBy = "scheduleTaskLine",fetch = FetchType.EAGER)
-    private Set<ScheduleTask> tasks=new HashSet<>();
+    @OneToMany(targetEntity = ScheduleTask.class, mappedBy = "scheduleTaskLine", fetch = FetchType.EAGER)
+    private Set<ScheduleTask> tasks = new HashSet<>();
 
     public Set<ScheduleTask> getTasks() {
         return tasks;
@@ -30,11 +30,210 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
     }
 
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class,fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY)
     private ScheduleTask first;
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class,fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY)
     private ScheduleTask last;
+
+
+    public ScheduleLine getScheduleLine() {
+        return new ScheduleLine(this);
+    }
+
+
+    @Data
+    public class ScheduleLine {
+        private ScheduleTaskLine line;
+        private Container containerFirst;
+        private Container containerLast;
+        private Map<Long, Container> scheduleTaskMap = new HashMap<>();
+
+        public ScheduleTask deleteFromLine(long id) {
+            Container container = removeFromLine(id);
+            return container.getSelf();
+        }
+
+        @NotNull
+        private ScheduleTaskLine.ScheduleLine.Container removeFromLine(long id) {
+            Container container = scheduleTaskMap.get(id);
+            return container.removeFromLine();
+        }
+
+        public synchronized void removeTo(List<Long> ids, Long to, boolean after) {
+            Container nextPosition = scheduleTaskMap.get(to);
+            for (Long id : ids) {
+                Container container = scheduleTaskMap.get(id);
+                if (container != null && nextPosition != null) {
+                    nextPosition.linkTo(container, after);
+                    nextPosition = container;
+                }
+            }
+        }
+
+        public ScheduleLine(ScheduleTaskLine line) {
+            this.setLine(line);
+            ScheduleTask task = getFirst();
+            this.setContainerFirst(null);
+            this.setContainerLast(null);
+            while (task != null){
+                addLast(task);
+                task = task.getSon();
+            }
+        }
+
+        public void addLast(ScheduleTask task) {
+            task.setScheduleTaskLine(this.getLine());
+            Container last = new Container(getContainerLast(), null, task);
+            if (getContainerLast() == null) {
+                setContainerFirst(last);
+                this.getLine().setFirst(task);
+            }
+            setContainerLast(last);
+            this.getLine().setLast(task);
+            scheduleTaskMap.put(task.getID(), last);
+        }
+
+        public void addFirst(ScheduleTask task) {
+            Container last = new Container(null, getContainerFirst(), task);
+            if (getContainerFirst() == null) {
+                setContainerLast(last);
+            }
+            setContainerFirst(last);
+            scheduleTaskMap.put(task.getID(), last);
+        }
+
+        public void calcScheduleLineDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
+            if (getContainerFirst() != null) {
+                getContainerFirst().calcDate(wrapper);
+            }
+        }
+
+        @Data
+        class Container {
+            Container father;
+            Container son;
+            ScheduleTask self;
+
+
+            private void setSonRelation(Container son) {
+                son.removeFromLine();
+                Container containerSon = this.getSon();
+                this.setSon(son);
+                son.setFather(this);
+                this.getSelf().setSon(son.getSelf());
+                if (containerSon != null) {
+                    son.setSon(containerSon);
+                    containerSon.setFather(son);
+                    son.getSelf().setSon(containerSon.getSelf());
+                } else {
+                    setLast(son.getSelf());
+                    getLine().setLast(son.getSelf());
+                }
+            }
+
+            private void setFatherRelation(Container father) {
+                father.removeFromLine();
+                Container containerFather = this.getFather();
+                this.setFather(father);
+                father.setSon(this);
+                father.getSelf().setSon(this.getSelf());
+                if (containerFather != null) {
+                    containerFather.setSon(father);
+                    father.setFather(containerFather);
+                    containerFather.getSelf().setSon(father.getSelf());
+                } else {
+                    setFirst(father.getSelf());
+                    getLine().setFirst(father.getSelf());
+                }
+            }
+
+            public void linkTo(Container container, boolean after) {
+                if (container != null) {
+                    if (after) {
+                        setSonRelation(container);
+                    } else {
+                        setFatherRelation(container);
+                    }
+                }
+            }
+
+            private Container removeFromLine() {
+                Container father = this.getFather();
+                Container son = this.getSon();
+                if (father != null && son != null) {
+                    father.setSon(son);
+                    son.setFather(father);
+                    father.getSelf().setSon(son.getSelf());
+                } else if (father != null) {
+                    father.getSelf().setSon(null);
+                    father.setSon(null);
+                    setLast(father.getSelf());
+                } else if (son != null) {
+                    son.setFather(null);
+                    setFirst(son.getSelf());
+                } else {
+                    setFirst(null);
+                    setLast(null);
+                }
+                this.getSelf().setSon(null);
+                this.setSon(null);
+                this.setFather(null);
+                return this;
+            }
+
+            public void calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
+                if(this.getFather()==null){
+                    this.getSelf().setIndexOrder(1);
+                }else {
+                    this.getSelf().setIndexOrder(getFather().getSelf().getIndexOrder()+1);
+                }
+                if(wrapper.getBitSet().isEmpty()){
+                    if(this.getSelf().getStartDate()==null){
+                        this.getSelf().setStartDate(new Date());
+                    }
+                    Calendar calendar=Calendar.getInstance();
+                    calendar.setTime(this.getSelf().getStartDate());
+                    calendar.add(Calendar.MINUTE,this.getSelf().getDurationTime());
+                    this.getSelf().setEndDate(calendar.getTime());
+                    Container next = getSon();
+                    if (next != null) {
+                        next.getSelf().setStartDate(self.getEndDate());
+                        next.calcDate(wrapper);
+                    }
+                }else {
+                    if (self.getStartDate() == null) {
+                        Calendar calendar = wrapper.getFromStart(wrapper.getBitSet().nextSetBit(0));
+                        this.getSelf().setStartDate(getStandardTime() == null ? calendar.getTime() : getStandardTime());
+                    }
+                    int startAvailable = wrapper.getStartAvailable(self.getStartDate());
+                    int endRange = wrapper.getEndRange(startAvailable, self.getDurationTime());
+                    Calendar calendar = wrapper.getFromStart(startAvailable + endRange);
+                    self.setEndDate(calendar.getTime());
+                    Container next = getSon();
+                    if (next != null) {
+                        next.getSelf().setStartDate(self.getEndDate());
+                        next.calcDate(wrapper);
+                    }
+                }
+            }
+
+            private Container(Container father, Container son, ScheduleTask self) {
+                this.setFather(father);
+                this.setSon(son);
+                if (father != null) {
+                    father.setSon(this);
+                }
+                if (son != null) {
+                    son.setFather(this);
+                }
+                this.self = self;
+            }
+
+        }
+
+    }
+
 
     public Equipment getEquipment() {
         return equipment;
@@ -62,22 +261,21 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
     //设置队列的开始时间
     public void updateScheduleDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
-        ScheduleTask task=getFirst();
+        ScheduleTask task = getFirst();
         task.setStartDate(this.getStandardTime() == null ? Calendar.getInstance().getTime() : this.getStandardTime());
-        int i=1;
-        while (task!=null){
+        int i = 0;
+        while (task != null) {
             task.calcDate(wrapper);
-            task.setIndexOrder(i);
-            task=task.getSon();
-            i++;
+            task.setIndexOrder(++i);
+            task = task.getSon();
         }
     }
 
     public void addFirst(ScheduleTask t) {
         if (getFirst() == null) {
-             setLast(t);
+            setLast(t);
         } else {
-            ScheduleTask.setFatherSonRelation(t,getFirst());
+            ScheduleTask.setFatherSonRelation(t, getFirst());
         }
         setFirst(t);
     }
@@ -111,7 +309,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 //            ScheduleTask.setFatherSonRelation(to, lineStart);
 //            ScheduleTask.setFatherSonRelation(lineEnd, toSon);
 //        }
-//        first.scheduleDate();
+//        containerFirst.scheduleDate();
 //    }
 
 
@@ -136,8 +334,13 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 //                inside = inside.getFather();
 //            }
 //        } else {
-//            first = task;
+//            containerFirst = task;
 //        }
 //    }
 
+
+    @Override
+    public String toString() {
+        return super.toString();
+    }
 }

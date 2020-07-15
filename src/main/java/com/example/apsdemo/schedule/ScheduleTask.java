@@ -20,12 +20,12 @@ public class ScheduleTask extends ScheduleTaskData {
         this.setDurationTime(durationTime);
     }
 
-    @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class,fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
-    private ScheduleTask father;
+//    @JsonIgnore
+//    @OneToOne(targetEntity = ScheduleTask.class,fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+//    private ScheduleTask father;
 
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class,fetch = FetchType.LAZY,mappedBy = "father",cascade = CascadeType.MERGE)
+    @OneToOne(targetEntity = ScheduleTask.class,fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
     private ScheduleTask son;
 
     @JsonIgnore
@@ -35,13 +35,13 @@ public class ScheduleTask extends ScheduleTaskData {
     @OneToOne(targetEntity = ScheduleTestItem.class,cascade = CascadeType.ALL)
     private ScheduleTestItem scheduleTestItem;
 
-    public ScheduleTask getFather() {
-        return father;
-    }
-
-    public void setFather(ScheduleTask father) {
-        this.father = father;
-    }
+//    public ScheduleTask getFather() {
+//        return father;
+//    }
+//
+//    public void setFather(ScheduleTask father) {
+//        this.father = father;
+//    }
 
     public ScheduleTaskLine getScheduleTaskLine() {
         return scheduleTaskLine;
@@ -61,7 +61,7 @@ public class ScheduleTask extends ScheduleTaskData {
 
     public static void setFatherSonRelation(ScheduleTask father, ScheduleTask son) {
         father.setSon(son);
-        son.setFather(father);
+//        son.setFather(father);
     }
 
     public ScheduleTask getSon() {

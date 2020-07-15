@@ -9,4 +9,5 @@ import java.util.List;
 public class TestItemChangeEquipment {
    private List<Long> ids;
    private String equipmentID;
+   private String belongEquipmentID;
 }
