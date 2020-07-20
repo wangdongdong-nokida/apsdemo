@@ -188,7 +188,8 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                 }else {
                     this.getSelf().setIndexOrder(getFather().getSelf().getIndexOrder()+1);
                 }
-                if(wrapper.getBitSet().isEmpty()){
+
+                if(wrapper.getBitSet()==null){
                     if(this.getSelf().getStartDate()==null){
                         this.getSelf().setStartDate(new Date());
                     }

@@ -14,7 +14,9 @@ public class EquipmentCalendarBitSet {
     public final Map<String, BitSetWrapper> bitSetWrapperMap = new HashMap<>();
 
     public BitSetWrapper initialize(Calendar start, Calendar end, Equipment equipment) {
-        return bitSetWrapperMap.put(equipment.getID(),new BitSetWrapper(start, end, equipment));
+        BitSetWrapper wrapper = new BitSetWrapper(start, end, equipment);
+        bitSetWrapperMap.put(equipment.getID(), wrapper);
+        return wrapper;
     }
 
     public class BitSetWrapper {
@@ -26,9 +28,9 @@ public class EquipmentCalendarBitSet {
             initialize(start, end, equipment);
         }
 
-        public Calendar getFromStart(int range){
-            Calendar indexStart=getCalendar(start.getTime());
-            indexStart.add(Calendar.MINUTE,range);
+        public Calendar getFromStart(int range) {
+            Calendar indexStart = getCalendar(start.getTime());
+            indexStart.add(Calendar.MINUTE, range);
             return indexStart;
         }
 
