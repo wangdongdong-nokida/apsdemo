@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 
+import javax.swing.text.html.Option;
 import java.util.*;
 
 @RestController
@@ -19,13 +20,25 @@ public class EquipmentController {
     EquipmentService service;
 
     @RequestMapping(path = "/getAllByParams")
-    public Result getEquipment(@RequestBody Map<String,Object> requestPage) {
-        return Tools.getResult(requestPage,service);
+    public Result getEquipment(@RequestBody Map<String, Object> requestPage) {
+        return Tools.getResult(requestPage, service);
     }
 
     @GetMapping(path = "/getByUser")
-    public List<Equipment> getByUser(){
-       return service.findAll();
+    public List<Equipment> getByUser() {
+        return service.findAll();
+    }
+
+    @GetMapping(path = "/getEndDate")
+    public Date getEndDate(String id) {
+        Date date = new Date();
+        if (id!=null) {
+            Optional<Equipment> equipmentOption = service.findById(id);
+            if (equipmentOption.isPresent() && equipmentOption.get().getScheduleTaskLine() != null) {
+                return equipmentOption.get().getScheduleTaskLine().getLastTime();
+            }
+        }
+        return date;
     }
 
 }

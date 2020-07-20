@@ -49,7 +49,7 @@ public class Tools {
             public Predicate toPredicate(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicateList = new LinkedList<>();
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    if(entry.getValue()==null||"".equals(entry.getValue())){
+                    if (entry.getValue() == null || "".equals(entry.getValue())) {
                         continue;
                     }
                     Path path = root;
@@ -57,7 +57,7 @@ public class Tools {
                         String[] level = entry.getKey().split("-");
                         for (String key : level) {
                             try {
-                                Path inside = path.get(key);
+                                Path inside = path.get(key.replace("!",""));
                                 path = inside;
                             } catch (Exception e) {
 
@@ -65,14 +65,18 @@ public class Tools {
                         }
                     } else {
                         try {
-                            Path inside = path.get(entry.getKey());
+                            Path inside = path.get(entry.getKey().replace("!",""));
                             path = inside;
                         } catch (Exception e) {
 
                         }
                     }
                     if (!(path instanceof Root)) {
-                        predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
+                        if (entry.getKey().contains("!")) {
+                            predicateList.add(criteriaBuilder.notEqual(path, entry.getValue()));
+                        } else {
+                            predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
+                        }
                     }
                 }
                 return criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()]));
@@ -81,11 +85,11 @@ public class Tools {
     }
 
 
-    public static Pageable getPageableByPagination(int current, int pageSize,String orderBy) {
+    public static Pageable getPageableByPagination(int current, int pageSize, String orderBy) {
         if (current <= 0 || pageSize <= 0) {
             return null;
         }
-        return PageRequest.of(current - 1, pageSize, Sort.by(Sort.Direction.ASC, orderBy==null?"ID":orderBy));
+        return PageRequest.of(current - 1, pageSize, Sort.by(Sort.Direction.ASC, orderBy == null ? "ID" : orderBy));
     }
 
 
@@ -96,7 +100,7 @@ public class Tools {
         Result result = new Result(current, pageSize);
         Map<String, Object> params = requestPage.get("params") != null ? (Map<String, Object>) requestPage.get("params") : new HashMap<>();
         Specification specification = Tools.getSpecificationByParams(params);
-        Pageable pageable = Tools.getPageableByPagination(current, pageSize,orderBy);
+        Pageable pageable = Tools.getPageableByPagination(current, pageSize, orderBy);
 
         if (pageable == null) {
             List list = service.findAll(specification);

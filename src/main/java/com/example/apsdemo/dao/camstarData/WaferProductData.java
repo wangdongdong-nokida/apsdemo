@@ -17,4 +17,7 @@ public class WaferProductData {
     protected String designer;
     @Column(name = "SL")
     protected Integer quantity;
+    @Column(name = "PRODUCTID")
+    protected String product;
+
 }

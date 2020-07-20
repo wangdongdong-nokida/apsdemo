@@ -257,6 +257,9 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
     public void setLast(ScheduleTask last) {
         this.last = last;
+        if(last!=null){
+            this.setLastTime(last.getEndDate());
+        }
     }
 
     //设置队列的开始时间

@@ -68,48 +68,58 @@ public class TestItemController {
         int forecastSize = requestPage.getForecast().length;
         int screenSize = requestPage.getScreen().length;
         int assessmentSize = requestPage.getAssessment().length;
-
-        for (TestItemCreateParams.Product product : requestPage.getProduct()) {
-            if (requestPage.getSliceNum() > 0) {
-                int productWaferSize = requestPage.getProduct().size();
-                Random random=new Random();
-                for (int i = 0; i < requestPage.getSliceNum(); i++) {
-                    TestScribingCenter center = new TestScribingCenter();
-                    testScribingCenterService.save(center);
-                    createItemByParams(requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), random.nextInt(10000000)+"", center);
-                }
-            } else {
-                for (WaferWarehouse waferWarehouse : waferWarehouseList) {
-                    TestScribingCenter center = waferWarehouse.getTestScribingCenter();
-                    if (center == null) {
-                        center = new TestScribingCenter();
-                        center.setWaferWarehouse(waferWarehouse);
+        if (!requestPage.isTestContainer()) {
+            for (TestItemCreateParams.Product product : requestPage.getProduct()) {
+                if (requestPage.getSliceNum() > 0) {
+                    int productWaferSize = requestPage.getProduct().size();
+                    Random random = new Random();
+                    for (int i = 0; i < requestPage.getSliceNum(); i++) {
+                        TestScribingCenter center = new TestScribingCenter();
                         testScribingCenterService.save(center);
+                        createItemByParams(requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), random.nextInt(100000000) + "", center, product);
                     }
-                    int productWaferSize = requestPage.getProduct().size() * waferWarehouseList.size();
-                    createItemByParams(requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), waferWarehouse.getSliceNr(), center);
+                } else {
+                    for (WaferWarehouse waferWarehouse : waferWarehouseList) {
+                        TestScribingCenter center = waferWarehouse.getTestScribingCenter();
+                        if (center == null) {
+                            center = new TestScribingCenter();
+                            center.setWaferWarehouse(waferWarehouse);
+                            waferWarehouse.setTestScribingCenter(center);
+                            testScribingCenterService.save(center);
+                        }
+                        int productWaferSize = requestPage.getProduct().size() * waferWarehouseList.size();
+                        createItemByParams(requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), waferWarehouse.getSliceNr(), center, product);
+                    }
                 }
+            }
+        } else {
+            String[] testSymbol = requestPage.getTestSymbol().split(";");
+            for (String symbol : testSymbol) {
+                TestScribingCenter center = new TestScribingCenter();
+                testScribingCenterService.save(center);
+                createItemByParams(requestPage, line, testSymbol.length, forecastSize, screenSize, assessmentSize, requestPage.getModelNr(), symbol, center, new TestItemCreateParams.Product());
             }
         }
         updateScheduleLineDate(equipment);
         scheduleTaskLineService.save(line);
     }
 
-    public void createItemByParams(TestItemCreateParams requestPage, ScheduleTaskLine line, int productWaferSize, int forecastSize, int screenSize, int assessmentSize, String product, String sliceNr, TestScribingCenter center) {
+
+    public void createItemByParams(TestItemCreateParams requestPage, ScheduleTaskLine line, int productWaferSize, int forecastSize, int screenSize, int assessmentSize, String modelNr, String sliceNr, TestScribingCenter center, TestItemCreateParams.Product product) {
         for (String forecast : requestPage.getForecast()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, product, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)));
+            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
         }
         for (String screen : requestPage.getScreen()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, product, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)));
+            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
         }
         for (String screen : requestPage.getAssessment()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, product, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getScreenHours() * 60) / (assessmentSize * productWaferSize)));
+            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getScreenHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
@@ -123,15 +133,20 @@ public class TestItemController {
         scheduleLine.calcScheduleLineDate(wrapper);
     }
 
-    private synchronized EquipmentCalendarBitSet.BitSetWrapper getBitSetWrapper(Equipment equipment) {
-        EquipmentCalendarBitSet.BitSetWrapper wrapper = equipmentCalendarBitSet.bitSetWrapperMap.get(equipment.getID());
-        if (wrapper == null) {
-            Calendar start = Calendar.getInstance();
-            Calendar end = Calendar.getInstance();
-            end.add(Calendar.YEAR, 1);
-            wrapper = equipmentCalendarBitSet.initialize(start, end, equipment);
+    @SneakyThrows
+    @RequestMapping("/updateCalendar")
+    public void updateCalendar() {
+        List<Equipment> equipments = equipmentService.findAll();
+        for (Equipment equipment : equipments) {
+            getBitSetWrapper(equipment);
         }
-        return wrapper;
+    }
+
+    private synchronized EquipmentCalendarBitSet.BitSetWrapper getBitSetWrapper(Equipment equipment) {
+        Calendar start = Calendar.getInstance();
+        Calendar end = Calendar.getInstance();
+        end.add(Calendar.YEAR, 2);
+        return equipmentCalendarBitSet.initialize(start, end, equipment);
     }
 
     @NotNull
@@ -179,10 +194,10 @@ public class TestItemController {
         }
         Optional<ScheduleTask> optional = scheduleTaskService.findById(Long.valueOf(map.get("ID")));
         optional.ifPresent(scheduleTask -> scheduleTask.setDurationTime(Integer.parseInt(map.get("durationTime"))));
-        if(optional.isPresent()){
-            ScheduleTask task=optional.get();
-            if(task.getScheduleTaskLine()!=null){
-                ScheduleTaskLine line=task.getScheduleTaskLine();
+        if (optional.isPresent()) {
+            ScheduleTask task = optional.get();
+            if (task.getScheduleTaskLine() != null) {
+                ScheduleTaskLine line = task.getScheduleTaskLine();
                 line.getScheduleLine().calcScheduleLineDate(getBitSetWrapper(line.getEquipment()));
             }
         }

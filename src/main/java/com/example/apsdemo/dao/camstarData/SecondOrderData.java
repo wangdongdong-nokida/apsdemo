@@ -30,18 +30,16 @@ public class SecondOrderData {
     protected String brief;
     @Column(name = "CETQTS")
     protected String testPlanDelay;
-    @Column(name = "CPLX")
-    protected String productType;
     @Column(name = "CSJHWCRQ")
     protected Date testPlanFinishedDate;
     @Column(name = "CSJSSJ")
     protected Date testEndDate;
     @Column(name = "CSKSSJ")
-    protected Time testStartDate;
+    protected Date testStartDate;
     @Column(name = "CSMARK")
     protected String testBrief;
     @Column(name = "DDSL")
-    protected Integer quantity;
+    protected String quantity;
 //    @Column(name = "DLID")
 //    protected String circuitId;
 //    @Column(name = "GXRID")
@@ -52,7 +50,7 @@ public class SecondOrderData {
     @Column(name = "HPJHWCRQ")
     protected Date scribingPlanFinishDate;
     @Column(name = "HPJSSJ")
-    protected Time scribingEndDate;
+    protected Date scribingEndDate;
     @Column(name = "HPKSSJ")
     protected Time scribingStartDate;
     @Column(name = "HPMARK")

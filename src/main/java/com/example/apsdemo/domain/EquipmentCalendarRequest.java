@@ -8,6 +8,6 @@ import lombok.Setter;
 @Setter
 public class EquipmentCalendarRequest extends RequestPage{
 
-    private Long equipmentId;
+    private String equipmentId;
 
 }

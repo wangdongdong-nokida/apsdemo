@@ -25,6 +25,15 @@ public class SecondOrderController {
 
     @RequestMapping(path = "/findSecondOrders")
     public Result findByParams(@RequestBody Map<String,Object> requestPage) {
+        Object testContainer=requestPage.get("testContainer");
+        if(requestPage.get("params")==null){
+            requestPage.put("params",new HashMap<>());
+        }
+        if(testContainer==null){
+            ((Map)requestPage.get("params")).put("!productType-name","载体");
+        }else {
+            ((Map)requestPage.get("params")).put("productType-name","载体");
+        }
        return Tools.getResult(requestPage,service);
     }
 }

@@ -16,7 +16,7 @@ public class ScheduleTestItemData extends DataBase {
     private String circuitNr;
     private String testType;
     private String testParameter;
-    private String  quantity;
+    private int  quantity;
     private String itemBrief;
     private String testBrief;
     private String arrivalProgress;

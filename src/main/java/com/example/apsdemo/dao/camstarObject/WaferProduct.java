@@ -26,21 +26,21 @@ import java.util.Map;
 @Table(name = "L_XH", catalog = "")
 public class WaferProduct extends WaferProductData {
 
-    @ManyToOne(targetEntity = Product.class)
-    @JoinColumn(name = "PRODUCTID")
-    private Product product;
+//    @ManyToOne(targetEntity = Product.class)
+//    @JoinColumn(name = "PRODUCTID")
+//    private Product product;
 
     @ManyToOne(targetEntity = Wafer.class)
     @JoinColumn(name = "L_BHID")
     private Wafer wafer;
 
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
+//    public Product getProduct() {
+//        return product;
+//    }
+//
+//    public void setProduct(Product product) {
+//        this.product = product;
+//    }
 
     public Wafer getWafer() {
         return wafer;

@@ -13,13 +13,11 @@ public class EquipmentCalendarBitSet {
 
     public final Map<String, BitSetWrapper> bitSetWrapperMap = new HashMap<>();
 
-
     public BitSetWrapper initialize(Calendar start, Calendar end, Equipment equipment) {
-        return bitSetWrapperMap.computeIfAbsent(equipment.getID(), k -> new BitSetWrapper(start, end, equipment));
+        return bitSetWrapperMap.put(equipment.getID(),new BitSetWrapper(start, end, equipment));
     }
 
     public class BitSetWrapper {
-
         private BitSet bitSet;
         private Calendar start;
         private Calendar end;

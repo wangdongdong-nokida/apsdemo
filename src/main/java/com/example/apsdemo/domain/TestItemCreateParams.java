@@ -11,7 +11,7 @@ public class TestItemCreateParams {
 
     private String equipmentId = "";
     private int sliceNum = 0;
-    private String waferNr;
+    private String waferNr="";
     private String[] forecast = new String[]{};
     private String[] screen = new String[]{};
     private String[] assessment = new String[]{};
@@ -23,13 +23,20 @@ public class TestItemCreateParams {
     private List<Product> product = new LinkedList<>();
     private List<String> stock = new LinkedList<>();
 
+    private String testSymbol="";
+    private boolean testContainer;
+    private String modelNr;
+
 
     @Data
-    public class Product {
+    public static class Product {
         String modelNr;
         int forecastQuantity;
         int screenQuantity;
         int assessmentQuantity;
+        int forecast;
+        int screen;
+        int assessment;
     }
 
 }
