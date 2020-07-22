@@ -31,6 +31,7 @@ public class TestItemCreateParams {
     @Data
     public static class Product {
         String modelNr;
+        String circuitNr;
         int forecastQuantity;
         int screenQuantity;
         int assessmentQuantity;

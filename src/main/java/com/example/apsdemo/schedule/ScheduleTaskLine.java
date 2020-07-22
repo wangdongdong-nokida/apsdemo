@@ -5,12 +5,12 @@ import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
-import org.jetbrains.annotations.NotNull;
 
 import javax.persistence.*;
 import java.util.*;
 
 @Entity
+@Table(name = "A_ScheduleTaskLine")
 public class ScheduleTaskLine extends ScheduleTaskLineData {
 
     @JsonIgnore
@@ -51,12 +51,17 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
         public ScheduleTask deleteFromLine(long id) {
             Container container = removeFromLine(id);
-            return container.getSelf();
+            if (container != null) {
+                return container.getSelf();
+            }
+            return null;
         }
 
-        @NotNull
         private ScheduleTaskLine.ScheduleLine.Container removeFromLine(long id) {
             Container container = scheduleTaskMap.get(id);
+            if (container == null) {
+                return null;
+            }
             return container.removeFromLine();
         }
 
@@ -76,12 +81,13 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             ScheduleTask task = getFirst();
             this.setContainerFirst(null);
             this.setContainerLast(null);
-            while (task != null){
+            while (task != null) {
                 addLast(task);
                 task = task.getSon();
             }
         }
 
+//        从数据库中获取的排产队列，转换为内存模型
         public void addLast(ScheduleTask task) {
             task.setScheduleTaskLine(this.getLine());
             Container last = new Container(getContainerLast(), null, task);
@@ -94,6 +100,23 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             scheduleTaskMap.put(task.getID(), last);
         }
 
+
+        public void addLastAndQueen(ScheduleTask task) {
+
+            ScheduleTaskLine line=this.getLine();
+            task.setScheduleTaskLine(line);
+            Container last = new Container(getContainerLast(), null, task);
+            if (getContainerLast() == null) {
+                setContainerFirst(last);
+                this.getLine().setFirst(task);
+            }
+            setContainerLast(last);
+            line.addLast(task);
+            scheduleTaskMap.put(task.getID(), last);
+        }
+
+
+//        todo:逻辑需要补充
         public void addFirst(ScheduleTask task) {
             Container last = new Container(null, getContainerFirst(), task);
             if (getContainerFirst() == null) {
@@ -183,26 +206,26 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             }
 
             public void calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
-                if(this.getFather()==null){
+                if (this.getFather() == null) {
                     this.getSelf().setIndexOrder(1);
-                }else {
-                    this.getSelf().setIndexOrder(getFather().getSelf().getIndexOrder()+1);
+                } else {
+                    this.getSelf().setIndexOrder(getFather().getSelf().getIndexOrder() + 1);
                 }
 
-                if(wrapper.getBitSet()==null){
-                    if(this.getSelf().getStartDate()==null){
+                if (wrapper.getBitSet().isEmpty()) {
+                    if (this.getSelf().getStartDate() == null) {
                         this.getSelf().setStartDate(new Date());
                     }
-                    Calendar calendar=Calendar.getInstance();
+                    Calendar calendar = Calendar.getInstance();
                     calendar.setTime(this.getSelf().getStartDate());
-                    calendar.add(Calendar.MINUTE,this.getSelf().getDurationTime());
+                    calendar.add(Calendar.MINUTE, this.getSelf().getDurationTime());
                     this.getSelf().setEndDate(calendar.getTime());
                     Container next = getSon();
                     if (next != null) {
                         next.getSelf().setStartDate(self.getEndDate());
                         next.calcDate(wrapper);
                     }
-                }else {
+                } else {
                     if (self.getStartDate() == null) {
                         Calendar calendar = wrapper.getFromStart(wrapper.getBitSet().nextSetBit(0));
                         this.getSelf().setStartDate(getStandardTime() == null ? calendar.getTime() : getStandardTime());
@@ -258,22 +281,22 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
     public void setLast(ScheduleTask last) {
         this.last = last;
-        if(last!=null){
+        if (last != null) {
             this.setLastTime(last.getEndDate());
         }
     }
 
     //设置队列的开始时间
-    public void updateScheduleDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
-        ScheduleTask task = getFirst();
-        task.setStartDate(this.getStandardTime() == null ? Calendar.getInstance().getTime() : this.getStandardTime());
-        int i = 0;
-        while (task != null) {
-            task.calcDate(wrapper);
-            task.setIndexOrder(++i);
-            task = task.getSon();
-        }
-    }
+//    public void updateScheduleDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
+//        ScheduleTask task = getFirst();
+//        task.setStartDate(this.getStandardTime() == null ? Calendar.getInstance().getTime() : this.getStandardTime());
+//        int i = 0;
+//        while (task != null) {
+//            task.calcDate(wrapper);
+//            task.setIndexOrder(++i);
+//            task = task.getSon();
+//        }
+//    }
 
     public void addFirst(ScheduleTask t) {
         if (getFirst() == null) {

@@ -9,7 +9,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "scheduleTestItem")
+@Table(name = "A_scheduleTestItem")
 public class ScheduleTestItem extends ScheduleTestItemData {
     @JsonIgnore
     @ManyToOne(targetEntity = TestScribingCenter.class,fetch = FetchType.LAZY)
@@ -41,7 +41,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         this.testScribingCenter = testScribingCenter;
     }
 
-    public ScheduleTestItem(ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime,int quantity){
+    public ScheduleTestItem(ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime,int quantity,String circuitNr){
         this.setWaferNr(waferNr);
         this.setScheduleTask(new ScheduleTask(line,this,durationTime));
         this.setTestScribingCenter(center);
@@ -50,6 +50,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         this.setTestParameter(screen);
         this.setTestType(testType);
         this.setQuantity(quantity);
+        this.setCircuitNr(circuitNr);
     }
 
 }

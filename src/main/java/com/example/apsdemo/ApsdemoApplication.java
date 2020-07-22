@@ -10,8 +10,6 @@ public class ApsdemoApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ApsdemoApplication.class, args);
-
-
     }
 
 }

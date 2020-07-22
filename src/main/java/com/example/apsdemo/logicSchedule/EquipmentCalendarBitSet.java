@@ -49,7 +49,7 @@ public class EquipmentCalendarBitSet {
             int lastSet = bitSet.nextClearBit(index) - 1;
             boolean result = lastSet - index >= range;
             if (result) {
-                return index + range - original;
+                return range;
             }
             while (true) {
                 range = range + index - lastSet;
@@ -65,7 +65,7 @@ public class EquipmentCalendarBitSet {
             long dateTime = date.getTime();
             long startMills = start.getTimeInMillis();
             int minusRange = (int) ((dateTime - startMills) / (60 * 1000));
-            return bitSet.nextSetBit(minusRange);
+            return bitSet.nextSetBit(minusRange<0?0:minusRange);
         }
 
         public BitSet getBitSet() {

@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.util.Calendar;
 
 @Entity
+@Table(name = "A_ScheduleTask")
 public class ScheduleTask extends ScheduleTaskData {
 
     public ScheduleTask() {

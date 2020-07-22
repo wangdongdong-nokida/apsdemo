@@ -107,19 +107,19 @@ public class TestItemController {
 
     public void createItemByParams(TestItemCreateParams requestPage, ScheduleTaskLine line, int productWaferSize, int forecastSize, int screenSize, int assessmentSize, String modelNr, String sliceNr, TestScribingCenter center, TestItemCreateParams.Product product) {
         for (String forecast : requestPage.getForecast()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast());
+            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(),product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
         }
         for (String screen : requestPage.getScreen()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen());
+            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(),product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
         }
         for (String screen : requestPage.getAssessment()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getScreenHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment());
+            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getScreenHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(),product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
@@ -146,6 +146,15 @@ public class TestItemController {
         Calendar start = Calendar.getInstance();
         Calendar end = Calendar.getInstance();
         end.add(Calendar.YEAR, 2);
+        ScheduleTaskLine line=getScheduleTaskLine(equipment);
+        Date standardTime=line.getStandardTime();
+        if((line.getFirst()!=null&&line.getFirst().getStartDate()!=null)){
+            if(standardTime!=null){
+                start.setTime(standardTime.before(line.getFirst().getStartDate())?standardTime:line.getFirst().getStartDate());
+            }else {
+                start.setTime(line.getFirst().getStartDate());
+            }
+        }
         return equipmentCalendarBitSet.initialize(start, end, equipment);
     }
 
@@ -224,14 +233,12 @@ public class TestItemController {
         for (Long id : params.getIds()) {
             ScheduleTask task = fromScheduleLine.deleteFromLine(id);
             if (task != null) {
-                toScheduleLine.addLast(task);
+                toScheduleLine.addLastAndQueen(task);
             }
         }
         fromScheduleLine.calcScheduleLineDate(getBitSetWrapper(from.get()));
         toScheduleLine.calcScheduleLineDate(getBitSetWrapper(to.get()));
     }
-
-    public static ScheduleTaskLine line;
 
     @SneakyThrows
     @RequestMapping(path = "/testItemDelete")
@@ -245,7 +252,9 @@ public class TestItemController {
         ScheduleTaskLine.ScheduleLine scheduleLine = line.getScheduleLine();
         for (String id : params.get("ids")) {
             ScheduleTask task = scheduleLine.deleteFromLine(Long.valueOf(id));
-            scheduleTaskService.delete(task);
+            if(task!=null){
+                scheduleTaskService.delete(task);
+            }
         }
         scheduleLine.calcScheduleLineDate(getBitSetWrapper(equipmentOptional.get()));
     }

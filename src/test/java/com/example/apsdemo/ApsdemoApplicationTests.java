@@ -1,19 +1,19 @@
 package com.example.apsdemo;
 
-import com.example.apsdemo.dao.businessObject.TestScribingCenter;
-import com.example.apsdemo.dao.camstarObject.*;
-import com.example.apsdemo.dao.mapper.*;
-import com.example.apsdemo.service.TestScribingCenterService;
-import com.example.apsdemo.schedule.ScheduleTask;
-import com.example.apsdemo.schedule.ScheduleTaskLine;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.util.*;
-
 @SpringBootTest
 class ApsdemoApplicationTests {
+
+    @Autowired
+    TestController controller;
+
+    @Test
+    public void test() {
+        controller.calcChangeName("yjh");
+    }
 
 //    @Autowired
 //    TestScheduleQueueMapper mapper;
