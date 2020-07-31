@@ -35,10 +35,10 @@ public class EquipmentController {
         if (id!=null) {
             Optional<Equipment> equipmentOption = service.findById(id);
             if (equipmentOption.isPresent() && equipmentOption.get().getScheduleTaskLine() != null) {
-                return equipmentOption.get().getScheduleTaskLine().getLastTime();
+                Date lastTime=equipmentOption.get().getScheduleTaskLine().getLastTime();
+                return lastTime==null?date:lastTime;
             }
         }
         return date;
     }
-
 }

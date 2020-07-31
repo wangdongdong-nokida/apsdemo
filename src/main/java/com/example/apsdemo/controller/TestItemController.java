@@ -3,13 +3,11 @@ package com.example.apsdemo.controller;
 import com.example.apsdemo.dao.businessObject.ScheduleTestItem;
 import com.example.apsdemo.dao.businessObject.TestScribingCenter;
 import com.example.apsdemo.dao.camstarObject.Equipment;
+import com.example.apsdemo.dao.camstarObject.SecondOrder;
 import com.example.apsdemo.dao.camstarObject.WaferWarehouse;
-import com.example.apsdemo.domain.Result;
-import com.example.apsdemo.domain.TestItemChangeEquipment;
-import com.example.apsdemo.domain.TestItemCreateParams;
-import com.example.apsdemo.domain.TestMoveTaskParams;
+import com.example.apsdemo.domain.*;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
-import com.example.apsdemo.schedule.ScheduleTask;
+import com.example.apsdemo.dao.businessObject.ScheduleTask;
 import com.example.apsdemo.schedule.ScheduleTaskLine;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.beans.Transient;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -30,7 +27,7 @@ import java.util.*;
 @RequestMapping(path = "/testItem")
 public class TestItemController {
 
-    public static final String TestType = "测试";
+    public static final String TestType = "预测";
     public static final String ScreenType = "筛选";
     public static final String AssessmentType = "考核";
 
@@ -48,10 +45,15 @@ public class TestItemController {
     ScheduleTaskService scheduleTaskService;
     @Autowired
     EquipmentCalendarBitSet equipmentCalendarBitSet;
+    @Autowired
+    SecondOrderService secondOrderService;
+
+    @Autowired
+    ScheduleMethod scheduleMethod;
 
     @SneakyThrows
     @RequestMapping(path = "/create")
-    public void createTestItem(@RequestBody TestItemCreateParams requestPage) {
+    public synchronized void createTestItem(@RequestBody TestItemCreateParams requestPage) {
         createItem(requestPage);
     }
 
@@ -62,75 +64,72 @@ public class TestItemController {
         if (!equipmentOptional.isPresent()) {
             throw new Exception("没有找到设备ID：" + requestPage.getEquipmentId());
         }
+        Optional<SecondOrder> secondOrders = secondOrderService.findById(requestPage.getSecondOrder());
+        SecondOrder order= secondOrders.orElse(null);
         Equipment equipment = equipmentOptional.get();
-        ScheduleTaskLine line = getScheduleTaskLine(equipment);
+        ScheduleTaskLine line = scheduleMethod.getScheduleTaskLine(equipment);
         List<WaferWarehouse> waferWarehouseList = waferWarehouseService.findAll(requestPage.getStock());
         int forecastSize = requestPage.getForecast().length;
         int screenSize = requestPage.getScreen().length;
         int assessmentSize = requestPage.getAssessment().length;
         if (!requestPage.isTestContainer()) {
-            for (TestItemCreateParams.Product product : requestPage.getProduct()) {
-                if (requestPage.getSliceNum() > 0) {
-                    int productWaferSize = requestPage.getProduct().size();
-                    Random random = new Random();
-                    for (int i = 0; i < requestPage.getSliceNum(); i++) {
-                        TestScribingCenter center = new TestScribingCenter();
-                        testScribingCenterService.save(center);
-                        createItemByParams(requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), random.nextInt(100000000) + "", center, product);
+            if (requestPage.getSliceNum() > 0) {
+                int productWaferSize = requestPage.getProduct().size();
+                Random random = new Random();
+                String sliceNr = "无片_" + random.nextInt(100000000) + "";
+                for (int i = 0; i < requestPage.getSliceNum(); i++) {
+                    TestScribingCenter center = new TestScribingCenter(sliceNr, requestPage.getWaferNr());
+                    testScribingCenterService.save(center);
+                    for (TestItemCreateParams.Product product : requestPage.getProduct()) {
+                        createItemByParams(order, requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), sliceNr, center, product);
                     }
-                } else {
-                    for (WaferWarehouse waferWarehouse : waferWarehouseList) {
-                        TestScribingCenter center = waferWarehouse.getTestScribingCenter();
-                        if (center == null) {
-                            center = new TestScribingCenter();
-                            center.setWaferWarehouse(waferWarehouse);
-                            waferWarehouse.setTestScribingCenter(center);
-                            testScribingCenterService.save(center);
-                        }
-                        int productWaferSize = requestPage.getProduct().size() * waferWarehouseList.size();
-                        createItemByParams(requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), waferWarehouse.getSliceNr(), center, product);
+                }
+            } else {
+                for (WaferWarehouse waferWarehouse : waferWarehouseList) {
+                    TestScribingCenter center = waferWarehouse.getTestScribingCenter();
+                    if (center == null) {
+                        center = new TestScribingCenter(waferWarehouse.getSliceNr(), waferWarehouse.getWaferNr());
+                        center.setWaferWarehouse(waferWarehouse);
+                        testScribingCenterService.save(center);
+                    }
+                    int productWaferSize = requestPage.getProduct().size() * waferWarehouseList.size();
+                    for (TestItemCreateParams.Product product : requestPage.getProduct()) {
+                        createItemByParams(order, requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), waferWarehouse.getSliceNr(), center, product);
                     }
                 }
             }
         } else {
             String[] testSymbol = requestPage.getTestSymbol().split(";");
             for (String symbol : testSymbol) {
-                TestScribingCenter center = new TestScribingCenter();
+                TestScribingCenter center = new TestScribingCenter(symbol, requestPage.getWaferNr());
                 testScribingCenterService.save(center);
-                createItemByParams(requestPage, line, testSymbol.length, forecastSize, screenSize, assessmentSize, requestPage.getModelNr(), symbol, center, new TestItemCreateParams.Product());
+                createItemByParams(order,requestPage, line, testSymbol.length, forecastSize, screenSize, assessmentSize, requestPage.getModelNr(), symbol, center, new TestItemCreateParams.Product());
             }
         }
-        updateScheduleLineDate(equipment);
+        scheduleMethod.updateScheduleLineDate(equipment);
         scheduleTaskLineService.save(line);
     }
 
 
-    public void createItemByParams(TestItemCreateParams requestPage, ScheduleTaskLine line, int productWaferSize, int forecastSize, int screenSize, int assessmentSize, String modelNr, String sliceNr, TestScribingCenter center, TestItemCreateParams.Product product) {
+    public void createItemByParams(SecondOrder secondOrder, TestItemCreateParams requestPage, ScheduleTaskLine line, int productWaferSize, int forecastSize, int screenSize, int assessmentSize, String modelNr, String sliceNr, TestScribingCenter center, TestItemCreateParams.Product product) {
         for (String forecast : requestPage.getForecast()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(),product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
         }
         for (String screen : requestPage.getScreen()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(),product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
         }
         for (String screen : requestPage.getAssessment()) {
-            ScheduleTestItem item = new ScheduleTestItem(line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getScreenHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(),product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getAssessmentHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
         }
-    }
-
-    private synchronized void updateScheduleLineDate(Equipment equipment) {
-        ScheduleTaskLine line = equipment.getScheduleTaskLine();
-        EquipmentCalendarBitSet.BitSetWrapper wrapper = getBitSetWrapper(equipment);
-        ScheduleTaskLine.ScheduleLine scheduleLine = line.getScheduleLine();
-        scheduleLine.calcScheduleLineDate(wrapper);
     }
 
     @SneakyThrows
@@ -138,39 +137,9 @@ public class TestItemController {
     public void updateCalendar() {
         List<Equipment> equipments = equipmentService.findAll();
         for (Equipment equipment : equipments) {
-            getBitSetWrapper(equipment);
+            scheduleMethod.getBitSetWrapper(equipment);
         }
     }
-
-    private synchronized EquipmentCalendarBitSet.BitSetWrapper getBitSetWrapper(Equipment equipment) {
-        Calendar start = Calendar.getInstance();
-        Calendar end = Calendar.getInstance();
-        end.add(Calendar.YEAR, 2);
-        ScheduleTaskLine line=getScheduleTaskLine(equipment);
-        Date standardTime=line.getStandardTime();
-        if((line.getFirst()!=null&&line.getFirst().getStartDate()!=null)){
-            if(standardTime!=null){
-                start.setTime(standardTime.before(line.getFirst().getStartDate())?standardTime:line.getFirst().getStartDate());
-            }else {
-                start.setTime(line.getFirst().getStartDate());
-            }
-        }
-        return equipmentCalendarBitSet.initialize(start, end, equipment);
-    }
-
-    @NotNull
-    @Transient
-    private synchronized ScheduleTaskLine getScheduleTaskLine(Equipment equipment) {
-        ScheduleTaskLine line = equipment.getScheduleTaskLine();
-        if (line == null) {
-            line = new ScheduleTaskLine();
-            line.setEquipment(equipment);
-            equipment.setScheduleTaskLine(line);
-            scheduleTaskLineService.save(line);
-        }
-        return line;
-    }
-
 
     @RequestMapping(path = "/findAll")
     public Result test(@RequestBody Map<String, Object> map) {
@@ -184,30 +153,32 @@ public class TestItemController {
     @SneakyThrows
     @RequestMapping(path = "/editBrief")
     @Transactional
-    public void editBrief(@RequestBody Map<String, String> map) {
-        if (map.get("ID") == null) {
+    public void editBrief(@RequestBody EditBrief brief) {
+        if (brief.getIds() == null) {
             throw new Exception("没有选中测试明细！");
         }
-        Optional<ScheduleTask> optional = scheduleTaskService.findById(Long.valueOf(map.get("ID")));
-        if (optional.isPresent()) {
-            optional.get().getScheduleTestItem().setItemBrief(map.get("brief"));
+        List<ScheduleTask> tasks = scheduleTaskService.findAll(brief.getIds());
+        for (ScheduleTask task : tasks) {
+            task.getScheduleTestItem().setItemBrief(brief.getBrief());
         }
     }
 
     @SneakyThrows
     @RequestMapping(path = "/editDurationTime")
     @Transactional
-    public void editDurationTime(@RequestBody Map<String, String> map) {
-        if (map.get("ID") == null) {
+    public void editDurationTime(@RequestBody EditDurationTime durationTime) {
+        if (durationTime.getIds() == null) {
             throw new Exception("没有选中测试明细！");
         }
-        Optional<ScheduleTask> optional = scheduleTaskService.findById(Long.valueOf(map.get("ID")));
-        optional.ifPresent(scheduleTask -> scheduleTask.setDurationTime(Integer.parseInt(map.get("durationTime"))));
-        if (optional.isPresent()) {
-            ScheduleTask task = optional.get();
+        List<ScheduleTask> tasks = scheduleTaskService.findAll(durationTime.getIds());
+        for (ScheduleTask task : tasks) {
+            task.setDurationTime(durationTime.getDurationTime());
+        }
+        if (tasks.size() > 0) {
+            ScheduleTask task = tasks.get(0);
             if (task.getScheduleTaskLine() != null) {
                 ScheduleTaskLine line = task.getScheduleTaskLine();
-                line.getScheduleLine().calcScheduleLineDate(getBitSetWrapper(line.getEquipment()));
+                line.getScheduleLine().calcScheduleLineDate(scheduleMethod.getBitSetWrapper(line.getEquipment()));
             }
         }
     }
@@ -228,16 +199,16 @@ public class TestItemController {
             throw new Exception("没有找到任务的设备");
         }
 
-        ScheduleTaskLine.ScheduleLine fromScheduleLine = getScheduleTaskLine(from.get()).getScheduleLine();
-        ScheduleTaskLine.ScheduleLine toScheduleLine = getScheduleTaskLine(to.get()).getScheduleLine();
+        ScheduleTaskLine.ScheduleLine fromScheduleLine = scheduleMethod.getScheduleTaskLine(from.get()).getScheduleLine();
+        ScheduleTaskLine.ScheduleLine toScheduleLine = scheduleMethod.getScheduleTaskLine(to.get()).getScheduleLine();
         for (Long id : params.getIds()) {
             ScheduleTask task = fromScheduleLine.deleteFromLine(id);
             if (task != null) {
                 toScheduleLine.addLastAndQueen(task);
             }
         }
-        fromScheduleLine.calcScheduleLineDate(getBitSetWrapper(from.get()));
-        toScheduleLine.calcScheduleLineDate(getBitSetWrapper(to.get()));
+        fromScheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(from.get()));
+        toScheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(to.get()));
     }
 
     @SneakyThrows
@@ -252,11 +223,11 @@ public class TestItemController {
         ScheduleTaskLine.ScheduleLine scheduleLine = line.getScheduleLine();
         for (String id : params.get("ids")) {
             ScheduleTask task = scheduleLine.deleteFromLine(Long.valueOf(id));
-            if(task!=null){
+            if (task != null) {
                 scheduleTaskService.delete(task);
             }
         }
-        scheduleLine.calcScheduleLineDate(getBitSetWrapper(equipmentOptional.get()));
+        scheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(equipmentOptional.get()));
     }
 
     @SneakyThrows
@@ -276,6 +247,6 @@ public class TestItemController {
         ScheduleTaskLine line = equipmentOptional.get().getScheduleTaskLine();
         ScheduleTaskLine.ScheduleLine scheduleLine = line.getScheduleLine();
         scheduleLine.removeTo(keys, place.iterator().next(), true);
-        scheduleLine.calcScheduleLineDate(getBitSetWrapper(equipmentOptional.get()));
+        scheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(equipmentOptional.get()));
     }
 }

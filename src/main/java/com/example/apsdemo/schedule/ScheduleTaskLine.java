@@ -1,6 +1,7 @@
 package com.example.apsdemo.schedule;
 
 import com.example.apsdemo.dao.businessData.ScheduleTaskLineData;
+import com.example.apsdemo.dao.businessObject.ScheduleTask;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
 import com.fasterxml.jackson.annotation.JsonIgnore;

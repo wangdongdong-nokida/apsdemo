@@ -14,4 +14,6 @@ public class WaferData {
     protected String nr;
     @Column(name = "PFZR")
     protected String responsiblePerson;
+    @Column(name="HPFS")
+    protected String ScribingType;
 }

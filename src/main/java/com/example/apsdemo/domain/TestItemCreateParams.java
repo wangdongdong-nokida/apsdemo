@@ -19,7 +19,7 @@ public class TestItemCreateParams {
     private float screenHours = 0;
     private float assessmentHours = 0;
 
-    private List<String> secondOrder = new LinkedList<>();
+    private String secondOrder ="";
     private List<Product> product = new LinkedList<>();
     private List<String> stock = new LinkedList<>();
 

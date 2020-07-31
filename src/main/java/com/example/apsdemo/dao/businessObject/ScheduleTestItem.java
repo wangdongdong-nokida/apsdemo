@@ -1,8 +1,7 @@
 package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleTestItemData;
-import com.example.apsdemo.dao.camstarObject.Equipment;
-import com.example.apsdemo.schedule.ScheduleTask;
+import com.example.apsdemo.dao.camstarObject.SecondOrder;
 import com.example.apsdemo.schedule.ScheduleTaskLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -16,8 +15,20 @@ public class ScheduleTestItem extends ScheduleTestItemData {
     private TestScribingCenter testScribingCenter;
 
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class,mappedBy ="scheduleTestItem" ,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = ScheduleTask.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     private ScheduleTask scheduleTask;
+
+    @JsonIgnore
+    @ManyToOne(targetEntity = SecondOrder.class)
+    private SecondOrder secondOrder;
+
+    public SecondOrder getSecondOrder() {
+        return secondOrder;
+    }
+
+    public void setSecondOrder(SecondOrder secondOrder) {
+        this.secondOrder = secondOrder;
+    }
 
     public ScheduleTask getScheduleTask() {
         return scheduleTask;
@@ -41,7 +52,8 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         this.testScribingCenter = testScribingCenter;
     }
 
-    public ScheduleTestItem(ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime,int quantity,String circuitNr){
+    public ScheduleTestItem(SecondOrder secondOrder,ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime,int quantity,String circuitNr){
+        this.setSecondOrder(secondOrder);
         this.setWaferNr(waferNr);
         this.setScheduleTask(new ScheduleTask(line,this,durationTime));
         this.setTestScribingCenter(center);

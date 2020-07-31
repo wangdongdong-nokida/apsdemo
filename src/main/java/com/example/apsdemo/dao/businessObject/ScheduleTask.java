@@ -1,8 +1,8 @@
-package com.example.apsdemo.schedule;
+package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleTaskData;
-import com.example.apsdemo.dao.businessObject.ScheduleTestItem;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
+import com.example.apsdemo.schedule.ScheduleTaskLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -16,27 +16,45 @@ public class ScheduleTask extends ScheduleTaskData {
     }
 
     public ScheduleTask(ScheduleTaskLine scheduleTaskLine, ScheduleTestItem scheduleTestItem, int durationTime) {
-        this.scheduleTaskLine = scheduleTaskLine;
         this.scheduleTestItem = scheduleTestItem;
+        setParmas(scheduleTaskLine, durationTime);
+    }
+
+    public ScheduleTask(ScheduleTaskLine scheduleTaskLine, ScheduleScribingItem scheduleScribing, int durationTime) {
+        this.scheduleScribingItem = scheduleScribing;
+        setParmas(scheduleTaskLine, durationTime);
+    }
+
+    private void setParmas(ScheduleTaskLine scheduleTaskLine, int durationTime) {
+        this.scheduleTaskLine = scheduleTaskLine;
         this.setDurationTime(durationTime);
     }
 
-//    @JsonIgnore
-//    @OneToOne(targetEntity = ScheduleTask.class,fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
-//    private ScheduleTask father;
-
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class,fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ScheduleTask son;
 
     @JsonIgnore
-    @ManyToOne(targetEntity = ScheduleTaskLine.class,fetch = FetchType.LAZY,cascade = CascadeType.MERGE)
+    @ManyToOne(targetEntity = ScheduleTaskLine.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ScheduleTaskLine scheduleTaskLine;
 
-    @OneToOne(targetEntity = ScheduleTestItem.class,cascade = CascadeType.ALL)
+    @OneToOne(targetEntity = ScheduleTestItem.class, cascade = CascadeType.ALL,mappedBy = "scheduleTask")
     private ScheduleTestItem scheduleTestItem;
 
-//    public ScheduleTask getFather() {
+    @OneToOne(targetEntity = ScheduleScribingItem.class, cascade = CascadeType.ALL,mappedBy = "scheduleTask")
+    private ScheduleScribingItem scheduleScribingItem;
+
+
+    public ScheduleScribingItem getScheduleScribingItem() {
+        return scheduleScribingItem;
+    }
+
+    public void setScheduleScribingItem(ScheduleScribingItem scheduleScribing) {
+        this.scheduleScribingItem = scheduleScribing;
+    }
+
+
+    //    public ScheduleTask getFather() {
 //        return father;
 //    }
 //
@@ -75,9 +93,9 @@ public class ScheduleTask extends ScheduleTaskData {
 
     public void calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
         if (getStartDate() != null) {
-            int startAvailable=wrapper.getStartAvailable(getStartDate());
-            int endRange=wrapper.getEndRange(startAvailable,getDurationTime());
-            Calendar calendar=wrapper.getFromStart(startAvailable+endRange);
+            int startAvailable = wrapper.getStartAvailable(getStartDate());
+            int endRange = wrapper.getEndRange(startAvailable, getDurationTime());
+            Calendar calendar = wrapper.getFromStart(startAvailable + endRange);
             setEndDate(calendar.getTime());
         }
         if (getSon() != null) {
@@ -88,7 +106,7 @@ public class ScheduleTask extends ScheduleTaskData {
     public void scheduleDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
         this.calcDate(wrapper);
         if (getSon() != null) {
-             getSon().scheduleDate(wrapper);
+            getSon().scheduleDate(wrapper);
         }
     }
 

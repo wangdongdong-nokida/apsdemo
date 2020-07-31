@@ -25,6 +25,10 @@ import java.util.*;
 public class EquipmentCalendarController {
     @Autowired
     private EquipmentCalendarService service;
+    @Autowired
+    TestItemController testItemController;
+    @Autowired
+    ScheduleMethod scheduleMethod;
 
     @Autowired
     private EquipmentService equipmentService;
@@ -38,6 +42,7 @@ public class EquipmentCalendarController {
             BeanUtils.copyProperties(calendarBean.getData(), calendar);
             calendar.setEquipment(equipment.get());
             service.createOrUpdate(calendar);
+            scheduleMethod.getBitSetWrapper(equipment.get());
         } else {
             throw new Exception("没有找到选中设备！");
         }
@@ -50,6 +55,9 @@ public class EquipmentCalendarController {
         if (calendar.isPresent()) {
             BeanUtils.copyProperties(data, calendar.get());
             service.createOrUpdate(calendar.get());
+            if(calendar.get().getEquipment()!=null){
+                scheduleMethod.getBitSetWrapper(calendar.get().getEquipment());
+            }
         } else {
             throw new Exception("没有找到日历ID：" + data.getID());
         }

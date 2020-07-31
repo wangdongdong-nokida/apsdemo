@@ -6,11 +6,13 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.MappedSuperclass;
 
-
 @EqualsAndHashCode(callSuper = true)
-@Data
 @MappedSuperclass
-public class TextLabelData extends DataBase {
-    protected String type;
-    protected String name;
+@Data
+public class TestScribingCenterData extends DataBase {
+    protected String waferNr;
+    protected String sliceNr;
+    protected String brief;
+    protected String equipment;
+
 }

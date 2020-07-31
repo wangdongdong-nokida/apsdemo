@@ -1,6 +1,6 @@
 package com.example.apsdemo.dao.mapper;
 
-import com.example.apsdemo.schedule.ScheduleTask;
+import com.example.apsdemo.dao.businessObject.ScheduleTask;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

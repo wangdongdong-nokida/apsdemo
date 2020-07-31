@@ -7,13 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class ApsdemoApplicationTests {
 
-    @Autowired
-    TestController controller;
-
-    @Test
-    public void test() {
-        controller.calcChangeName("yjh");
-    }
+//    @Autowired
+//    TestController controller;
+//
+//    @Test
+//    public void test() {
+//        controller.calcChangeName("yjh");
+//    }
 
 //    @Autowired
 //    TestScheduleQueueMapper mapper;
