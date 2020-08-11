@@ -29,6 +29,9 @@ public class SecondOrderController {
         if(requestPage.get("params")==null){
             requestPage.put("params",new HashMap<>());
         }
+        if(requestPage.get("noTest")!=null){
+            ((Map)requestPage.get("params")).put("!^scribingGroup","");
+        }
         if(testContainer==null){
             ((Map)requestPage.get("params")).put("!productType-name","载体");
         }else {

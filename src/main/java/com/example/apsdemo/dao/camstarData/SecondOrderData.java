@@ -23,8 +23,8 @@ public class SecondOrderData {
     protected String lDlxhid;
     @Column(name = "SQRID")
     protected String sqrid;
-
-
+    @Column(name = "HPBZ")
+    protected String scribingGroup;
     protected boolean testHidden;
     @Column(name = "BZ")
     protected String brief;
@@ -89,7 +89,7 @@ public class SecondOrderData {
     @Column(name = "SQBZ")
     protected String supplyBrief;
     @Column(name = "SQSJ")
-    protected Date supplyDate;
+    protected Date applyDate;
     @Column(name = "YGHPL")
     protected int planScribingQuantity;
     @Column(name = "YQCSWCRQ")

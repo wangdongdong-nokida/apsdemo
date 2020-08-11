@@ -11,4 +11,10 @@ public class ScribingItemRequest {
     private int durationTime;
     private String brief;
     private List<Long> stocks=new ArrayList<>();
+    private String sliceNr;
+    private String waferNr;
+    private String operationNr;
+    private String responsiblePerson;
+    private String applyPerson;
+    private String applyDate;
 }

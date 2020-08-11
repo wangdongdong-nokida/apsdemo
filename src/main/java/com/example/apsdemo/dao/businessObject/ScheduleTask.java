@@ -2,7 +2,6 @@ package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleTaskData;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
-import com.example.apsdemo.schedule.ScheduleTaskLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;

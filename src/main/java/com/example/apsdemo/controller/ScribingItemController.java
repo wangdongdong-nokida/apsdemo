@@ -1,16 +1,10 @@
 package com.example.apsdemo.controller;
 
-import com.example.apsdemo.dao.businessObject.ScheduleScribingItem;
-import com.example.apsdemo.dao.businessObject.ScheduleTask;
-import com.example.apsdemo.dao.businessObject.TestScribingCenter;
+import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.dao.camstarObject.SecondOrder;
 import com.example.apsdemo.dao.camstarObject.WaferWarehouse;
-import com.example.apsdemo.domain.BindSecondOrderParams;
-import com.example.apsdemo.domain.EditBrief;
-import com.example.apsdemo.domain.Result;
-import com.example.apsdemo.domain.ScribingItemRequest;
-import com.example.apsdemo.schedule.ScheduleTaskLine;
+import com.example.apsdemo.domain.*;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
 import lombok.SneakyThrows;
@@ -20,9 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @RestController
@@ -47,8 +39,40 @@ public class ScribingItemController {
     WaferWarehouseService waferWarehouseService;
 
     @RequestMapping("/getScribingItem")
-    public Result getScribingItem() {
-        return Tools.getResult(new HashMap<>(), testScribingCenterService);
+    public Result getScribingItem(@RequestBody Map<String,Object> map) {
+        Object params=map.get("params");
+        if(params!=null){
+            Object showType=((Map)params).get("showType");
+            Map paramsMap=new HashMap();
+           if(showType==null||showType.equals("uncreated")){
+                paramsMap.put("*scheduleScribingItems","uncreated");
+                map.put("params",paramsMap);
+            } else if(showType.equals("created")){
+                paramsMap.put("!*scheduleScribingItems","created");
+                map.put("params",paramsMap);
+            }
+        }
+        Result result= Tools.getResult(map, testScribingCenterService);
+
+        List<TestScribingCenter> centers=result.getData();
+
+        List<TestScribingCenterResult> results=new LinkedList<>();
+        for(TestScribingCenter center:centers){
+            Map<String,SecondOrder> secondOrders=new HashMap<>();
+            if(center.getSecondOrder()!=null){
+                secondOrders.put(center.getSecondOrder().getID(),center.getSecondOrder());
+            }else {
+                for(ScheduleTestItem item:center.getScheduleTestItem()){
+                    if(item.getSecondOrder()!=null){
+                        secondOrders.put(item.getSecondOrder().getID(),item.getSecondOrder());
+                    }
+                }
+            }
+            TestScribingCenterResult testScribingCenterResult=new TestScribingCenterResult(center,secondOrders.values());
+            results.add(testScribingCenterResult);
+        }
+        result.setData(results);
+        return result;
     }
 
     @SneakyThrows
@@ -74,6 +98,26 @@ public class ScribingItemController {
         scheduleTaskLineService.save(line);
     }
 
+    @SneakyThrows
+    @RequestMapping("/createNoStock")
+    @Transactional
+    public void createNoStock(@RequestBody ScribingItemRequest request) {
+
+        Optional<Equipment> equipment = equipmentService.findById(request.getEquipmentId());
+        if (!equipment.isPresent()) {
+            throw new Exception("没有找到设备" + request.getEquipmentId());
+        }
+        ScheduleTaskLine line = scheduleMethod.getScheduleTaskLine(equipment.get());
+        TestScribingCenter center = new TestScribingCenter(request.getSliceNr(), request.getWaferNr());
+        testScribingCenterService.save(center);
+        ScheduleScribingItem item = new ScheduleScribingItem(request.getBrief(), request.getDurationTime(), center, line, request.getResponsiblePerson(),
+                request.getApplyPerson(), request.getApplyDate(), request.getOperationNr());
+        ScheduleTask task = item.getScheduleTask();
+        line.addLast(task);
+        scheduleTaskService.save(task);
+        scheduleMethod.updateScheduleLineDate(equipment.get());
+        scheduleTaskLineService.save(line);
+    }
 
     @SneakyThrows
     @RequestMapping(path = "/editBrief")

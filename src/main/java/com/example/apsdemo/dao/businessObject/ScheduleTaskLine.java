@@ -1,7 +1,6 @@
-package com.example.apsdemo.schedule;
+package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleTaskLineData;
-import com.example.apsdemo.dao.businessObject.ScheduleTask;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -215,7 +214,10 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
                 if (wrapper.getBitSet().isEmpty()) {
                     if (this.getSelf().getStartDate() == null) {
-                        this.getSelf().setStartDate(new Date());
+                        Calendar calendar=Calendar.getInstance();
+                        calendar.set(Calendar.SECOND,0);
+                        calendar.set(Calendar.MILLISECOND,0);
+                        this.getSelf().setStartDate(calendar.getTime());
                     }
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(this.getSelf().getStartDate());

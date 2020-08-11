@@ -2,7 +2,6 @@ package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleTestItemData;
 import com.example.apsdemo.dao.camstarObject.SecondOrder;
-import com.example.apsdemo.schedule.ScheduleTaskLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;

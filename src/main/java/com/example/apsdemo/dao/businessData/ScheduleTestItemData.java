@@ -25,5 +25,6 @@ public class ScheduleTestItemData extends DataBase {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date warehousingTime;	//	入库时间
     private int ArrivalDelay;		//到片延误
+    private String reworkBrief;
 
 }

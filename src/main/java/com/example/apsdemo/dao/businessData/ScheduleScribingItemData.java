@@ -16,6 +16,11 @@ public class ScheduleScribingItemData extends DataBase {
     protected String brief;
     protected Date sliceReceiveDate;
     protected String ScribingType;
-    protected String responsiblePerson;
 
+    protected String responsiblePerson;
+    private String operationNr;
+    private String applyPerson;
+    private String applyDate;
+
+    private String reworkBrief;
 }

@@ -1,11 +1,9 @@
 package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleScribingItemData;
-import com.example.apsdemo.schedule.ScheduleTaskLine;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 @Table(name ="A_ScheduleScribingItem")
@@ -45,4 +43,15 @@ public class ScheduleScribingItem extends ScheduleScribingItemData {
         this.setTestScribingCenter(center);
         this.setBrief(brief);
     }
+
+    public ScheduleScribingItem(String brief,int durationTime,TestScribingCenter center,
+                                ScheduleTaskLine line,String responsiblePerson,
+                                String applyPerson,String applyDate,String operationNr){
+        this(brief, durationTime, center, line);
+        this.setResponsiblePerson(responsiblePerson);
+        this.setApplyPerson(applyPerson);
+        this.setApplyDate(applyDate);
+        this.setOperationNr(operationNr);
+    }
+
 }

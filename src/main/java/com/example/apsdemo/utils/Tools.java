@@ -49,7 +49,7 @@ public class Tools {
             public Predicate toPredicate(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 List<Predicate> predicateList = new LinkedList<>();
                 for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    if (entry.getValue() == null || "".equals(entry.getValue())) {
+                    if (entry.getValue() == null) {
                         continue;
                     }
                     Path path = root;
@@ -57,7 +57,10 @@ public class Tools {
                         String[] level = entry.getKey().split("-");
                         for (String key : level) {
                             try {
-                                Path inside = path.get(key.replace("!",""));
+                                String replaceKey = key.replace("!", "");
+                                replaceKey = replaceKey.replace("*", "");
+                                replaceKey = replaceKey.replace("^", "");
+                                Path inside = path.get(replaceKey);
                                 path = inside;
                             } catch (Exception e) {
 
@@ -65,7 +68,10 @@ public class Tools {
                         }
                     } else {
                         try {
-                            Path inside = path.get(entry.getKey().replace("!",""));
+                            String replaceKey = entry.getKey().replace("!", "");
+                            replaceKey = replaceKey.replace("*", "");
+                            replaceKey = replaceKey.replace("^", "");
+                            Path inside = path.get(replaceKey);
                             path = inside;
                         } catch (Exception e) {
 
@@ -73,7 +79,17 @@ public class Tools {
                     }
                     if (!(path instanceof Root)) {
                         if (entry.getKey().contains("!")) {
-                            predicateList.add(criteriaBuilder.notEqual(path, entry.getValue()));
+                            if (entry.getKey().contains("!*")) {
+                                predicateList.add(criteriaBuilder.isNotEmpty(path));
+                            } else if (entry.getKey().contains("!^")) {
+                                predicateList.add(criteriaBuilder.isNotNull(path));
+                            } else {
+                                predicateList.add(criteriaBuilder.notEqual(path, entry.getValue()));
+                            }
+                        } else if (entry.getKey().contains("*")) {
+                            predicateList.add(criteriaBuilder.isEmpty(path));
+                        } else if (entry.getKey().contains("^")) {
+                            predicateList.add(criteriaBuilder.isNull(path));
                         } else {
                             predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
                         }
