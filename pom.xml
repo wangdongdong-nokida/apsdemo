@@ -18,7 +18,7 @@
         <java.version>1.8</java.version>
         <hutool.version>5.3.4</hutool.version>
         <jjwt.version>0.9.0</jjwt.version>
-        <guava.version>24.0-jre</guava.version>
+        <guava.version>24.1.1-jre</guava.version>
         <mybatis-plus.version>3.3.1.tmp</mybatis-plus.version>
     </properties>
 
