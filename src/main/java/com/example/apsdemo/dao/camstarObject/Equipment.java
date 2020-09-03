@@ -17,7 +17,7 @@ public class Equipment  extends EquipmentData {
     private Set<EquipmentCalendar> calendars=new HashSet<>();
 
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTaskLine.class,mappedBy = "equipment",fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = ScheduleTaskLine.class,mappedBy = "equipment",fetch = FetchType.LAZY )
     private ScheduleTaskLine scheduleTaskLine;
 
     public ScheduleTaskLine getScheduleTaskLine() {

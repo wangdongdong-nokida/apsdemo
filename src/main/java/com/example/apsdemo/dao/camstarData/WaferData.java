@@ -16,4 +16,6 @@ public class WaferData {
     protected String responsiblePerson;
     @Column(name="HPFS")
     protected String ScribingType;
+    @Column(name="DYS")
+    protected String unitNumber;
 }

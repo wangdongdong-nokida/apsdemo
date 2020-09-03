@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 public class ScribingItemRequest {
     private String equipmentId;
-    private int durationTime;
+    private double durationTime;
     private String brief;
     private List<Long> stocks=new ArrayList<>();
     private String sliceNr;

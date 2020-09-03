@@ -1,6 +1,7 @@
 package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleTaskData;
+import com.example.apsdemo.dao.camstarObject.Container;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -9,6 +10,7 @@ import java.util.Calendar;
 
 @Entity
 @Table(name = "A_ScheduleTask")
+@Inheritance(strategy = InheritanceType.JOINED)
 public class ScheduleTask extends ScheduleTaskData {
 
     public ScheduleTask() {
@@ -27,6 +29,18 @@ public class ScheduleTask extends ScheduleTaskData {
     private void setParmas(ScheduleTaskLine scheduleTaskLine, int durationTime) {
         this.scheduleTaskLine = scheduleTaskLine;
         this.setDurationTime(durationTime);
+    }
+
+    @JsonIgnore
+    @OneToOne(targetEntity = Container.class,mappedBy = "scheduleTask",cascade = CascadeType.REMOVE)
+    private Container container;
+
+    public Container getContainer() {
+        return container;
+    }
+
+    public void setContainer(Container container) {
+        this.container = container;
     }
 
     @JsonIgnore

@@ -48,11 +48,13 @@ public abstract class BaseService<T extends JpaSpecificationExecutor& JpaReposit
 
     public void deleteAll(Iterable iterable){
         getMapper().deleteAll(iterable);
+
     }
 
     public void delete(Object object){
         getMapper().delete(object);
     }
+
 
 
 }

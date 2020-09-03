@@ -62,6 +62,9 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             if (container == null) {
                 return null;
             }
+            if(containerFirst==container){
+                containerFirst=container.getSon();
+            }
             return container.removeFromLine();
         }
 
@@ -140,6 +143,12 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
 
             private void setSonRelation(Container son) {
+                if(this==son){
+                    return;
+                }
+                if(getContainerFirst()==son&&son.getSon()!=null){
+                    setContainerFirst(son.getSon());
+                }
                 son.removeFromLine();
                 Container containerSon = this.getSon();
                 this.setSon(son);
@@ -174,6 +183,10 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             public void linkTo(Container container, boolean after) {
                 if (container != null) {
                     if (after) {
+
+//                        if(getFirst()==container.getSelf()&&container.getSon()!=null){
+//                            setFirst(container.getSon().getSelf());
+//                        }
                         setSonRelation(container);
                     } else {
                         setFatherRelation(container);

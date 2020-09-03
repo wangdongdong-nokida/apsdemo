@@ -13,10 +13,14 @@ public class WaferProductData {
     protected String ID;
     @Column(name = "DLXH")
     protected String circuitNo;
+    @Column(name = "DLMC")
+    protected String circuitName;
     @Column(name = "SJS")
     protected String designer;
     @Column(name = "SL")
-    protected Integer quantity;
+    protected int quantity;
+    @Column(name = "ZSL")
+    protected int total;
     @Column(name = "PRODUCTID")
     protected String product;
 

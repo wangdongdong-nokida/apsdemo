@@ -36,15 +36,15 @@ public class ScheduleScribingItem extends ScheduleScribingItemData {
     public ScheduleScribingItem() {
     }
 
-    public ScheduleScribingItem(String brief,int durationTime,TestScribingCenter center,ScheduleTaskLine line) {
-        this.setScheduleTask(new ScheduleTask(line,this,durationTime*60));
+    public ScheduleScribingItem(String brief,double durationTime,TestScribingCenter center,ScheduleTaskLine line) {
+        this.setScheduleTask(new ScheduleTask(line,this,(int)(durationTime*60)));
         this.setSliceNr(center.getSliceNr());
         this.setWaferNr(center.getWaferNr());
         this.setTestScribingCenter(center);
         this.setBrief(brief);
     }
 
-    public ScheduleScribingItem(String brief,int durationTime,TestScribingCenter center,
+    public ScheduleScribingItem(String brief,double durationTime,TestScribingCenter center,
                                 ScheduleTaskLine line,String responsiblePerson,
                                 String applyPerson,String applyDate,String operationNr){
         this(brief, durationTime, center, line);
