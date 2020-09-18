@@ -49,6 +49,11 @@ public class ScheduleTestItem extends ScheduleTestItemData {
 
     public void setTestScribingCenter(TestScribingCenter testScribingCenter) {
         this.testScribingCenter = testScribingCenter;
+        if(testScribingCenter!=null){
+            testScribingCenter.getScheduleTestItem().add(this);
+            this.setWaferNr(testScribingCenter.getWaferNr());
+            this.setSliceNr(testScribingCenter.getSliceNr());
+        }
     }
 
     public ScheduleTestItem(SecondOrder secondOrder,ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime,int quantity,String circuitNr){

@@ -23,6 +23,11 @@ public class ScheduleScribingItem extends ScheduleScribingItemData {
 
     public void setTestScribingCenter(TestScribingCenter testScribingCenter) {
         this.testScribingCenter = testScribingCenter;
+        if(testScribingCenter!=null){
+            testScribingCenter.getScheduleScribingItems().add(this);
+            this.setWaferNr(testScribingCenter.getWaferNr());
+            this.setSliceNr(testScribingCenter.getSliceNr());
+        }
     }
 
     public ScheduleTask getScheduleTask() {

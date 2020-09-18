@@ -39,36 +39,36 @@ public class ScribingItemController {
     WaferWarehouseService waferWarehouseService;
 
     @RequestMapping("/getScribingItem")
-    public Result getScribingItem(@RequestBody Map<String,Object> map) {
-        Object params=map.get("params");
-        if(params!=null){
-            Object showType=((Map)params).get("showType");
-            Map paramsMap=new HashMap();
-           if(showType==null||showType.equals("uncreated")){
-                paramsMap.put("*scheduleScribingItems","uncreated");
-                map.put("params",paramsMap);
-            } else if(showType.equals("created")){
-                paramsMap.put("!*scheduleScribingItems","created");
-                map.put("params",paramsMap);
+    public Result getScribingItem(@RequestBody Map<String, Object> map) {
+        Object params = map.get("params");
+        if (params != null) {
+            Object showType = ((Map) params).get("showType");
+            Map paramsMap = new HashMap();
+            if (showType == null || showType.equals("uncreated")) {
+                paramsMap.put("*scheduleScribingItems", "uncreated");
+                map.put("params", paramsMap);
+            } else if (showType.equals("created")) {
+                paramsMap.put("!*scheduleScribingItems", "created");
+                map.put("params", paramsMap);
             }
         }
-        Result result= Tools.getResult(map, testScribingCenterService);
+        Result result = Tools.getResult(map, testScribingCenterService);
 
-        List<TestScribingCenter> centers=result.getData();
+        List<TestScribingCenter> centers = result.getData();
 
-        List<TestScribingCenterResult> results=new LinkedList<>();
-        for(TestScribingCenter center:centers){
-            Map<String,SecondOrder> secondOrders=new HashMap<>();
-            if(center.getSecondOrder()!=null){
-                secondOrders.put(center.getSecondOrder().getID(),center.getSecondOrder());
-            }else {
-                for(ScheduleTestItem item:center.getScheduleTestItem()){
-                    if(item.getSecondOrder()!=null){
-                        secondOrders.put(item.getSecondOrder().getID(),item.getSecondOrder());
+        List<TestScribingCenterResult> results = new LinkedList<>();
+        for (TestScribingCenter center : centers) {
+            Map<String, SecondOrder> secondOrders = new HashMap<>();
+            if (center.getSecondOrder() != null) {
+                secondOrders.put(center.getSecondOrder().getID(), center.getSecondOrder());
+            } else {
+                for (ScheduleTestItem item : center.getScheduleTestItem()) {
+                    if (item.getSecondOrder() != null) {
+                        secondOrders.put(item.getSecondOrder().getID(), item.getSecondOrder());
                     }
                 }
             }
-            TestScribingCenterResult testScribingCenterResult=new TestScribingCenterResult(center,secondOrders.values());
+            TestScribingCenterResult testScribingCenterResult = new TestScribingCenterResult(center, secondOrders.values());
             results.add(testScribingCenterResult);
         }
         result.setData(results);
@@ -79,8 +79,20 @@ public class ScribingItemController {
     @RequestMapping("/create")
     @Transactional
     public void createItem(@RequestBody ScribingItemRequest request) {
+        Set<Long> ids;
+        try {
+            ids = createScribingItemNormal(request);
+        } catch (Exception e) {
+            throw new Exception("创建划片失败！");
+        }
+        HttpController.postHttp(ids, "划片");
+    }
+
+    @Transactional
+    public Set<Long> createScribingItemNormal(@RequestBody ScribingItemRequest request) throws Exception {
+        Set<Long> ids = new HashSet<>();
         if (request.getStocks().size() <= 0) {
-            return;
+            return ids;
         }
         Optional<Equipment> equipment = equipmentService.findById(request.getEquipmentId());
         if (!equipment.isPresent()) {
@@ -93,16 +105,29 @@ public class ScribingItemController {
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
+            ids.add(task.getID());
         }
         scheduleMethod.updateScheduleLineDate(equipment.get());
         scheduleTaskLineService.save(line);
+        return ids;
     }
 
     @SneakyThrows
     @RequestMapping("/createNoStock")
     @Transactional
     public void createNoStock(@RequestBody ScribingItemRequest request) {
+        Set<Long> ids;
+        try {
+            ids = createScribingItemNoStock(request);
+        } catch (Exception e) {
+            throw new Exception("创建划片失败！");
+        }
+        HttpController.postHttp(ids, "划片");
+    }
 
+    @Transactional
+    public Set<Long> createScribingItemNoStock(@RequestBody ScribingItemRequest request) throws Exception {
+        Set<Long> ids = new HashSet<>();
         Optional<Equipment> equipment = equipmentService.findById(request.getEquipmentId());
         if (!equipment.isPresent()) {
             throw new Exception("没有找到设备" + request.getEquipmentId());
@@ -115,8 +140,10 @@ public class ScribingItemController {
         ScheduleTask task = item.getScheduleTask();
         line.addLast(task);
         scheduleTaskService.save(task);
+        ids.add(task.getID());
         scheduleMethod.updateScheduleLineDate(equipment.get());
         scheduleTaskLineService.save(line);
+        return ids;
     }
 
     @SneakyThrows

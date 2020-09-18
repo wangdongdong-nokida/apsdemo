@@ -1,6 +1,9 @@
 package com.example.apsdemo.dao.camstarObject;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 @Table(name = "workflow")
@@ -13,6 +16,18 @@ public class WorkFlow {
     @ManyToOne(targetEntity = WorkFlowName.class)
     private WorkFlowName workFlowName;
 
+    @JsonIgnore
+    @JoinColumn(name = "WORKFLOWID",foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @OneToMany(targetEntity =  WorkStep.class,fetch = FetchType.LAZY)
+    private Set<WorkStep> workSteps;
+
+    public Set<WorkStep> getWorkSteps() {
+        return workSteps;
+    }
+
+    public void setWorkSteps(Set<WorkStep> workSteps) {
+        this.workSteps = workSteps;
+    }
 
     public WorkFlowName getWorkFlowName() {
         return workFlowName;

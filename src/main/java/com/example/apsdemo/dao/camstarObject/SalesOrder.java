@@ -3,10 +3,7 @@ package com.example.apsdemo.dao.camstarObject;
 import com.example.apsdemo.dao.camstarData.SalesOrderData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +13,19 @@ public class SalesOrder extends SalesOrderData {
 
 
     private Set<Occupy> occupies=new HashSet<>();
+
+
+    private LHt lHt;
+
+    @JoinColumn(name = "L_HTID",foreignKey = @ForeignKey(name="null",value = ConstraintMode.NO_CONSTRAINT))
+    @ManyToOne(targetEntity = LHt.class)
+    public LHt getlHt() {
+        return lHt;
+    }
+
+    public void setlHt(LHt lHt) {
+        this.lHt = lHt;
+    }
 
     @JsonIgnore
     @OneToMany(targetEntity = Occupy.class,mappedBy ="salesOrder")

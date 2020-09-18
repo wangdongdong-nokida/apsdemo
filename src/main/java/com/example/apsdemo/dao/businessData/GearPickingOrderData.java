@@ -9,6 +9,6 @@ import javax.persistence.MappedSuperclass;
 @EqualsAndHashCode(callSuper = true)
 @MappedSuperclass
 @Data
-public class GearPackingOrderData extends DataBase {
+public class GearPickingOrderData extends DataBase {
 
 }

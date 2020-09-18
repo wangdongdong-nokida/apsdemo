@@ -9,18 +9,18 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "A_TestScribingCenter")
+@Table(name = "A_TestScribing_Center")
 public class TestScribingCenter extends TestScribingCenterData {
 
     @OneToOne(targetEntity = WaferWarehouse.class)
     private WaferWarehouse waferWarehouse;
 
     @JsonIgnore
-    @OneToMany(targetEntity = ScheduleTestItem.class,mappedBy = "testScribingCenter")
+    @OneToMany(targetEntity = ScheduleTestItem.class,mappedBy = "testScribingCenter",cascade = CascadeType.DETACH)
     private Set<ScheduleTestItem> scheduleTestItem;
 
     @JsonIgnore
-    @OneToMany(targetEntity = ScheduleScribingItem.class,mappedBy = "testScribingCenter")
+    @OneToMany(targetEntity = ScheduleScribingItem.class,mappedBy = "testScribingCenter",cascade = CascadeType.DETACH)
     private Set<ScheduleScribingItem> scheduleScribingItems;
 
     @JsonIgnore
@@ -72,6 +72,12 @@ public class TestScribingCenter extends TestScribingCenterData {
             this.setWaferNr(waferWarehouse.getWaferNr());
             this.setSliceNr(waferWarehouse.getSliceNr());
             waferWarehouse.setTestScribingCenter(this);
+            for(ScheduleTestItem item:this.getScheduleTestItem()){
+                item.setTestScribingCenter(this);
+            }
+            for(ScheduleScribingItem item:this.getScheduleScribingItems()){
+                item.setTestScribingCenter(this);
+            }
         }
     }
 }

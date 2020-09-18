@@ -93,8 +93,6 @@ public class SalesOrderData {
     private String yzbm;
     private String yzbmid;
     private String zzjyxs;
-    private String lHtid;
-    private String lXhid;
     private Date xmjssj;
     private Date xmkssj;
     private String xmlx;
@@ -807,26 +805,6 @@ public class SalesOrderData {
 
     public void setZzjyxs(String zzjyxs) {
         this.zzjyxs = zzjyxs;
-    }
-
-    @Basic
-    @Column(name = "L_HTID")
-    public String getlHtid() {
-        return lHtid;
-    }
-
-    public void setlHtid(String lHtid) {
-        this.lHtid = lHtid;
-    }
-
-    @Basic
-    @Column(name = "L_XHID")
-    public String getlXhid() {
-        return lXhid;
-    }
-
-    public void setlXhid(String lXhid) {
-        this.lXhid = lXhid;
     }
 
     @Basic

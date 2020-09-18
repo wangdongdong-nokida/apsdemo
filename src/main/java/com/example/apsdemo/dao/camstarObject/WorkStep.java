@@ -10,21 +10,13 @@ public class WorkStep {
     @Column(name = "WORKFLOWSTEPID")
     private String ID;
 
-    @JoinColumn(name = "WORKFLOWID",foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
-    @ManyToOne(targetEntity =  WorkFlow.class)
-    private WorkFlow workFlow;
-
-    @ManyToOne
-    @JoinColumn(name = "SPECBASEID",foreignKey = @ForeignKey(value = ConstraintMode.NO_CONSTRAINT))
+    @ManyToOne(targetEntity =WorkStepName.class)
+    @JoinColumn(name = "SPECBASEID",foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
     private WorkStepName workStepName;
 
-    public WorkStepName getWorkStepName() {
-        return workStepName;
-    }
-
-    public void setWorkStepName(WorkStepName workStepName) {
-        this.workStepName = workStepName;
-    }
+    @JoinColumn(name = "WORKFLOWID",foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    @ManyToOne(targetEntity =  WorkFlow.class)
+    private WorkFlow workFlow;
 
     public WorkFlow getWorkFlow() {
         return workFlow;
@@ -32,6 +24,14 @@ public class WorkStep {
 
     public void setWorkFlow(WorkFlow workFlow) {
         this.workFlow = workFlow;
+    }
+
+    public WorkStepName getWorkStepName() {
+        return workStepName;
+    }
+
+    public void setWorkStepName(WorkStepName workStepName) {
+        this.workStepName = workStepName;
     }
 
     public String getID() {

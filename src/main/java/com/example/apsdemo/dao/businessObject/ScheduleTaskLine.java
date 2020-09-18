@@ -14,7 +14,7 @@ import java.util.*;
 public class ScheduleTaskLine extends ScheduleTaskLineData {
 
     @JsonIgnore
-    @OneToOne(targetEntity = Equipment.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Equipment.class, fetch = FetchType.EAGER)
     private Equipment equipment;
 
     @JsonIgnore
@@ -30,10 +30,13 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
     }
 
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "first_id")
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
     private ScheduleTask first;
+
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_id")
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
     private ScheduleTask last;
 
 

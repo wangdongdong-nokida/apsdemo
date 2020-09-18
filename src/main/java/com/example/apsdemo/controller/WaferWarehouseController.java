@@ -8,6 +8,7 @@ import com.example.apsdemo.service.WaferWarehouseService;
 import com.example.apsdemo.utils.Tools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -70,4 +71,8 @@ public class WaferWarehouseController {
         return result;
     }
 
+    @PostMapping(path = "/getWaferAll")
+    public Result getWaferAll(@RequestBody Map<String, Object> params) {
+        return Tools.getResult(params, service);
+    }
 }

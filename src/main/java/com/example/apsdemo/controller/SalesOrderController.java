@@ -1,6 +1,5 @@
 package com.example.apsdemo.controller;
 
-import com.example.apsdemo.dao.camstarObject.SalesOrder;
 import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.SalesOrderService;
 import com.example.apsdemo.utils.Tools;

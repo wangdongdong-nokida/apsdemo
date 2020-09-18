@@ -1,27 +1,25 @@
 package com.example.apsdemo;
 
 
-import com.example.apsdemo.domain.Result;
-import com.example.apsdemo.service.WorkFLowService;
+import com.example.apsdemo.service.WorkStepService;
 import com.example.apsdemo.utils.Tools;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.HashMap;
 
 @SpringBootTest
 class ApsdemoApplicationTests {
 
-    @Autowired
-    WorkFLowService workFLowService;
-
-    @Test
-    public void workFlow(){
-        System.out.println( Tools.getResult(new HashMap<>(),workFLowService));
-    }
-
+//    @Autowired
+//    WorkStepService WorkStepService;
+//
+//    @Test
+//    public void workFlow(){
+//        System.out.println( Tools.getResult(new HashMap<>(), WorkStepService));
+//    }
+//
 
 //    @Autowired
 //    TestController controller;

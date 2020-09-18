@@ -10,7 +10,7 @@ import javax.persistence.MappedSuperclass;
 @EqualsAndHashCode(callSuper = true)
 @MappedSuperclass
 @Data
-public class PackingOrderData extends ScheduleTask {
+public class PickingOrderData extends ScheduleTask {
 
     protected String waferNr;
     protected String sliceNr;
@@ -20,6 +20,7 @@ public class PackingOrderData extends ScheduleTask {
     protected String salesOrderQuantities;
     protected String circuitNr;
     protected boolean salesOrder;
+
     protected String brief;
 
 }

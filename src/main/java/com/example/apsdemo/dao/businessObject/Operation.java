@@ -1,6 +1,7 @@
 package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.OperationData;
+import com.example.apsdemo.dao.camstarObject.WorkStepName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -12,29 +13,43 @@ import javax.persistence.*;
 public class Operation extends OperationData {
 
     @JsonIgnore
-    @ManyToOne(targetEntity = PackingOrder.class)
-    private PackingOrder packingOrder;
+    @ManyToOne(targetEntity = PickingOrder.class)
+    @JoinColumn(name = "PACKING_ORDER_ID")
+    private PickingOrder pickingOrder;
+
+
+    @OneToOne(fetch = FetchType.EAGER)
+    private WorkStepName R_workStepName;
+
+
+    public WorkStepName getR_workStepName() {
+        return R_workStepName;
+    }
+
+    public void setR_workStepName(WorkStepName r_workStepName) {
+        R_workStepName = r_workStepName;
+    }
 
     public Operation() {
     }
 
-    public Operation(PackingOrder packingOrder) {
-        this.packingOrder = packingOrder;
-        if (packingOrder != null) {
-            this.setWaferNr(packingOrder.getWaferNr());
-            this.setSliceNr(packingOrder.getSliceNr());
-            this.setModelNr(packingOrder.getModelNr());
-            this.setCircuitNr(packingOrder.getCircuitNr());
-            this.setBindSalesOrder(packingOrder.getBindSalesOrder());
-            this.setSalesOrderQuantities(packingOrder.getSalesOrderQuantities());
+    public Operation(PickingOrder pickingOrder) {
+        this.pickingOrder = pickingOrder;
+        if (pickingOrder != null) {
+            this.setWaferNr(pickingOrder.getWaferNr());
+            this.setSliceNr(pickingOrder.getSliceNr());
+            this.setModelNr(pickingOrder.getModelNr());
+            this.setCircuitNr(pickingOrder.getCircuitNr());
+            this.setBindSalesOrder(pickingOrder.getBindSalesOrder());
+            this.setSalesOrderQuantities(pickingOrder.getSalesOrderQuantities());
         }
     }
 
-    public PackingOrder getPackingOrder() {
-        return packingOrder;
+    public PickingOrder getPickingOrder() {
+        return pickingOrder;
     }
 
-    public void setPackingOrder(PackingOrder packingOrder) {
-        this.packingOrder = packingOrder;
+    public void setPickingOrder(PickingOrder pickingOrder) {
+        this.pickingOrder = pickingOrder;
     }
 }

@@ -18,9 +18,9 @@ public class WaferProductData {
     @Column(name = "SJS")
     protected String designer;
     @Column(name = "SL")
-    protected int quantity;
+    protected Integer quantity;
     @Column(name = "ZSL")
-    protected int total;
+    protected Integer total;
     @Column(name = "PRODUCTID")
     protected String product;
 

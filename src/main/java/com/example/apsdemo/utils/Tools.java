@@ -141,4 +141,8 @@ public class Tools {
     }
 
 
+    public static boolean checkIsEmpty(String object){
+        return object==null||"".equals(object);
+    }
+
 }

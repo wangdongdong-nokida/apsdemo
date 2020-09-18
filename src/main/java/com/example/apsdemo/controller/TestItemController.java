@@ -1,14 +1,11 @@
 package com.example.apsdemo.controller;
 
-import com.example.apsdemo.dao.businessObject.ScheduleTestItem;
-import com.example.apsdemo.dao.businessObject.TestScribingCenter;
+import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.dao.camstarObject.SecondOrder;
 import com.example.apsdemo.dao.camstarObject.WaferWarehouse;
 import com.example.apsdemo.domain.*;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
-import com.example.apsdemo.dao.businessObject.ScheduleTask;
-import com.example.apsdemo.dao.businessObject.ScheduleTaskLine;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
 import lombok.SneakyThrows;
@@ -53,13 +50,13 @@ public class TestItemController {
     @RequestMapping(path = "/create")
     public synchronized void createTestItem(@RequestBody TestItemCreateParams requestPage) {
 
-        Set<Long> ids = new HashSet<>();
+        Set<Long> ids;
         try {
             ids = createItem(requestPage);
         } catch (Exception e) {
             throw new Exception("创建失败");
         }
-        System.out.println(HttpController.postHttp(ids,"测试"));
+        HttpController.postHttp(ids, "测试");
     }
 
     @Transactional
@@ -211,17 +208,27 @@ public class TestItemController {
         if (!from.isPresent()) {
             throw new Exception("没有找到任务的设备");
         }
+        changeEquipment(params.getIds(), from.get(), to.get());
+    }
 
-        ScheduleTaskLine.ScheduleLine fromScheduleLine = scheduleMethod.getScheduleTaskLine(from.get()).getScheduleLine();
-        ScheduleTaskLine.ScheduleLine toScheduleLine = scheduleMethod.getScheduleTaskLine(to.get()).getScheduleLine();
-        for (Long id : params.getIds()) {
+    public synchronized void changeEquipment(List<Long> ids, Equipment from, Equipment to) throws Exception {
+
+        if (to == null) {
+            throw new Exception("没有找到放置的设备");
+        }
+        if (from == null) {
+            throw new Exception("没有找到任务的设备");
+        }
+        ScheduleTaskLine.ScheduleLine fromScheduleLine = scheduleMethod.getScheduleTaskLine(from).getScheduleLine();
+        ScheduleTaskLine.ScheduleLine toScheduleLine = scheduleMethod.getScheduleTaskLine(to).getScheduleLine();
+        for (Long id : ids) {
             ScheduleTask task = fromScheduleLine.deleteFromLine(id);
             if (task != null) {
                 toScheduleLine.addLastAndQueen(task);
             }
         }
-        fromScheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(from.get()));
-        toScheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(to.get()));
+        fromScheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(from));
+        toScheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(to));
     }
 
     @SneakyThrows
@@ -262,4 +269,41 @@ public class TestItemController {
         scheduleLine.removeTo(keys, place.iterator().next(), true);
         scheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(equipmentOptional.get()));
     }
+
+    @RequestMapping(path = "/changeTestStock")
+    @Transactional
+    public void changeTestStock(@RequestBody ChangeStock changeStock) throws Exception {
+        if (Tools.checkIsEmpty(changeStock.getWaferWarehouseID()) || changeStock.getTaskIDs() == null) {
+            return;
+        }
+        Optional<ScheduleTask> tasks = scheduleTaskService.findById(changeStock.getTaskIDs());
+        Optional<WaferWarehouse> waferWarehouse = waferWarehouseService.findById(changeStock.getWaferWarehouseID());
+        if (waferWarehouse.isPresent() && tasks.isPresent()) {
+            ScheduleTask task = tasks.get();
+            ScheduleTestItem item = task.getScheduleTestItem();
+            TestScribingCenter center = item.getTestScribingCenter();
+            TestScribingCenter to = waferWarehouse.get().getTestScribingCenter();
+            if (to == null) {
+                center.setWaferWarehouse(waferWarehouse.get());
+            } else {
+                boolean testZero = to.getScheduleTestItem().size() == 0;
+                boolean scribingZero = to.getScheduleScribingItems().size() == 0;
+                boolean secondOrderZero = to.getSecondOrder() == null;
+                if (testZero && scribingZero && secondOrderZero) {
+                    to.setSecondOrder(center.getSecondOrder());
+                    for (ScheduleTestItem testItem:center.getScheduleTestItem()) {
+                        testItem.setTestScribingCenter(to);
+                    }
+                    for(ScheduleScribingItem scribingItem:center.getScheduleScribingItems()){
+                        scribingItem.setTestScribingCenter(center);
+                    }
+                }else {
+                    throw new Exception("更换的圆片已经创建测试明细或则划片明细，请重新选择！");
+                }
+            }
+        }
+
+    }
+
+
 }
