@@ -21,6 +21,18 @@ public class WorkFlow {
     @OneToMany(targetEntity =  WorkStep.class,fetch = FetchType.LAZY)
     private Set<WorkStep> workSteps;
 
+    @OneToMany(targetEntity = LGyWlzt.class,mappedBy = "workFlow")
+    @JsonIgnore
+    private Set<LGyWlzt> lGyWlzts;
+
+    public Set<LGyWlzt> getlGyWlzts() {
+        return lGyWlzts;
+    }
+
+    public void setlGyWlzts(Set<LGyWlzt> lGyWlzts) {
+        this.lGyWlzts = lGyWlzts;
+    }
+
     public Set<WorkStep> getWorkSteps() {
         return workSteps;
     }

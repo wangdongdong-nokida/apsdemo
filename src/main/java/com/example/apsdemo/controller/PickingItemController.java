@@ -2,11 +2,13 @@ package com.example.apsdemo.controller;
 
 import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.*;
+import com.example.apsdemo.domain.CreateOperationParams;
 import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
 import org.omg.PortableServer.LIFESPAN_POLICY_ID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.swing.text.html.Option;
 import java.util.*;
 
 @RestController
@@ -62,6 +65,8 @@ public class PickingItemController {
     @Autowired
     ContainerService containerService;
 
+    @Autowired
+    LGyWlztService lGyWlztService;
 
     @RequestMapping(path = "/createPickingOrder")
     @Transactional
@@ -236,7 +241,7 @@ public class PickingItemController {
         List inside = ids.get("ids");
         if (inside != null && inside.size() > 0) {
             List<PickingOrder> pickingOrders = pickingOrderService.findAll(inside);
-            for(PickingOrder pickingOrder:pickingOrders){
+            for (PickingOrder pickingOrder : pickingOrders) {
                 cleanPickingOrderOperation(pickingOrder);
             }
             if (pickingOrders.size() > 0) {
@@ -248,7 +253,7 @@ public class PickingItemController {
     private void cleanPickingOrderOperation(PickingOrder pickingOrder) {
         if (pickingOrder != null) {
             Set<Operation> operations = pickingOrder.getOperation();
-            List<Long> operationIds=new LinkedList<>();
+            List<Long> operationIds = new LinkedList<>();
             for (Operation operation : operations) {
                 operationIds.add(operation.getID());
             }
@@ -295,7 +300,17 @@ public class PickingItemController {
 
     @RequestMapping(path = "/createOperationItem")
     @Transactional
-    public void createOperationItem(@RequestBody Map<String, List<String>> params) throws Exception {
+    public synchronized void createOperationItem(@RequestBody CreateOperationParams params) throws Exception {
+        Set<PickingOrder> pickingOrders;
+        pickingOrders = createOperationItemMethod(params);
+        if (pickingOrders.size() > 0) {
+            HttpController.postPickingOrderHttp(pickingOrders, "镜检");
+        }
+    }
+
+    @RequestMapping(path = "/autoCreateOperationItem")
+    @Transactional
+    public synchronized void autoCreateOperationItem(@RequestBody CreateOperationParams params) throws Exception {
         Set<PickingOrder> pickingOrders;
         pickingOrders = createOperationItemMethod(params);
         if (pickingOrders.size() > 0) {
@@ -304,43 +319,64 @@ public class PickingItemController {
     }
 
     @Transactional
-    public Set<PickingOrder> createOperationItemMethod(@RequestBody Map<String, List<String>> params) throws Exception {
-        List<String> pickingOrder = params.get("pickingOrder");
-        List<String> workFlow = params.get("workFlow");
-        List<String> workFlowStep = params.get("workFlowStep");
+    public Set<PickingOrder> createOperationItemMethod(CreateOperationParams params) throws Exception {
+        List<Long> pickingOrder = params.getPickingOrder();
+        String workFlowId = params.getWorkFlow();
         Set<PickingOrder> changePickingOrder = new HashSet<>();
-        if (pickingOrder == null || workFlow == null || workFlowStep == null || workFlow.size() == 0 || workFlowStep.size() == 0 || pickingOrder.size() == 0) {
+        if (pickingOrder == null || pickingOrder.size() == 0) {
             return changePickingOrder;
         }
 
-        Optional<PickingOrder> pickingOrderOptional = pickingOrderService.findById(Long.valueOf(pickingOrder.get(0)));
-        Optional<WorkFlow> workFlowOptional = workFLowService.findById(workFlow.get(0));
+        List<PickingOrder> pickingOrders = pickingOrderService.findAll(pickingOrder);
+        WorkFlow workFlow = null;
+        if (workFlowId != null) {
+            Optional<WorkFlow> workFlowOptional = workFLowService.findById(workFlowId);
+            if (workFlowOptional.isPresent()) {
+                workFlow = workFlowOptional.get();
+            }
+        }
 
-        if (pickingOrderOptional.isPresent() && workFlowOptional.isPresent()) {
-            PickingOrder indexPickingOrder = pickingOrderOptional.get();
-            for (Operation operation : indexPickingOrder.getOperation()) {
-                if (!Objects.equals(operation.getWorkFlowName(), workFlowOptional.get().getWorkFlowName().getWorkFlowName())) {
-                    throw new Exception("如需更换工艺路径请确保原工艺路径中的工序已被删除");
+
+        for (PickingOrder indexPickingOrder : pickingOrders) {
+            if (workFlow == null) {
+                boolean box = indexPickingOrder.isSalesOrder();
+                String state = indexPickingOrder.getSliceState();
+                Map specificationParams=new HashMap();
+                specificationParams.put("lWlxt",box?"芯片":"圆片");
+                specificationParams.put("lGyWlztname",state);
+                Specification specification =Tools.getSpecificationByParams(specificationParams);
+                List<LGyWlzt> lGyWlzts=lGyWlztService.findAll(specification);
+                if(lGyWlzts.size()>0){
+                    workFlow=lGyWlzts.get(0).getWorkFlow();
                 }
             }
-            indexPickingOrder.setWorkFlowName(workFlowOptional.get().getWorkFlowName());
-            for (String step : workFlowStep) {
-                Optional<WorkStep> workStepOptional = WorkStepService.findById(step);
-                if (workStepOptional.isPresent() && workStepOptional.get().getWorkStepName() != null && workFlowOptional.get().getWorkFlowName() != null) {
-                    boolean hasRepeat = false;
-                    for (Operation operation : pickingOrderOptional.get().getOperation()) {
-                        if (operation.getR_workStepName() != null && workStepOptional.get().getWorkStepName() != null && Objects.equals(operation.getR_workStepName().getID(), workStepOptional.get().getWorkStepName().getID())) {
-                            hasRepeat = true;
-                            break;
-                        }
+            if (workFlow != null) {
+                for (Operation operation : indexPickingOrder.getOperation()) {
+                    if (!Objects.equals(operation.getWorkFlowName(), workFlow.getWorkFlowName().getWorkFlowName())) {
+                        throw new Exception("如需更换工艺路径请确保原工艺路径中的工序已被删除");
                     }
-                    if (!hasRepeat) {
-                        Operation operation = new Operation(pickingOrderOptional.get());
-                        operation.setR_workStepName(workStepOptional.get().getWorkStepName());
-                        operation.setWorkStepName(workStepOptional.get().getWorkStepName().getStepName());
-                        operation.setWorkFlowName(workFlowOptional.get().getWorkFlowName().getWorkFlowName());
-                        operationService.save(operation);
-                        changePickingOrder.add(pickingOrderOptional.get());
+                }
+                indexPickingOrder.setWorkFlowName(workFlow.getWorkFlowName());
+                for (WorkStep step : workFlow.getWorkSteps()) {
+                    WorkStepName workStepName = step.getWorkStepName();
+                    if (workStepName != null && workStepName.isCreateOperation()) {
+                        if (workFlow.getWorkFlowName() != null) {
+                            boolean hasRepeat = false;
+                            for (Operation operation : indexPickingOrder.getOperation()) {
+                                if (operation.getR_workStepName() != null && Objects.equals(operation.getR_workStepName().getID(), workStepName.getID())) {
+                                    hasRepeat = true;
+                                    break;
+                                }
+                            }
+                            if (!hasRepeat) {
+                                Operation operation = new Operation(indexPickingOrder);
+                                operation.setR_workStepName(workStepName);
+                                operation.setWorkStepName(workStepName.getStepName());
+                                operation.setWorkFlowName(workFlow.getWorkFlowName().getWorkFlowName());
+                                operationService.save(operation);
+                                changePickingOrder.add(indexPickingOrder);
+                            }
+                        }
                     }
                 }
             }
@@ -352,9 +388,6 @@ public class PickingItemController {
 
     @RequestMapping(path = "/getOperation")
     public Result getOperation(@RequestBody Map<String, Object> params) {
-        if (params.get("params") == null || ((Map) params.get("params")).get("pickingOrder-ID") == null) {
-            return new Result();
-        }
         Result result = Tools.getResult(params, operationService);
 
         List<Operation> operations = result.getData();
