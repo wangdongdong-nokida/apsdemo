@@ -217,6 +217,35 @@ public class PickingItemController {
         return result;
     }
 
+
+    @RequestMapping(path = "/getSalesOrderByOccupy")
+    public Result getSalesOrderByOccupy(@RequestBody Map map) {
+        if (map.get("params") == null) {
+            return new Result();
+        }
+        Specification specification = Tools.getSpecificationByParams((Map<String, Object>) map.get("params"));
+        List<Occupy> occupies = occupyService.findAll(specification);
+        Map<String, SalesOrder> salesOrders = new TreeMap<>();
+        for (Occupy occupy : occupies) {
+            if (occupy.getSalesOrder() != null) {
+                salesOrders.put(occupy.getSalesOrder().getID(), occupy.getSalesOrder());
+            }
+        }
+        int pageSize = Integer.parseInt(map.get("pageSize").toString());
+        int current = Integer.parseInt(map.get("current").toString());
+        int numberStart = current > 0 ? (current - 1) * pageSize : 0;
+        int numberEnd = current > 0 ? current * pageSize : 0;
+        List<SalesOrder> salesOrderList = new LinkedList<>(salesOrders.values());
+        List salesOrdersResult;
+        if(salesOrderList.size()>=numberEnd){
+            salesOrdersResult= salesOrderList.subList(numberStart, numberEnd);
+        }else {
+            salesOrdersResult= salesOrderList.subList(numberStart,salesOrderList.size());
+        }
+
+        return new Result(salesOrdersResult, salesOrderList.size(), true, pageSize, current);
+    }
+
     @RequestMapping(path = "/deleteGearPickingOrders")
     @Transactional
     public void deleteGearPickingOrders(@RequestBody Map<String, List<Long>> ids) {
@@ -341,13 +370,13 @@ public class PickingItemController {
             if (workFlow == null) {
                 boolean box = indexPickingOrder.isSalesOrder();
                 String state = indexPickingOrder.getSliceState();
-                Map specificationParams=new HashMap();
-                specificationParams.put("lWlxt",box?"芯片":"圆片");
-                specificationParams.put("lGyWlztname",state);
-                Specification specification =Tools.getSpecificationByParams(specificationParams);
-                List<LGyWlzt> lGyWlzts=lGyWlztService.findAll(specification);
-                if(lGyWlzts.size()>0){
-                    workFlow=lGyWlzts.get(0).getWorkFlow();
+                Map specificationParams = new HashMap();
+                specificationParams.put("lWlxt", box ? "芯片" : "圆片");
+                specificationParams.put("lGyWlztname", state);
+                Specification specification = Tools.getSpecificationByParams(specificationParams);
+                List<LGyWlzt> lGyWlzts = lGyWlztService.findAll(specification);
+                if (lGyWlzts.size() > 0) {
+                    workFlow = lGyWlzts.get(0).getWorkFlow();
                 }
             }
             if (workFlow != null) {

@@ -56,16 +56,16 @@ public class WaferWarehouseController {
         List<WaferModelWarehouse> data = result.getData();
         if (data != null && data.size() > 0) {
             for (WaferModelWarehouse product : data) {
-                StringBuffer salesOeders = new StringBuffer();
+                StringBuffer salesOrders = new StringBuffer();
                 for (WaferGearWarehouse waferGearWarehouse : product.getWaferGearWarehouses()) {
                     Set<Occupy> occupies = waferGearWarehouse.getOccupies();
                     for (Occupy occupy : occupies) {
                         if (occupy.getSalesOrder() != null &&occupy.getSalesOrder().getDdh()!=null){
-                            salesOeders.append(occupy.getSalesOrder().getDdh());
+                            salesOrders.append(occupy.getSalesOrder().getDdh());
                         }
                     }
                 }
-                product.setBindSalesOrder(salesOeders.toString());
+                product.setBindSalesOrder(salesOrders.toString());
             }
         }
         return result;
