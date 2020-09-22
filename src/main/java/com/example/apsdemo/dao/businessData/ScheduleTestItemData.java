@@ -4,6 +4,7 @@ import com.example.apsdemo.Base.DataBase;
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import java.util.Date;
 
@@ -26,5 +27,8 @@ public class ScheduleTestItemData extends DataBase {
     private Date warehousingTime;	//	入库时间
     private int ArrivalDelay;		//到片延误
     private String reworkBrief;
+
+    @Column(name = "wipstep")
+    private String operationStatus;
 
 }

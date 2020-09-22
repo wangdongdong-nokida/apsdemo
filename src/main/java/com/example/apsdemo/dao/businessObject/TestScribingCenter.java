@@ -6,6 +6,7 @@ import com.example.apsdemo.dao.camstarObject.WaferWarehouse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -17,11 +18,11 @@ public class TestScribingCenter extends TestScribingCenterData {
 
     @JsonIgnore
     @OneToMany(targetEntity = ScheduleTestItem.class,mappedBy = "testScribingCenter",cascade = CascadeType.DETACH)
-    private Set<ScheduleTestItem> scheduleTestItem;
+    private Set<ScheduleTestItem> scheduleTestItem=new HashSet<>();
 
     @JsonIgnore
     @OneToMany(targetEntity = ScheduleScribingItem.class,mappedBy = "testScribingCenter",cascade = CascadeType.DETACH)
-    private Set<ScheduleScribingItem> scheduleScribingItems;
+    private Set<ScheduleScribingItem> scheduleScribingItems=new HashSet<>();
 
     @JsonIgnore
     @ManyToOne(targetEntity = SecondOrder.class)

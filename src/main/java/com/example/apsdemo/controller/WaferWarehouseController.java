@@ -75,4 +75,5 @@ public class WaferWarehouseController {
     public Result getWaferAll(@RequestBody Map<String, Object> params) {
         return Tools.getResult(params, service);
     }
+
 }
