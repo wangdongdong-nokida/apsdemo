@@ -458,6 +458,7 @@ public class PickingItemController {
             Long id = Long.valueOf(map.get("ID"));
             String equipmentSelected = map.get("equipmentSelected");
             int duration = Integer.parseInt(map.get("duration"));
+            int quantity = Integer.parseInt(map.get("quantity"));
             Optional<Equipment> equipmentOptional = equipmentService.findById(equipmentSelected);
             if (equipmentOptional.isPresent()) {
                 Equipment equipment = equipmentOptional.get();
@@ -466,6 +467,7 @@ public class PickingItemController {
                     Operation operation = operationOptional.get();
                     operation.setDurationTime(duration);
                     operation.setEquipmentName(equipment.getName());
+                    operation.setQuantity(quantity);
                     operationService.save(operation);
                     List<Long> ids = new LinkedList<>();
                     ids.add(operation.getID());
