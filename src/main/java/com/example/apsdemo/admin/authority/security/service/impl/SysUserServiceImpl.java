@@ -20,4 +20,10 @@ public class SysUserServiceImpl implements SysUserService {
         SysUser sysUser = sysUserMapper.findByUsername(username);
         return sysUser;
     }
+
+    @Override
+    public int updateUserPassword(String userName, String password) {
+        int result = sysUserMapper.updatePassword(userName,password);
+        return result;
+    }
 }

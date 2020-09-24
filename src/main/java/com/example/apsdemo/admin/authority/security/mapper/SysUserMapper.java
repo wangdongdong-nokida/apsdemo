@@ -2,10 +2,7 @@ package com.example.apsdemo.admin.authority.security.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.example.apsdemo.admin.authority.security.pojo.SysUser;
-import org.apache.ibatis.annotations.Many;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -28,5 +25,8 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
                     many = @Many(select = "com.example.apsdemo.admin.authority.security.mapper.SysRoleMapper.findByUserId"))
     })
     SysUser findByUsername(String username);
+
+    @Update("update employee set password = #{password} where employeeName = #{userName}")
+    int updatePassword(@Param("userName") String userName, @Param("password") String password);
 
 }
