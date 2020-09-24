@@ -6,22 +6,23 @@ import com.example.apsdemo.dao.camstarObject.WaferWarehouse;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "A_TestScribingCenter")
+@Table(name = "A_TestScribing_Center")
 public class TestScribingCenter extends TestScribingCenterData {
 
     @OneToOne(targetEntity = WaferWarehouse.class)
     private WaferWarehouse waferWarehouse;
 
     @JsonIgnore
-    @OneToMany(targetEntity = ScheduleTestItem.class,mappedBy = "testScribingCenter")
-    private Set<ScheduleTestItem> scheduleTestItem;
+    @OneToMany(targetEntity = ScheduleTestItem.class,mappedBy = "testScribingCenter",cascade = CascadeType.DETACH)
+    private Set<ScheduleTestItem> scheduleTestItem=new HashSet<>();
 
     @JsonIgnore
-    @OneToMany(targetEntity = ScheduleScribingItem.class,mappedBy = "testScribingCenter")
-    private Set<ScheduleScribingItem> scheduleScribingItems;
+    @OneToMany(targetEntity = ScheduleScribingItem.class,mappedBy = "testScribingCenter",cascade = CascadeType.DETACH)
+    private Set<ScheduleScribingItem> scheduleScribingItems=new HashSet<>();
 
     @JsonIgnore
     @ManyToOne(targetEntity = SecondOrder.class)
@@ -72,6 +73,12 @@ public class TestScribingCenter extends TestScribingCenterData {
             this.setWaferNr(waferWarehouse.getWaferNr());
             this.setSliceNr(waferWarehouse.getSliceNr());
             waferWarehouse.setTestScribingCenter(this);
+            for(ScheduleTestItem item:this.getScheduleTestItem()){
+                item.setTestScribingCenter(this);
+            }
+            for(ScheduleScribingItem item:this.getScheduleScribingItems()){
+                item.setTestScribingCenter(this);
+            }
         }
     }
 }

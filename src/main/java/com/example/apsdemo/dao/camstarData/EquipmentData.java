@@ -5,6 +5,7 @@ import lombok.Data;
 import javax.persistence.Column;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import java.util.Objects;
 
 
 @Data
@@ -22,4 +23,17 @@ public class EquipmentData {
     protected String status;
     @Column(name = "EQUIPMENTTYPE")
     protected String type;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof EquipmentData)) return false;
+        EquipmentData that = (EquipmentData) o;
+        return Objects.equals(getID(), that.getID());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getID());
+    }
 }

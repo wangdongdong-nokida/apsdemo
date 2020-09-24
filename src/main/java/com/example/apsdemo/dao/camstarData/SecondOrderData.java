@@ -90,8 +90,8 @@ public class SecondOrderData {
     protected String supplyBrief;
     @Column(name = "SQSJ")
     protected Date applyDate;
-    @Column(name = "YGHPL")
-    protected int planScribingQuantity;
+//    @Column(name = "YGHPL")
+//    protected int planScribingQuantity;
     @Column(name = "YQCSWCRQ")
     protected Date testFinishedDateRequired;
     @Column(name = "YQHPWCSJ")

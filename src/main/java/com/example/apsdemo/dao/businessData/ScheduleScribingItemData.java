@@ -4,6 +4,7 @@ import com.example.apsdemo.Base.DataBase;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import java.util.Date;
 
@@ -23,4 +24,7 @@ public class ScheduleScribingItemData extends DataBase {
     private String applyDate;
 
     private String reworkBrief;
+
+    @Column(name = "wipstep")
+    private String operationStatus;
 }

@@ -60,6 +60,7 @@ public class Tools {
                                 String replaceKey = key.replace("!", "");
                                 replaceKey = replaceKey.replace("*", "");
                                 replaceKey = replaceKey.replace("^", "");
+                                replaceKey = replaceKey.replace("<>", "");
                                 Path inside = path.get(replaceKey);
                                 path = inside;
                             } catch (Exception e) {
@@ -71,6 +72,7 @@ public class Tools {
                             String replaceKey = entry.getKey().replace("!", "");
                             replaceKey = replaceKey.replace("*", "");
                             replaceKey = replaceKey.replace("^", "");
+                            replaceKey = replaceKey.replace("<>", "");
                             Path inside = path.get(replaceKey);
                             path = inside;
                         } catch (Exception e) {
@@ -83,6 +85,8 @@ public class Tools {
                                 predicateList.add(criteriaBuilder.isNotEmpty(path));
                             } else if (entry.getKey().contains("!^")) {
                                 predicateList.add(criteriaBuilder.isNotNull(path));
+                            } else if (entry.getKey().contains("!<>")) {
+                                predicateList.add(criteriaBuilder.notLike(path, (String) entry.getValue()));
                             } else {
                                 predicateList.add(criteriaBuilder.notEqual(path, entry.getValue()));
                             }
@@ -90,8 +94,12 @@ public class Tools {
                             predicateList.add(criteriaBuilder.isEmpty(path));
                         } else if (entry.getKey().contains("^")) {
                             predicateList.add(criteriaBuilder.isNull(path));
+                        } else if (entry.getKey().contains("<>")) {
+                            predicateList.add(criteriaBuilder.like(path, (String) entry.getValue()));
                         } else {
-                            predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
+                            if (entry.getValue() != null && !"".equals(entry.getValue())) {
+                                predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
+                            }
                         }
                     }
                 }
@@ -132,5 +140,9 @@ public class Tools {
         return result;
     }
 
+
+    public static boolean checkIsEmpty(String object){
+        return object==null||"".equals(object);
+    }
 
 }

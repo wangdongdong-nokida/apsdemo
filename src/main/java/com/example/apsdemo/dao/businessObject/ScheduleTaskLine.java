@@ -14,7 +14,7 @@ import java.util.*;
 public class ScheduleTaskLine extends ScheduleTaskLineData {
 
     @JsonIgnore
-    @OneToOne(targetEntity = Equipment.class, fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = Equipment.class, fetch = FetchType.EAGER)
     private Equipment equipment;
 
     @JsonIgnore
@@ -30,10 +30,13 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
     }
 
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "first_id")
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
     private ScheduleTask first;
+
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "last_id")
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
     private ScheduleTask last;
 
 
@@ -61,6 +64,9 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             Container container = scheduleTaskMap.get(id);
             if (container == null) {
                 return null;
+            }
+            if(containerFirst==container){
+                containerFirst=container.getSon();
             }
             return container.removeFromLine();
         }
@@ -140,6 +146,12 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
 
             private void setSonRelation(Container son) {
+                if(this==son){
+                    return;
+                }
+                if(getContainerFirst()==son&&son.getSon()!=null){
+                    setContainerFirst(son.getSon());
+                }
                 son.removeFromLine();
                 Container containerSon = this.getSon();
                 this.setSon(son);
@@ -174,6 +186,10 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             public void linkTo(Container container, boolean after) {
                 if (container != null) {
                     if (after) {
+
+//                        if(getFirst()==container.getSelf()&&container.getSon()!=null){
+//                            setFirst(container.getSon().getSelf());
+//                        }
                         setSonRelation(container);
                     } else {
                         setFatherRelation(container);

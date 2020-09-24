@@ -1,11 +1,25 @@
 package com.example.apsdemo;
 
+
+import com.example.apsdemo.service.WorkStepService;
+import com.example.apsdemo.utils.Tools;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import java.util.HashMap;
+
 @SpringBootTest
 class ApsdemoApplicationTests {
+
+//    @Autowired
+//    WorkStepService WorkStepService;
+//
+//    @Test
+//    public void workFlow(){
+//        System.out.println( Tools.getResult(new HashMap<>(), WorkStepService));
+//    }
+//
 
 //    @Autowired
 //    TestController controller;
@@ -15,7 +29,7 @@ class ApsdemoApplicationTests {
 //        controller.calcChangeName("yjh");
 //    }
 
-//    @Autowired
+    //    @Autowired
 //    TestScheduleQueueMapper mapper;
 //
 //    @Autowired
@@ -63,11 +77,45 @@ class ApsdemoApplicationTests {
 //        System.out.println(bitSet.toLongArray());
 //    }
 //
+
+//    class Params{
+//       private LinkedMultiValueMap data;
+//
+//        public LinkedMultiValueMap getData() {
+//            return data;
+//        }
+//
+//        public void setData(LinkedMultiValueMap data) {
+//            this.data = data;
+//        }
+//    }
+
 //    @Test
 //    void testScribingCenterService() {
-//        TestScribingCenter center = new TestScribingCenter();
-//        testScribingCenterService.saveAndFlush(center);
-//        System.out.println(center);
+//
+//        Set<Long> ids = new HashSet<>();
+//        ids.add((long) 1);
+//        ids.add((long) 2);
+//        ids.add((long) 3);
+//        ids.add((long) 4);
+////        String url = "http://localhost:9090/http/test";
+//        String url = "http://172.16.0.12/CamstarPortal/startContainer.do";
+//        Map data = new HashMap();
+//        LinkedMultiValueMap<String,String> map = new LinkedMultiValueMap<String,String>();
+//        List list=new LinkedList();
+//        for (Long id : ids) {
+//            Map idMap = new HashMap();
+//            idMap.put("id", id);
+//            idMap.put("type", "1");
+//            list.add(idMap);
+//        }
+//        data.put("list",list);
+//        String listJson=JSONUtil.toJsonStr(data);
+//        RestTemplate client = new RestTemplate();
+//        map.add("data",listJson);
+//
+//        String result = client.postForEntity(url, map, String.class).getBody();
+//        System.out.println(result);
 //    }
 //
 //    @Test

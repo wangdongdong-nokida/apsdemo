@@ -4,13 +4,11 @@ import com.example.apsdemo.dao.businessObject.TestScribingCenter;
 import com.example.apsdemo.dao.camstarData.WaferWarehouseData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import java.util.Set;
 
 @Entity
+@Table(name = "L_YPXX")
 public class WaferWarehouse extends WaferWarehouseData {
 
     @JsonIgnore

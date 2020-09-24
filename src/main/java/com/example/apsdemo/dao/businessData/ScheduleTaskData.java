@@ -1,6 +1,7 @@
 package com.example.apsdemo.dao.businessData;
 
 import com.example.apsdemo.Base.DataBase;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,12 +15,12 @@ import java.util.Date;
 @Data
 public class ScheduleTaskData extends DataBase {
 
-    private int DurationTime;
-    @DateTimeFormat(pattern = "yyyy-MM-DD hh:mm")
-    private Date StartDate;
-    @DateTimeFormat(pattern = "yyyy-MM-DD hh:mm")
-    private Date EndDate;
-    private int DelayPlan;
-    private int DelayActually;
+    private int durationTime;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date startDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+    private Date endDate;
+    private int delayPlan;
+    private int delayActually;
     private int indexOrder;
 }
