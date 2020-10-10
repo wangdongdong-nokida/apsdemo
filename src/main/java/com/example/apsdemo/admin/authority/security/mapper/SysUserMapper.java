@@ -26,7 +26,7 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
     })
     SysUser findByUsername(String username);
 
-    @Update("update employee set password = #{password} where employeeName = #{userName}")
-    int updatePassword(@Param("userName") String userName, @Param("password") String password);
+    @Update("update employee set password = #{password},USER_PWD = #{newPwd} where employeeName = #{userName}")
+    int updatePassword(@Param("userName") String userName, @Param("password") String password, @Param("newPwd") String newPwd);
 
 }
