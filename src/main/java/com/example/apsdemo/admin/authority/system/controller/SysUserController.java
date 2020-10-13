@@ -6,9 +6,9 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.example.apsdemo.admin.authority.security.pojo.SysUser;
 import com.example.apsdemo.admin.authority.security.service.SysUserService;
 import com.example.apsdemo.admin.common.api.CommonResult;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +24,7 @@ import java.io.InputStreamReader;
 @RequestMapping("/user")
 public class SysUserController {
 
-    @Service
+    @Autowired
     private SysUserService userService;
 
     @GetMapping("/userInfo")
