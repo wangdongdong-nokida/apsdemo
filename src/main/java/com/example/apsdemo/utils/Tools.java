@@ -1,6 +1,5 @@
 package com.example.apsdemo.utils;
 
-import com.example.apsdemo.dao.camstarObject.WaferProduct;
 import com.example.apsdemo.domain.RequestPage;
 import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.BaseService;

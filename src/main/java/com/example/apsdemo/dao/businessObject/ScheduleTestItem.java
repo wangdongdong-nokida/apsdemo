@@ -9,12 +9,13 @@ import javax.persistence.*;
 @Entity
 @Table(name = "A_scheduleTestItem")
 public class ScheduleTestItem extends ScheduleTestItemData {
+
     @JsonIgnore
-    @ManyToOne(targetEntity = TestScribingCenter.class,fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = TestScribingCenter.class, fetch = FetchType.LAZY)
     private TestScribingCenter testScribingCenter;
 
     @JsonIgnore
-    @OneToOne(targetEntity = ScheduleTask.class,cascade = CascadeType.ALL,fetch = FetchType.LAZY)
+    @OneToOne(targetEntity = ScheduleTask.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScheduleTask scheduleTask;
 
     @JsonIgnore
@@ -35,7 +36,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
 
     public void setScheduleTask(ScheduleTask scheduleTask) {
         this.scheduleTask = scheduleTask;
-        if(scheduleTask!=null){
+        if (scheduleTask != null) {
             scheduleTask.setScheduleTestItem(this);
         }
     }
@@ -49,17 +50,17 @@ public class ScheduleTestItem extends ScheduleTestItemData {
 
     public void setTestScribingCenter(TestScribingCenter testScribingCenter) {
         this.testScribingCenter = testScribingCenter;
-        if(testScribingCenter!=null){
+        if (testScribingCenter != null) {
             testScribingCenter.getScheduleTestItem().add(this);
             this.setWaferNr(testScribingCenter.getWaferNr());
             this.setSliceNr(testScribingCenter.getSliceNr());
         }
     }
 
-    public ScheduleTestItem(SecondOrder secondOrder,ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime,int quantity,String circuitNr){
+    public ScheduleTestItem(SecondOrder secondOrder, ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime, int quantity, String circuitNr) {
         this.setSecondOrder(secondOrder);
         this.setWaferNr(waferNr);
-        this.setScheduleTask(new ScheduleTask(line,this,durationTime));
+        this.setScheduleTask(new ScheduleTask(line, this, durationTime));
         this.setTestScribingCenter(center);
         this.setProductNr(product);
         this.setSliceNr(sliceNr);

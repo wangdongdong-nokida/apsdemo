@@ -1,12 +1,7 @@
 package com.example.apsdemo.controller;
 
 import cn.hutool.json.JSONUtil;
-import com.example.apsdemo.dao.businessObject.Operation;
 import com.example.apsdemo.dao.businessObject.PickingOrder;
-import com.example.apsdemo.domain.Result;
-import com.example.apsdemo.service.WorkFLowService;
-import com.example.apsdemo.utils.Tools;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,13 +15,17 @@ import java.util.*;
 @RequestMapping(path = "/http")
 public class HttpController {
 
+//    private static final  String url = "http://localhost/CamstarPortal/startContainer.do";
+    public static final  String url = "http://172.16.0.12/CamstarPortal/startContainer.do";
+//    public static final  String url = "http://10.14.100.61/CamstarPortal/startContainer.do";
+
+
     @PostMapping(path = "/test")
     public void test(HttpServletRequest request) {
         System.out.println(request);
     }
 
     public static void postHttp(Set<Long> ids, String type) {
-        String url = "http://172.16.0.12/CamstarPortal/startContainer.do";
         Map data = new HashMap();
         LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         List list = new LinkedList();
@@ -37,11 +36,10 @@ public class HttpController {
             idMap.put("workflow", type);
             list.add(idMap);
         }
-        postThread(url, data, map, list);
-
+        postThread(data, map, list);
     }
 
-    private synchronized static void postThread(String url, Map data, LinkedMultiValueMap<String, String> map, List list) {
+    private synchronized static void postThread(Map data, LinkedMultiValueMap<String, String> map, List list) {
         data.put("list", list);
         String listJson = JSONUtil.toJsonStr(data);
         RestTemplate client = new RestTemplate();
@@ -49,7 +47,7 @@ public class HttpController {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                System.out.println(client.postForEntity(url, map, String.class).getBody());
+                System.out.println(client.postForEntity(HttpController.url, map, String.class).getBody());
             }
         };
         Thread thread=new Thread(runnable);
@@ -57,7 +55,6 @@ public class HttpController {
     }
 
     public static void postPickingOrderHttp(Set<PickingOrder> ids, String type) {
-        String url = "http://172.16.0.12/CamstarPortal/startContainer.do";
         Map data = new HashMap();
         LinkedMultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         List list = new LinkedList();
@@ -68,7 +65,7 @@ public class HttpController {
             idMap.put("workflow", id.getWorkFlowName().getWorkFlowName());
             list.add(idMap);
         }
-        postThread(url, data, map, list);
+        postThread(data, map, list);
     }
 
 }
