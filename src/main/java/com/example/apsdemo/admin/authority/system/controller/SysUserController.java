@@ -41,7 +41,7 @@ public class SysUserController {
         try {
             BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
             String password = "{bcrypt}"+passwordEncoder.encode(newPwd);
-            int result = userService.updateUserPassword(userName,password,newPwd);
+            int result = userService.updateUserPassword(userName,password);
             if(result > 0){
                 StringBuffer command = new StringBuffer();
                 command.append("net user ");

@@ -12,6 +12,6 @@ public interface SysUserService {
      */
     SysUser findByUsername(String username);
 
-    int updateUserPassword(String userName,String password,String newPwd);
+    int updateUserPassword(String userName,String password);
 
 }

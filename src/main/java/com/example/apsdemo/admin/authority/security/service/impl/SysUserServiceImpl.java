@@ -22,8 +22,8 @@ public class SysUserServiceImpl implements SysUserService {
     }
 
     @Override
-    public int updateUserPassword(String userName, String password,String newPwd) {
-        int result = sysUserMapper.updatePassword(userName,password,newPwd);
+    public int updateUserPassword(String userName, String password) {
+        int result = sysUserMapper.updatePassword(userName,password);
         return result;
     }
 }
