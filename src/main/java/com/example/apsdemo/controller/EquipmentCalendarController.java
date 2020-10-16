@@ -11,7 +11,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -35,15 +34,14 @@ public class EquipmentCalendarController {
     private EquipmentService equipmentService;
 
     @RequestMapping(path = "/create", method = RequestMethod.POST)
-    @Transactional
-    public synchronized void create(@RequestBody @Valid EquipmentCalendarBean calendarBean) throws Exception {
+    public void create(@RequestBody @Valid EquipmentCalendarBean calendarBean) throws Exception {
 
         Optional<Equipment> equipment = equipmentService.findById(calendarBean.getEquipmentId());
         if (equipment.isPresent() && calendarBean.getData() != null) {
             EquipmentCalendar calendar = new EquipmentCalendar();
             BeanUtils.copyProperties(calendarBean.getData(), calendar);
             calendar.setEquipment(equipment.get());
-//            service.createOrUpdate(calendar);
+            service.createOrUpdate(calendar);
             scheduleMethod.getBitSetWrapper(equipment.get());
         } else {
             throw new Exception("没有找到选中设备！");
@@ -51,13 +49,12 @@ public class EquipmentCalendarController {
     }
 
     @RequestMapping(path = "/update", method = RequestMethod.POST)
-    @Transactional
-    public synchronized void update(@RequestBody EquipmentCalendarData data) throws Exception {
+    public void update(@RequestBody EquipmentCalendarData data) throws Exception {
 
         Optional<EquipmentCalendar> calendar = service.findById(data.getID());
         if (calendar.isPresent()) {
             BeanUtils.copyProperties(data, calendar.get());
-//            service.createOrUpdate(calendar.get());
+            service.createOrUpdate(calendar.get());
             if(calendar.get().getEquipment()!=null){
                 scheduleMethod.getBitSetWrapper(calendar.get().getEquipment());
             }
@@ -83,8 +80,7 @@ public class EquipmentCalendarController {
 
 
     @RequestMapping(path = "/delete", method = RequestMethod.POST)
-    @Transactional
-    public synchronized void delete(@RequestBody Delete delete) {
+    public void delete(@RequestBody Delete delete) {
         if (delete.getIds().size() > 0) {
             service.delete(delete.getIds());
         }

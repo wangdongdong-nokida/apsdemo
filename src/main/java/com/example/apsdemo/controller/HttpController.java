@@ -15,10 +15,9 @@ import java.util.*;
 @RequestMapping(path = "/http")
 public class HttpController {
 
-//    private static final String url = "http://localhost/CamstarPortal/startContainer.do";
-    private static final String url = "http://172.16.0.12/CamstarPortal/startContainer.do";
-//    private static final String url = "http://10.14.100.21/CamstarPortal/startContainer.do";
-//    private static final String url = "http://10.14.100.61/CamstarPortal/startContainer.do";
+//    private static final  String url = "http://localhost/CamstarPortal/startContainer.do";
+    public static final  String url = "http://172.16.0.12/CamstarPortal/startContainer.do";
+//    public static final  String url = "http://10.14.100.61/CamstarPortal/startContainer.do";
 
 
     @PostMapping(path = "/test")
@@ -51,7 +50,7 @@ public class HttpController {
                 System.out.println(client.postForEntity(HttpController.url, map, String.class).getBody());
             }
         };
-        Thread thread = new Thread(runnable);
+        Thread thread=new Thread(runnable);
         thread.start();
     }
 
