@@ -1,5 +1,7 @@
 package com.example.apsdemo.controller;
 
+import com.example.apsdemo.dao.businessObject.ScheduleTestItem;
+import com.example.apsdemo.dao.businessObject.TestScribingCenter;
 import com.example.apsdemo.dao.camstarObject.*;
 import com.example.apsdemo.domain.RequestPage;
 import com.example.apsdemo.domain.Result;
@@ -13,10 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping(path = "/waferWarehouse")
@@ -37,7 +36,35 @@ public class WaferWarehouseController {
         if (params.get("params") == null || ((Map) params.get("params")).get("waferNr") == null) {
             return new Result();
         }
-        return Tools.getResult(params, service);
+        Result result = Tools.getResult(params, service);
+
+
+        if (result.getData().size() > 0) {
+            List<WaferWarehouse> waferWarehouses = result.getData();
+            for (WaferWarehouse waferWarehouse : waferWarehouses) {
+                TestScribingCenter testScribingCenter = waferWarehouse.getTestScribingCenter();
+                if (testScribingCenter != null) {
+                    Set<ScheduleTestItem> testItems = testScribingCenter.getScheduleTestItem();
+                    Set<SecondOrder> orders = new HashSet<>();
+                    for (ScheduleTestItem item : testItems) {
+                        SecondOrder secondOrder = item.getSecondOrder();
+                        if (secondOrder != null) {
+                            orders.add(secondOrder);
+                        }
+                    }
+                    if (orders.size() > 0) {
+                        StringBuilder secondOrder = new StringBuilder();
+                        for(SecondOrder order:orders){
+                            if(order.getName()!=null&&!"".equals(order.getName())){
+                                secondOrder.append(order.getName()).append(";");
+                            }
+                        }
+                        waferWarehouse.setBindingSecondOrders(secondOrder.toString());
+                    }
+                }
+            }
+        }
+        return result;
     }
 
 
@@ -60,7 +87,7 @@ public class WaferWarehouseController {
                 for (WaferGearWarehouse waferGearWarehouse : product.getWaferGearWarehouses()) {
                     Set<Occupy> occupies = waferGearWarehouse.getOccupies();
                     for (Occupy occupy : occupies) {
-                        if (occupy.getSalesOrder() != null &&occupy.getSalesOrder().getDdh()!=null){
+                        if (occupy.getSalesOrder() != null && occupy.getSalesOrder().getDdh() != null) {
                             salesOrders.append(occupy.getSalesOrder().getDdh());
                         }
                     }
