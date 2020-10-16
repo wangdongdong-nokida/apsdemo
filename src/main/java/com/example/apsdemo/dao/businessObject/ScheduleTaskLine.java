@@ -31,12 +31,12 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
     @JsonIgnore
     @JoinColumn(name = "first_id")
-    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     private ScheduleTask first;
 
     @JsonIgnore
     @JoinColumn(name = "last_id")
-    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY,cascade = CascadeType.DETACH)
+    @OneToOne(targetEntity = ScheduleTask.class, fetch = FetchType.LAZY, cascade = CascadeType.DETACH)
     private ScheduleTask last;
 
 
@@ -65,8 +65,8 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             if (container == null) {
                 return null;
             }
-            if(containerFirst==container){
-                containerFirst=container.getSon();
+            if (containerFirst == container) {
+                containerFirst = container.getSon();
             }
             return container.removeFromLine();
         }
@@ -93,7 +93,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             }
         }
 
-//        从数据库中获取的排产队列，转换为内存模型
+        //        从数据库中获取的排产队列，转换为内存模型
         public void addLast(ScheduleTask task) {
             task.setScheduleTaskLine(this.getLine());
             Container last = new Container(getContainerLast(), null, task);
@@ -109,7 +109,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
         public void addLastAndQueen(ScheduleTask task) {
 
-            ScheduleTaskLine line=this.getLine();
+            ScheduleTaskLine line = this.getLine();
             task.setScheduleTaskLine(line);
             Container last = new Container(getContainerLast(), null, task);
             if (getContainerLast() == null) {
@@ -122,7 +122,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
         }
 
 
-//        todo:逻辑需要补充
+        //        todo:逻辑需要补充
         public void addFirst(ScheduleTask task) {
             Container last = new Container(null, getContainerFirst(), task);
             if (getContainerFirst() == null) {
@@ -146,10 +146,10 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
 
             private void setSonRelation(Container son) {
-                if(this==son){
+                if (this == son) {
                     return;
                 }
-                if(getContainerFirst()==son&&son.getSon()!=null){
+                if (getContainerFirst() == son && son.getSon() != null) {
                     setContainerFirst(son.getSon());
                 }
                 son.removeFromLine();
@@ -230,9 +230,9 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
                 if (wrapper.getBitSet().isEmpty()) {
                     if (this.getSelf().getStartDate() == null) {
-                        Calendar calendar=Calendar.getInstance();
-                        calendar.set(Calendar.SECOND,0);
-                        calendar.set(Calendar.MILLISECOND,0);
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(Calendar.SECOND, 0);
+                        calendar.set(Calendar.MILLISECOND, 0);
                         this.getSelf().setStartDate(calendar.getTime());
                     }
                     Calendar calendar = Calendar.getInstance();
@@ -272,9 +272,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                 }
                 this.self = self;
             }
-
         }
-
     }
 
 
