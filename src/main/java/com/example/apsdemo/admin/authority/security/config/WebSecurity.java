@@ -70,7 +70,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
         //让Spring security 放行所有preflight request（cors 预检请求）
         registry.requestMatchers(CorsUtils::isPreFlightRequest).permitAll();
 
-        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+        http.csrf().disable().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .and().authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // 放行swagger的一些请求
