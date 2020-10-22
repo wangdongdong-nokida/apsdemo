@@ -1,5 +1,10 @@
 package com.example.apsdemo.controller;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.example.apsdemo.admin.authority.security.pojo.SysUser;
+import com.example.apsdemo.admin.authority.security.service.SysUserService;
+import com.example.apsdemo.admin.common.api.CommonResult;
 import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.dao.camstarObject.SecondOrder;
@@ -10,7 +15,9 @@ import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +52,9 @@ public class TestItemController {
     SecondOrderService secondOrderService;
     @Autowired
     ScheduleMethod scheduleMethod;
+
+    @Autowired
+    private SysUserService userService;
 
     @SneakyThrows
     @RequestMapping(path = "/create")
@@ -95,7 +105,7 @@ public class TestItemController {
                         center.setWaferWarehouse(waferWarehouse);
                         testScribingCenterService.save(center);
                     }
-                    int productWaferSize = requestPage.getProduct().size() * waferWarehouseList.size();
+                    int productWaferSize = requestPage.getProduct().size();
                     for (TestItemCreateParams.Product product : requestPage.getProduct()) {
                         ids.addAll(createItemByParams(order, requestPage, line, productWaferSize, forecastSize, screenSize, assessmentSize, product.getModelNr(), waferWarehouse.getSliceNr(), center, product));
                     }
@@ -164,6 +174,7 @@ public class TestItemController {
     @RequestMapping(path = "/editBrief")
     @Transactional
     public void editBrief(@RequestBody EditBrief brief) {
+//        SysUser sysUser = (SysUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (brief.getIds() == null) {
             throw new Exception("没有选中测试明细！");
         }
@@ -291,13 +302,13 @@ public class TestItemController {
                 boolean secondOrderZero = to.getSecondOrder() == null;
                 if (testZero && scribingZero && secondOrderZero) {
                     to.setSecondOrder(center.getSecondOrder());
-                    for (ScheduleTestItem testItem:center.getScheduleTestItem()) {
+                    for (ScheduleTestItem testItem : center.getScheduleTestItem()) {
                         testItem.setTestScribingCenter(to);
                     }
-                    for(ScheduleScribingItem scribingItem:center.getScheduleScribingItems()){
+                    for (ScheduleScribingItem scribingItem : center.getScheduleScribingItems()) {
                         scribingItem.setTestScribingCenter(center);
                     }
-                }else {
+                } else {
                     throw new Exception("更换的圆片已经创建测试明细或则划片明细，请重新选择！");
                 }
             }

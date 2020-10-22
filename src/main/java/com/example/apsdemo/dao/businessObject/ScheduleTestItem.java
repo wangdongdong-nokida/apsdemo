@@ -18,7 +18,6 @@ public class ScheduleTestItem extends ScheduleTestItemData {
     @OneToOne(targetEntity = ScheduleTask.class, cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private ScheduleTask scheduleTask;
 
-    @JsonIgnore
     @ManyToOne(targetEntity = SecondOrder.class)
     private SecondOrder secondOrder;
 

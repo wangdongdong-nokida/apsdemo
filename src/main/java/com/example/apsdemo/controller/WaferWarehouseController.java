@@ -100,6 +100,11 @@ public class WaferWarehouseController {
 
     @PostMapping(path = "/getWaferAll")
     public Result getWaferAll(@RequestBody Map<String, Object> params) {
+
+        if(params.get("waferNr")!=null){
+            Map parameter=(Map) params.computeIfAbsent("params",k->new HashMap<>());
+            parameter.put("waferNr",params.get("waferNr"));
+        }
         return Tools.getResult(params, service);
     }
 

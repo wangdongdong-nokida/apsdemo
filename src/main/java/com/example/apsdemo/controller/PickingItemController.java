@@ -170,7 +170,24 @@ public class PickingItemController {
         if (map.get("params") == null || (((Map) map.get("params")).get("waferGearWarehouse-waferModelWarehouse-waferWarehouse-ID") == null)) {
             return new Result();
         }
-        return Tools.getResult(map, gearPickingOrderService);
+        Map params = new HashMap();
+        params.put("params", map.get("params"));
+        Result result = Tools.getResult(params, gearPickingOrderService);
+        List<GearPickingOrder> gearPickingOrders = result.getData();
+        List<PickingOrder> pickingOrders = new LinkedList<>();
+        for (GearPickingOrder gearPickingOrder : gearPickingOrders) {
+            PickingOrder pickingOrder = gearPickingOrder.getPickingOrder();
+            if (pickingOrder != null&&!pickingOrders.contains(pickingOrder)) {
+                pickingOrders.add(pickingOrder);
+            }
+        }
+        int pageSize = Integer.parseInt(map.get("pageSize").toString());
+        int current = Integer.parseInt(map.get("current").toString());
+        int start = (current - 1) * pageSize;
+        int end = (current * pageSize);
+
+        List resultData = pickingOrders.subList(start > 0 ? start : 0, end < pickingOrders.size() ? end : pickingOrders.size());
+        return new Result(resultData, resultData.size(), true, pageSize, current);
     }
 
     @RequestMapping(path = "/getPickingOrdersBySales")
@@ -237,10 +254,10 @@ public class PickingItemController {
         int numberEnd = current > 0 ? current * pageSize : 0;
         List<SalesOrder> salesOrderList = new LinkedList<>(salesOrders.values());
         List salesOrdersResult;
-        if(salesOrderList.size()>=numberEnd){
-            salesOrdersResult= salesOrderList.subList(numberStart, numberEnd);
-        }else {
-            salesOrdersResult= salesOrderList.subList(numberStart,salesOrderList.size());
+        if (salesOrderList.size() >= numberEnd) {
+            salesOrdersResult = salesOrderList.subList(numberStart, numberEnd);
+        } else {
+            salesOrdersResult = salesOrderList.subList(numberStart, salesOrderList.size());
         }
 
         return new Result(salesOrdersResult, salesOrderList.size(), true, pageSize, current);
@@ -252,13 +269,14 @@ public class PickingItemController {
 
         List inside = ids.get("ids");
         if (inside != null && inside.size() > 0) {
-            List<GearPickingOrder> gearPickingOrders = gearPickingOrderService.findAll(inside);
-            if (gearPickingOrders.size() > 0) {
-                for (GearPickingOrder gearPickingOrder : gearPickingOrders) {
-                    PickingOrder pickingOrder = gearPickingOrder.getPickingOrder();
+            List<PickingOrder> pickingOrders = pickingOrderService.findAll(inside);
+            if (pickingOrders.size() > 0) {
+                for (PickingOrder pickingOrder : pickingOrders) {
                     cleanPickingOrderOperation(pickingOrder);
+                    if(pickingOrder.getGearPickingOrders().size()>0){
+                        gearPickingOrderService.deleteAll(pickingOrder.getGearPickingOrders());
+                    }
                 }
-                gearPickingOrderService.deleteAll(gearPickingOrders);
             }
         }
     }

@@ -44,6 +44,7 @@ public class ScribingItemController {
         if (params != null) {
             Object showType = ((Map) params).get("showType");
             Map paramsMap = new HashMap();
+            paramsMap.putAll((Map) params);
             if (showType == null || showType.equals("uncreated")) {
                 paramsMap.put("*scheduleScribingItems", "uncreated");
                 map.put("params", paramsMap);

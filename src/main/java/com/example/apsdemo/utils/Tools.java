@@ -85,7 +85,7 @@ public class Tools {
                             } else if (entry.getKey().contains("!^")) {
                                 predicateList.add(criteriaBuilder.isNotNull(path));
                             } else if (entry.getKey().contains("!<>")) {
-                                predicateList.add(criteriaBuilder.notLike(path, (String) entry.getValue()));
+                                predicateList.add(criteriaBuilder.notLike(path, "%" + (String) entry.getValue() + "%"));
                             } else {
                                 predicateList.add(criteriaBuilder.notEqual(path, entry.getValue()));
                             }
@@ -94,10 +94,14 @@ public class Tools {
                         } else if (entry.getKey().contains("^")) {
                             predicateList.add(criteriaBuilder.isNull(path));
                         } else if (entry.getKey().contains("<>")) {
-                            predicateList.add(criteriaBuilder.like(path, (String) entry.getValue()));
+                            predicateList.add(criteriaBuilder.like(path, "%" +(String) entry.getValue()+"%"));
                         } else {
                             if (entry.getValue() != null && !"".equals(entry.getValue())) {
-                                predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
+                                if (entry.getValue() instanceof String) {
+                                    predicateList.add(criteriaBuilder.like(path, "%" + entry.getValue() + "%"));
+                                } else {
+                                    predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
+                                }
                             }
                         }
                     }
@@ -140,8 +144,8 @@ public class Tools {
     }
 
 
-    public static boolean checkIsEmpty(String object){
-        return object==null||"".equals(object);
+    public static boolean checkIsEmpty(String object) {
+        return object == null || "".equals(object);
     }
 
 }
