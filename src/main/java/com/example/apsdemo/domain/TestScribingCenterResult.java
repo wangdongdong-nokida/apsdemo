@@ -11,10 +11,14 @@ import java.util.List;
 @Data
 public class TestScribingCenterResult {
     TestScribingCenter center;
-    List<SecondOrder> secondOrders=new LinkedList<>();
+    Collection<SecondOrder> secondOrders=new LinkedList<>();
+    String productType;
+    String orderType;
 
-    public TestScribingCenterResult(TestScribingCenter center, Collection<SecondOrder> secondOrders) {
+    public TestScribingCenterResult(TestScribingCenter center, Collection<SecondOrder> secondOrders, String productType, String orderType) {
         this.center = center;
-        this.secondOrders.addAll(secondOrders);
+        this.secondOrders = secondOrders;
+        this.productType = productType;
+        this.orderType = orderType;
     }
 }

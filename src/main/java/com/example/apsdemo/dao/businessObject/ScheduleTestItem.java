@@ -29,6 +29,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         this.secondOrder = secondOrder;
     }
 
+
     public ScheduleTask getScheduleTask() {
         return scheduleTask;
     }
@@ -47,7 +48,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         return testScribingCenter;
     }
 
-    public void setTestScribingCenter(TestScribingCenter testScribingCenter) {
+    public  void setTestScribingCenter(TestScribingCenter testScribingCenter) {
         this.testScribingCenter = testScribingCenter;
         if (testScribingCenter != null) {
             testScribingCenter.getScheduleTestItem().add(this);

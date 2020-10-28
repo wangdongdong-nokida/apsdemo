@@ -11,11 +11,21 @@ import java.util.Set;
 @Table(name = "L_DD",catalog = "")
 public class SalesOrder extends SalesOrderData {
 
-
     private Set<Occupy> occupies=new HashSet<>();
 
-
     private LHt lHt;
+
+    private LTgfs lTgfs;
+
+    @JoinColumn(name = "tgfs",foreignKey = @ForeignKey(name="null",value = ConstraintMode.NO_CONSTRAINT))
+    @ManyToOne(targetEntity = LTgfs.class)
+    public LTgfs getlTgfs() {
+        return lTgfs;
+    }
+
+    public void setlTgfs(LTgfs lTgfs) {
+        this.lTgfs = lTgfs;
+    }
 
     @JoinColumn(name = "L_HTID",foreignKey = @ForeignKey(name="null",value = ConstraintMode.NO_CONSTRAINT))
     @ManyToOne(targetEntity = LHt.class)

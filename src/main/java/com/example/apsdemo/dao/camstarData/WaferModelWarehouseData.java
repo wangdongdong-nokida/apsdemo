@@ -26,4 +26,7 @@ public class WaferModelWarehouseData {
 
     @Transient
     protected String bindSalesOrder;
+
+    @Transient
+    protected int quantity;
 }

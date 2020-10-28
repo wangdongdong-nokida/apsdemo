@@ -70,6 +70,8 @@ public class WaferWarehouseController {
 
     @RequestMapping(path = "/findWaferWarehouse")
     public Result findWaferWarehouse(@RequestBody Map<String, Object> params) {
+        Map<String, Object> map=(Map<String, Object>) params.computeIfAbsent("params",key->new HashMap<String, Object>());
+        map.put("stockName","芯片库");
         return Tools.getResult(params, service);
     }
 
@@ -84,6 +86,7 @@ public class WaferWarehouseController {
         if (data != null && data.size() > 0) {
             for (WaferModelWarehouse product : data) {
                 StringBuffer salesOrders = new StringBuffer();
+                int quantity=0;
                 for (WaferGearWarehouse waferGearWarehouse : product.getWaferGearWarehouses()) {
                     Set<Occupy> occupies = waferGearWarehouse.getOccupies();
                     for (Occupy occupy : occupies) {
@@ -91,8 +94,12 @@ public class WaferWarehouseController {
                             salesOrders.append(occupy.getSalesOrder().getDdh());
                         }
                     }
+//                    if("圆片".equals(waferGearWarehouse.getWLXT())){
+                        quantity+= waferGearWarehouse.getQuantity();
+//                    }
                 }
                 product.setBindSalesOrder(salesOrders.toString());
+                product.setQuantity(quantity);
             }
         }
         return result;

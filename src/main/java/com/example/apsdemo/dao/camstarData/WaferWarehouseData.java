@@ -36,6 +36,8 @@ public class WaferWarehouseData {
 //    protected String operator;
     @Column(name = "YPZT")
     protected String status;
+    @Column(name = "KFNAME")
+    protected String stockName;
 
     @Transient
     protected String bindingSecondOrders;

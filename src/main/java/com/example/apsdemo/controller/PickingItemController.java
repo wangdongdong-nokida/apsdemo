@@ -124,6 +124,8 @@ public class PickingItemController {
                                 order.setWaferNr(occupy.getWaferGearWarehouse().getWaferModelWarehouse().getWaferWarehouse().getWaferNr());
                                 order.setModelNr(occupy.getWaferGearWarehouse().getWaferModelWarehouse().getModelNr());
                                 order.setSliceState(occupy.getWaferGearWarehouse().getWLZT());
+                                order.setSliceNr(occupy.getWaferGearWarehouse().getWaferModelWarehouse().getWaferWarehouse().getSliceNr());
+                                order.setCircuitNr(occupy.getWaferGearWarehouse().getWaferModelWarehouse().getCircuitNr());
                             }
                         }
                     }
@@ -177,7 +179,7 @@ public class PickingItemController {
         List<PickingOrder> pickingOrders = new LinkedList<>();
         for (GearPickingOrder gearPickingOrder : gearPickingOrders) {
             PickingOrder pickingOrder = gearPickingOrder.getPickingOrder();
-            if (pickingOrder != null&&!pickingOrders.contains(pickingOrder)) {
+            if (pickingOrder != null && !pickingOrders.contains(pickingOrder)) {
                 pickingOrders.add(pickingOrder);
             }
         }
@@ -273,7 +275,7 @@ public class PickingItemController {
             if (pickingOrders.size() > 0) {
                 for (PickingOrder pickingOrder : pickingOrders) {
                     cleanPickingOrderOperation(pickingOrder);
-                    if(pickingOrder.getGearPickingOrders().size()>0){
+                    if (pickingOrder.getGearPickingOrders().size() > 0) {
                         gearPickingOrderService.deleteAll(pickingOrder.getGearPickingOrders());
                     }
                 }
@@ -435,8 +437,17 @@ public class PickingItemController {
 
     @RequestMapping(path = "/getOperation")
     public Result getOperation(@RequestBody Map<String, Object> params) {
+        Map<String, Object> map = (Map) params.computeIfAbsent("params", key -> new HashMap<String, Object>());
+        if (map.get("showType") != null) {
+            if ("uncreated".equals(map.get("showType"))) {
+                map.put("^equipmentName", "");
+            } else if ("created".equals(map.get("showType"))) {
+                map.put("!^equipmentName", "");
+            }
+        } else {
+            map.put("^equipmentName", "");
+        }
         Result result = Tools.getResult(params, operationService);
-
         List<Operation> operations = result.getData();
 
         for (Operation operation : operations) {

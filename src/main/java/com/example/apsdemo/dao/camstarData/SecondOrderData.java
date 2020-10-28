@@ -13,18 +13,17 @@ public class SecondOrderData {
 
     @Column(name = "CJRID")
     protected String cjrid;
-    @Column(name = "CSBZID")
-    protected String csbzid;
-    @Column(name = "HPBZID")
-    protected String hpbzid;
-    @Column(name = "L_DLLXID")
-    protected String lDllxid;
-    @Column(name = "L_DLXHID")
-    protected String lDlxhid;
-    @Column(name = "SQRID")
-    protected String sqrid;
+    @Column(name = "CSBZ")
+    protected String csbz;
+//    @Column(name = "L_DLLXID")
+//    protected String lDllxid;
+//    @Column(name = "L_DLXHID")
+//    protected String lDlxhid;
+//    @Column(name = "SQRID")
+//    protected String sqrid;
     @Column(name = "HPBZ")
     protected String scribingGroup;
+
     protected boolean testHidden;
     @Column(name = "BZ")
     protected String brief;
@@ -44,8 +43,8 @@ public class SecondOrderData {
 //    protected String circuitId;
 //    @Column(name = "GXRID")
 //    protected String gxrid;
-//    @Column(name = "GXRQ")
-//    private Time gxrq;
+    @Column(name = "GXRQ")
+    private Time gxrq;
 
     @Column(name = "HPJHWCRQ")
     protected Date scribingPlanFinishDate;

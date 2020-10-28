@@ -24,8 +24,6 @@ public class SalesOrderData {
     private String sfjj;
     @Attribute(name = "是否监制")
     private String sfjz;
-    @Attribute(name = "提供方式")
-    private String tgfs;
     @Attribute(name = "型号")
     private String xh;
     @Attribute(name = "预发货日期")
@@ -435,16 +433,6 @@ public class SalesOrderData {
 
     public void setTcqps(String tcqps) {
         this.tcqps = tcqps;
-    }
-
-    @Basic
-    @Column(name = "TGFS")
-    public String getTgfs() {
-        return tgfs;
-    }
-
-    public void setTgfs(String tgfs) {
-        this.tgfs = tgfs;
     }
 
     @Basic

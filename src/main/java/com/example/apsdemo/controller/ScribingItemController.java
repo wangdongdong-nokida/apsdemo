@@ -58,22 +58,38 @@ public class ScribingItemController {
         List<TestScribingCenter> centers = result.getData();
 
         List<TestScribingCenterResult> results = new LinkedList<>();
+
+        StringBuffer productType = new StringBuffer();
+        StringBuffer orderType = new StringBuffer();
         for (TestScribingCenter center : centers) {
             Map<String, SecondOrder> secondOrders = new HashMap<>();
             if (center.getSecondOrder() != null) {
-                secondOrders.put(center.getSecondOrder().getID(), center.getSecondOrder());
+                addType(productType, orderType, secondOrders, center.getSecondOrder(), center);
             } else {
                 for (ScheduleTestItem item : center.getScheduleTestItem()) {
                     if (item.getSecondOrder() != null) {
-                        secondOrders.put(item.getSecondOrder().getID(), item.getSecondOrder());
+                        addType(productType, orderType, secondOrders, item.getSecondOrder(), center);
                     }
                 }
             }
-            TestScribingCenterResult testScribingCenterResult = new TestScribingCenterResult(center, secondOrders.values());
+            TestScribingCenterResult testScribingCenterResult = new TestScribingCenterResult(center, secondOrders.values(),productType.toString(),orderType.toString());
             results.add(testScribingCenterResult);
         }
         result.setData(results);
         return result;
+    }
+
+    private void addType(StringBuffer productType, StringBuffer orderType, Map<String, SecondOrder> secondOrders, SecondOrder secondOrder, TestScribingCenter center) {
+        if(secondOrder==null){
+            return;
+        }
+        secondOrders.put(secondOrder.getID(), secondOrder);
+        if (secondOrder.getProductType() != null && productType.lastIndexOf(secondOrder.getProductType().getName()) < 0) {
+            productType.append(secondOrder.getProductType().getName()).append(";");
+        }
+        if (secondOrder.getType() != null && orderType.lastIndexOf(secondOrder.getType()) < 0) {
+            orderType.append(secondOrder.getType()).append(";");
+        }
     }
 
     @SneakyThrows
