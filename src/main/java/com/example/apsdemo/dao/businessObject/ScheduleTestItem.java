@@ -10,8 +10,7 @@ import javax.persistence.*;
 @Table(name = "A_scheduleTestItem")
 public class ScheduleTestItem extends ScheduleTestItemData {
 
-    @JsonIgnore
-    @ManyToOne(targetEntity = TestScribingCenter.class, fetch = FetchType.LAZY)
+    @ManyToOne(targetEntity = TestScribingCenter.class, fetch = FetchType.EAGER)
     private TestScribingCenter testScribingCenter;
 
     @JsonIgnore

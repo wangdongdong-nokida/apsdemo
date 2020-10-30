@@ -35,7 +35,7 @@ public class EquipmentCalendarController {
     private EquipmentService equipmentService;
 
     @RequestMapping(path = "/create", method = RequestMethod.POST)
-    @Transactional
+//    @Transactional
     public synchronized void create(@RequestBody @Valid EquipmentCalendarBean calendarBean) throws Exception {
 
         Optional<Equipment> equipment = equipmentService.findById(calendarBean.getEquipmentId());
@@ -43,7 +43,7 @@ public class EquipmentCalendarController {
             EquipmentCalendar calendar = new EquipmentCalendar();
             BeanUtils.copyProperties(calendarBean.getData(), calendar);
             calendar.setEquipment(equipment.get());
-//            service.createOrUpdate(calendar);
+            service.createOrUpdate(calendar);
             scheduleMethod.getBitSetWrapper(equipment.get());
         } else {
             throw new Exception("没有找到选中设备！");
@@ -51,13 +51,13 @@ public class EquipmentCalendarController {
     }
 
     @RequestMapping(path = "/update", method = RequestMethod.POST)
-    @Transactional
+//    @Transactional
     public synchronized void update(@RequestBody EquipmentCalendarData data) throws Exception {
 
         Optional<EquipmentCalendar> calendar = service.findById(data.getID());
         if (calendar.isPresent()) {
             BeanUtils.copyProperties(data, calendar.get());
-//            service.createOrUpdate(calendar.get());
+            service.createOrUpdate(calendar.get());
             if(calendar.get().getEquipment()!=null){
                 scheduleMethod.getBitSetWrapper(calendar.get().getEquipment());
             }

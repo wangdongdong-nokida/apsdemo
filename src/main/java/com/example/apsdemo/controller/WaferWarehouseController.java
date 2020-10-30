@@ -54,8 +54,8 @@ public class WaferWarehouseController {
                     }
                     if (orders.size() > 0) {
                         StringBuilder secondOrder = new StringBuilder();
-                        for(SecondOrder order:orders){
-                            if(order.getName()!=null&&!"".equals(order.getName())){
+                        for (SecondOrder order : orders) {
+                            if (order.getName() != null && !"".equals(order.getName())) {
                                 secondOrder.append(order.getName()).append(";");
                             }
                         }
@@ -70,9 +70,50 @@ public class WaferWarehouseController {
 
     @RequestMapping(path = "/findWaferWarehouse")
     public Result findWaferWarehouse(@RequestBody Map<String, Object> params) {
-        Map<String, Object> map=(Map<String, Object>) params.computeIfAbsent("params",key->new HashMap<String, Object>());
-        map.put("stockName","芯片库");
-        return Tools.getResult(params, service);
+        Map<String, Object> map = (Map<String, Object>) params.computeIfAbsent("params", key -> new HashMap<String, Object>());
+//        map.put("stockName", "芯片库");
+        Result result = Tools.getResult(params, service);
+        List<WaferWarehouse> waferWarehouses = result.getData();
+        if (waferWarehouses.size() > 0) {
+            for (WaferWarehouse waferWarehouse : waferWarehouses) {
+                StringBuilder salesOrderBuilder = new StringBuilder();
+                StringBuilder quantityBuilder = new StringBuilder();
+                StringBuilder contractBuilder = new StringBuilder();
+                StringBuilder customerBuilder = new StringBuilder();
+                StringBuilder salesOrderTypeBuilder = new StringBuilder();
+                Set<WaferModelWarehouse> waferModelWarehouses = waferWarehouse.getWaferModelWarehouse();
+                for (WaferModelWarehouse waferModelWarehouse : waferModelWarehouses) {
+                    Set<SalesOrder> salesOrders = new HashSet<>();
+                    for (WaferGearWarehouse waferGearWarehouse : waferModelWarehouse.getWaferGearWarehouses()) {
+                        Set<Occupy> occupies = waferGearWarehouse.getOccupies();
+                        for (Occupy occupy : occupies) {
+                            SalesOrder salesOrder = occupy.getSalesOrder();
+                            salesOrders.add(salesOrder);
+                        }
+                    }
+                    for (SalesOrder salesOrder : salesOrders) {
+                        if (salesOrder != null) {
+                            salesOrderBuilder.append(salesOrder.getDdh()).append(";");
+                            quantityBuilder.append(salesOrder.getDdsl()).append(";");
+                            salesOrderTypeBuilder.append(salesOrder.getDdlb()).append(";");
+                            LHt lHt = salesOrder.getlHt();
+                            if (lHt != null) {
+                                contractBuilder.append(lHt.getHth()).append(";");
+                                customerBuilder.append(lHt.getKh()).append(";");
+                            }
+                        }
+                    }
+                }
+                waferWarehouse.setBindingContracts(contractBuilder.toString());
+                waferWarehouse.setBindingCustomers(customerBuilder.toString());
+                waferWarehouse.setBindingQuantity(quantityBuilder.toString());
+                waferWarehouse.setBindingSalesOrders(salesOrderBuilder.toString());
+                waferWarehouse.setBindingSalesOrderType(salesOrderTypeBuilder.toString());
+            }
+        }
+
+
+        return result;
     }
 
     @RequestMapping(path = "/findProductByParams")
@@ -85,8 +126,8 @@ public class WaferWarehouseController {
         List<WaferModelWarehouse> data = result.getData();
         if (data != null && data.size() > 0) {
             for (WaferModelWarehouse product : data) {
-                StringBuffer salesOrders = new StringBuffer();
-                int quantity=0;
+                StringBuilder salesOrders = new StringBuilder();
+                int quantity = 0;
                 for (WaferGearWarehouse waferGearWarehouse : product.getWaferGearWarehouses()) {
                     Set<Occupy> occupies = waferGearWarehouse.getOccupies();
                     for (Occupy occupy : occupies) {
@@ -95,7 +136,7 @@ public class WaferWarehouseController {
                         }
                     }
 //                    if("圆片".equals(waferGearWarehouse.getWLXT())){
-                        quantity+= waferGearWarehouse.getQuantity();
+                    quantity += waferGearWarehouse.getQuantity();
 //                    }
                 }
                 product.setBindSalesOrder(salesOrders.toString());
@@ -108,9 +149,9 @@ public class WaferWarehouseController {
     @PostMapping(path = "/getWaferAll")
     public Result getWaferAll(@RequestBody Map<String, Object> params) {
 
-        if(params.get("waferNr")!=null){
-            Map parameter=(Map) params.computeIfAbsent("params",k->new HashMap<>());
-            parameter.put("waferNr",params.get("waferNr"));
+        if (params.get("waferNr") != null) {
+            Map parameter = (Map) params.computeIfAbsent("params", k -> new HashMap<>());
+            parameter.put("waferNr", params.get("waferNr"));
         }
         return Tools.getResult(params, service);
     }

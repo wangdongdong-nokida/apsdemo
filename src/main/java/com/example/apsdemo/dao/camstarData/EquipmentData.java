@@ -21,7 +21,7 @@ public class EquipmentData {
     protected String name;
     @Column(name = "XTZT")
     protected String status;
-    @Column(name = "EQUIPMENTTYPE")
+    @Column(name = "GD")
     protected String type;
 
     @Override

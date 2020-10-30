@@ -19,6 +19,18 @@ public class WaferWarehouse extends WaferWarehouseData {
     @OneToOne(targetEntity = TestScribingCenter.class,mappedBy = "waferWarehouse",cascade = CascadeType.ALL)
     private TestScribingCenter testScribingCenter;
 
+    @OneToOne(targetEntity = LLpjd.class)
+    @JoinColumn(name = "LPJD_ID",foreignKey = @ForeignKey(name = "",value = ConstraintMode.NO_CONSTRAINT))
+    private LLpjd lLpjd;
+
+    public LLpjd getlLpjd() {
+        return lLpjd;
+    }
+
+    public void setlLpjd(LLpjd lLpjd) {
+        this.lLpjd = lLpjd;
+    }
+
     public Set<WaferModelWarehouse> getWaferModelWarehouse() {
         return waferModelWarehouse;
     }

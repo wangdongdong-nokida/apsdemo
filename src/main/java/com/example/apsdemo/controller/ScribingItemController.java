@@ -41,9 +41,9 @@ public class ScribingItemController {
     @RequestMapping("/getScribingItem")
     public Result getScribingItem(@RequestBody Map<String, Object> map) {
         Object params = map.get("params");
+        HashMap paramsMap = new HashMap();
         if (params != null) {
             Object showType = ((Map) params).get("showType");
-            Map paramsMap = new HashMap();
             paramsMap.putAll((Map) params);
             if (showType == null || showType.equals("uncreated")) {
                 paramsMap.put("*scheduleScribingItems", "uncreated");
@@ -52,6 +52,9 @@ public class ScribingItemController {
                 paramsMap.put("!*scheduleScribingItems", "created");
                 map.put("params", paramsMap);
             }
+        }else {
+            paramsMap.put("*scheduleScribingItems", "uncreated");
+            map.put("params", paramsMap);
         }
         Result result = Tools.getResult(map, testScribingCenterService);
 

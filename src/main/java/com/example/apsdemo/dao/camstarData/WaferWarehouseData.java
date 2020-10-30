@@ -32,8 +32,8 @@ public class WaferWarehouseData {
     protected String testDetail;
     @Column(name = "YPBZ")
     protected String brief;
-//    @Column(name = "")
-//    protected String operator;
+        @Column(name = "DPSJ")
+    protected String DPSJ;
     @Column(name = "YPZT")
     protected String status;
     @Column(name = "KFNAME")
@@ -41,5 +41,16 @@ public class WaferWarehouseData {
 
     @Transient
     protected String bindingSecondOrders;
+
+    @Transient
+    protected String bindingContracts;
+    @Transient
+    protected String bindingCustomers;
+    @Transient
+    protected String bindingSalesOrders;
+    @Transient
+    protected String bindingQuantity;
+    @Transient
+    protected String bindingSalesOrderType;
 
 }
