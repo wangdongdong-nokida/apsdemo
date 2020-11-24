@@ -4,6 +4,7 @@ import com.example.apsdemo.dao.camstarData.WaferData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -15,19 +16,19 @@ public class Wafer extends WaferData {
 
     @JsonIgnore
     @OneToMany(targetEntity = WaferFather.class,mappedBy ="positionFirst" )
-    private Set<WaferFather> fathersFirset;
+    private Set<WaferFather> fathersFirset=new HashSet<>();
 
     @JsonIgnore
     @OneToMany(targetEntity = WaferFather.class,mappedBy ="positionSecond" )
-    private Set<WaferFather> fathersSecond;
+    private Set<WaferFather> fathersSecond=new HashSet<>();
 
     @JsonIgnore
     @OneToMany(targetEntity = WaferFather.class,mappedBy ="positionThird" )
-    private Set<WaferFather> fathersThird;
+    private Set<WaferFather> fathersThird=new HashSet<>();
 
     @JsonIgnore
     @OneToMany(targetEntity = WaferFather.class,mappedBy ="positionFourth" )
-    private Set<WaferFather> fathersForth;
+    private Set<WaferFather> fathersForth=new HashSet<>();
 
     public Set<WaferFather> getFathersFirset() {
         return fathersFirset;

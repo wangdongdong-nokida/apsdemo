@@ -32,7 +32,7 @@ public class WaferWarehouseData {
     protected String testDetail;
     @Column(name = "YPBZ")
     protected String brief;
-        @Column(name = "DPSJ")
+    @Column(name = "DPSJ")
     protected String DPSJ;
     @Column(name = "YPZT")
     protected String status;

@@ -22,7 +22,7 @@ public class OperationData extends ScheduleTask {
     protected String bindSalesOrder;
     protected String salesOrderQuantities;
     protected String circuitNr;
-    protected int quantity;
+    protected String quantity;
 
     protected String workStepName;
     protected String workFlowName;

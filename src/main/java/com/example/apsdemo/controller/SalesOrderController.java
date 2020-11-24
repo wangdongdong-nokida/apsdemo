@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -19,6 +20,9 @@ public class SalesOrderController {
 
     @RequestMapping("/findSalesOrder")
     public Result findSalesOrders(@RequestBody Map params) {
+
+        Map insideMap = (Map) params.computeIfAbsent("params", k -> new HashMap<>());
+        insideMap.put("*occupies", "");
         return Tools.getResult(params, salesOrderService);
     }
 

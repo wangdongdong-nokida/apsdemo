@@ -1,7 +1,7 @@
 package com.example.apsdemo.dao.camstarData;
 
 import com.example.apsdemo.annotation.Attribute;
-import com.fasterxml.jackson.databind.annotation.JsonAppend;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -12,8 +12,8 @@ public class SalesOrderData {
     private String bh;
     @Attribute(name = "备注")
     private String bz;
-    @Attribute(name = "订单号")
-    private String ddh;
+//    @Attribute(name = "订单号")
+//    private String ddh;
     @Attribute(name = "订单数量")
     private Integer ddsl;
     @Attribute(name = "订单状态")
@@ -134,15 +134,15 @@ public class SalesOrderData {
         this.cqfj = cqfj;
     }
 
-    @Basic
-    @Column(name = "DDH")
-    public String getDdh() {
-        return ddh;
-    }
+//    @Basic
+//    @Column(name = "DDH")
+//    public String getDdh() {
+//        return ddh;
+//    }
 
-    public void setDdh(String ddh) {
-        this.ddh = ddh;
-    }
+//    public void setDdh(String ddh) {
+//        this.ddh = ddh;
+//    }
 
     @Basic
     @Column(name = "DDJSRQ")
@@ -176,6 +176,7 @@ public class SalesOrderData {
 
     @Basic
     @Column(name = "DGSL")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
     public Integer getDgsl() {
         return dgsl;
     }

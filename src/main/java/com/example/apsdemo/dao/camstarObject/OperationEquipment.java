@@ -1,9 +1,6 @@
 package com.example.apsdemo.dao.camstarObject;
 
-import org.hibernate.annotations.GeneratorType;
-
 import javax.persistence.*;
-import java.util.Objects;
 
 @Entity
 @Table(name = "A_Operaion_Equipment")

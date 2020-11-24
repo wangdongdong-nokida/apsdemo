@@ -20,11 +20,15 @@ public class EquipmentController {
 
     @RequestMapping(path = "/getAllByParams")
     public Result getEquipment(@RequestBody Map<String, Object> requestPage) {
+
         return Tools.getResult(requestPage, service);
     }
 
     @RequestMapping(path = "/getByUser")
     public List getByUser(@RequestBody Map<String,Object> map) {
+        map.put("orderBy","name");
+        map.put("pageSize","1000");
+        map.put("current","1");
         return Tools.getResult(map, service).getData();
     }
 

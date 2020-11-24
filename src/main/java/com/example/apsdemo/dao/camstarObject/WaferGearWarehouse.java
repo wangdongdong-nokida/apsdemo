@@ -1,8 +1,6 @@
 package com.example.apsdemo.dao.camstarObject;
 
-
 import com.example.apsdemo.dao.businessObject.GearPickingOrder;
-import com.example.apsdemo.dao.businessObject.PickingOrder;
 import com.example.apsdemo.dao.camstarData.WaferGearWarehouseData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -18,11 +16,11 @@ public class WaferGearWarehouse extends WaferGearWarehouseData {
     private WaferModelWarehouse waferModelWarehouse;
 
     @JsonIgnore
-    @OneToMany(targetEntity = GearPickingOrder.class,fetch = FetchType.LAZY,mappedBy ="waferGearWarehouse" )
-    private Set<GearPickingOrder> gearPickingOrders=new HashSet<>();
+    @OneToMany(targetEntity = GearPickingOrder.class, fetch = FetchType.LAZY, mappedBy = "waferGearWarehouse")
+    private Set<GearPickingOrder> gearPickingOrders = new HashSet<>();
 
-    @OneToMany(targetEntity = Occupy.class,fetch = FetchType.LAZY,mappedBy = "waferGearWarehouse")
-    private Set<Occupy> occupies=new HashSet<>();
+    @OneToMany(targetEntity = Occupy.class, fetch = FetchType.LAZY, mappedBy = "waferGearWarehouse")
+    private Set<Occupy> occupies = new HashSet<>();
 
     public Set<GearPickingOrder> getGearPickingOrders() {
         return gearPickingOrders;

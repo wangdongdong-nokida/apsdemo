@@ -5,6 +5,7 @@ import com.example.apsdemo.dao.camstarData.WaferWarehouseData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -13,7 +14,7 @@ public class WaferWarehouse extends WaferWarehouseData {
 
     @JsonIgnore
     @OneToMany(targetEntity = WaferModelWarehouse.class, mappedBy = "waferWarehouse")
-    private Set<WaferModelWarehouse> waferModelWarehouse;
+    private Set<WaferModelWarehouse> waferModelWarehouse=new HashSet<>();
 
     @JsonIgnore
     @OneToOne(targetEntity = TestScribingCenter.class,mappedBy = "waferWarehouse",cascade = CascadeType.ALL)

@@ -6,17 +6,14 @@ import com.example.apsdemo.domain.CreateOperationParams;
 import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
-import org.omg.PortableServer.LIFESPAN_POLICY_ID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.swing.text.html.Option;
 import java.util.*;
 
 @RestController
@@ -71,33 +68,46 @@ public class PickingItemController {
     @RequestMapping(path = "/createPickingOrder")
     @Transactional
     public void createPickingOrder(@RequestBody Map<String, List<String>> params) {
-        List<String> modelNrs = params.get("modelIds");
-        if (modelNrs != null && modelNrs.size() > 0) {
-            List<WaferModelWarehouse> modelWarehouses = waferModelWarehouseService.findAll(modelNrs);
+        List<String> modelIds = params.get("modelIds");
+        List<String> modelNrs = params.get("modelNrs");
+        if (modelIds != null && modelIds.size() > 0) {
+            List<WaferModelWarehouse> modelWarehouses = waferModelWarehouseService.findAll(modelIds);
             for (WaferModelWarehouse model : modelWarehouses) {
                 PickingOrder order = new PickingOrder(false);
-                order.setModelNr(model.getModelNr());
+                order.setModelNr(modelNrs.get(0));
                 order.setCircuitNr(model.getCircuitNr());
+
+                StringBuilder stringBuilder = new StringBuilder();
                 WaferWarehouse waferWarehouse = model.getWaferWarehouse();
                 if (waferWarehouse != null) {
                     order.setWaferNr(waferWarehouse.getWaferNr());
-                    order.setSliceState(waferWarehouse.getStatus());
                     order.setSliceNr(waferWarehouse.getSliceNr());
                 }
                 StringBuilder salesOrders = new StringBuilder();
                 StringBuilder salesOrdersQuantity = new StringBuilder();
+                int stockQuantity = 0;
                 for (WaferGearWarehouse waferGearWarehouse : model.getWaferGearWarehouses()) {
+
+                    stockQuantity += waferGearWarehouse.getQuantity() != null ? Integer.parseInt(waferGearWarehouse.getQuantity()) : 0;
+
+                    if (waferGearWarehouse.getDWID()!=null&&!Objects.equals("0", waferGearWarehouse.getQuantity()) && stringBuilder.lastIndexOf(waferGearWarehouse.getWLZT()) < 0) {
+                        stringBuilder.append(waferGearWarehouse.getWLZT());
+                    }
+
                     GearPickingOrder gearPickingOrder = new GearPickingOrder(order, waferGearWarehouse);
                     for (Occupy occupy : waferGearWarehouse.getOccupies()) {
-                        if (occupy.getSalesOrder() != null && occupy.getSalesOrder().getDdh() != null) {
-                            salesOrders.append(occupy.getSalesOrder().getDdh()).append(";");
+                        if (occupy.getSalesOrder() != null && occupy.getSalesOrder().getlDdname() != null) {
+                            salesOrders.append(occupy.getSalesOrder().getlDdname()).append(";");
                             salesOrdersQuantity.append(occupy.getSalesOrder().getDdsl()).append(";");
                         }
                     }
                     gearPickingOrderService.save(gearPickingOrder);
                 }
                 order.setSalesOrderQuantities(salesOrdersQuantity.toString());
+                order.setQuantity(String.valueOf(stockQuantity));
                 order.setBindSalesOrder(salesOrders.toString());
+                order.setSliceState(stringBuilder.toString());
+//                pickingOrderService.save(order);
             }
         }
     }
@@ -109,23 +119,37 @@ public class PickingItemController {
         if (salesOrderIds != null && salesOrderIds.size() > 0) {
             List<SalesOrder> salesOrders = salesOrderService.findAll(salesOrderIds);
             for (SalesOrder salesOrder : salesOrders) {
-                PickingOrder order = new PickingOrder(true);
+                Map<String, Set<WaferGearWarehouse>> waferGears = new HashMap<>();
                 Set<Occupy> occupies = salesOrder.getOccupies();
-                order.setWaferNr(salesOrder.getBh());
-                order.setModelNr(salesOrder.getXh());
-                order.setBindSalesOrder(salesOrder.getDdh());
-                order.setSalesOrderQuantities(salesOrder.getDdsl() + "");
                 for (Occupy occupy : occupies) {
-                    if (occupy.getWaferGearWarehouse() != null && "芯片".equals(occupy.getWaferGearWarehouse().getWLXT())) {
-                        GearPickingOrder gearPickingOrder = new GearPickingOrder(order, occupy.getWaferGearWarehouse());
-                        gearPickingOrderService.save(gearPickingOrder);
-                        if (order.getWaferNr() == null || order.getModelNr() == null) {
-                            if (occupy.getWaferGearWarehouse().getWaferModelWarehouse() != null && occupy.getWaferGearWarehouse().getWaferModelWarehouse().getWaferWarehouse() != null) {
-                                order.setWaferNr(occupy.getWaferGearWarehouse().getWaferModelWarehouse().getWaferWarehouse().getWaferNr());
-                                order.setModelNr(occupy.getWaferGearWarehouse().getWaferModelWarehouse().getModelNr());
-                                order.setSliceState(occupy.getWaferGearWarehouse().getWLZT());
-                                order.setSliceNr(occupy.getWaferGearWarehouse().getWaferModelWarehouse().getWaferWarehouse().getSliceNr());
-                                order.setCircuitNr(occupy.getWaferGearWarehouse().getWaferModelWarehouse().getCircuitNr());
+                    if (occupy != null && occupy.getWaferGearWarehouse() != null && occupy.getWaferGearWarehouse().getWaferModelWarehouse() != null) {
+                        String sliceNr = occupy.getWaferGearWarehouse().getWaferModelWarehouse().getWaferWarehouse().getSliceNr();
+                        if (sliceNr != null && !"".equals(sliceNr)) {
+                            Set<WaferGearWarehouse> waferGearWarehouses = waferGears.computeIfAbsent(sliceNr, key -> new HashSet<>());
+                            waferGearWarehouses.add(occupy.getWaferGearWarehouse());
+                        }
+                    }
+                }
+
+                for (Collection<WaferGearWarehouse> waferGear : waferGears.values()) {
+
+                    PickingOrder order = new PickingOrder(true);
+                    order.setWaferNr(salesOrder.getBh());
+                    order.setModelNr(salesOrder.getXh());
+                    order.setBindSalesOrder(salesOrder.getlDdname());
+                    order.setSalesOrderQuantities(salesOrder.getDdsl() + "");
+                    for (WaferGearWarehouse waferGearWarehouse : waferGear) {
+                        if (waferGearWarehouse != null && "芯片".equals(waferGearWarehouse.getWLXT())) {
+                            GearPickingOrder gearPickingOrder = new GearPickingOrder(order, waferGearWarehouse);
+                            gearPickingOrderService.save(gearPickingOrder);
+                            if (order.getWaferNr() == null || order.getModelNr() == null) {
+                                if (waferGearWarehouse.getWaferModelWarehouse() != null && waferGearWarehouse.getWaferModelWarehouse().getWaferWarehouse() != null) {
+                                    order.setWaferNr(waferGearWarehouse.getWaferModelWarehouse().getWaferWarehouse().getWaferNr());
+                                    order.setModelNr(waferGearWarehouse.getWaferModelWarehouse().getModelNr());
+                                    order.setSliceState(waferGearWarehouse.getWLZT());
+                                    order.setSliceNr(waferGearWarehouse.getWaferModelWarehouse().getWaferWarehouse().getSliceNr());
+                                    order.setCircuitNr(waferGearWarehouse.getWaferModelWarehouse().getCircuitNr());
+                                }
                             }
                         }
                     }
@@ -159,7 +183,7 @@ public class PickingItemController {
                     order.setWaferNr(salesOrder.getBh());
                     order.setModelNr(salesOrder.getXh());
                     order.setSliceNr("无片" + random.nextLong());
-                    order.setBindSalesOrder(salesOrder.getDdh());
+                    order.setBindSalesOrder(salesOrder.getlDdname());
                     order.setBrief(brief);
                     pickingOrderService.save(order);
                 }
@@ -224,8 +248,8 @@ public class PickingItemController {
                     waferGearWarehouses.add(waferGearWarehouse);
                     for (Occupy inside : waferGearWarehouse.getOccupies()) {
                         SalesOrder salesOrder = inside.getSalesOrder();
-                        if (salesOrder != null && salesOrder.getDdh() != null) {
-                            salesOrders.append(salesOrder.getDdh()).append(";");
+                        if (salesOrder != null && salesOrder.getlDdname() != null) {
+                            salesOrders.append(salesOrder.getlDdname()).append(";");
                         }
                     }
                     waferGearWarehouse.setBindSalesOrder(salesOrders.toString());
@@ -239,14 +263,24 @@ public class PickingItemController {
 
     @RequestMapping(path = "/getSalesOrderByOccupy")
     public Result getSalesOrderByOccupy(@RequestBody Map map) {
-        if (map.get("params") == null) {
+        if (map.get("params") == null && map.get("searchInfo") == null) {
             return new Result();
         }
-        Specification specification = Tools.getSpecificationByParams((Map<String, Object>) map.get("params"));
+
+        Map<String, Object> searchInfo = (Map<String, Object>) map.computeIfAbsent("searchInfo", key -> new HashMap());
+        searchInfo.putAll((Map) map.get("params"));
+
+        Specification specification = Tools.getSpecificationByParams(searchInfo);
         List<Occupy> occupies = occupyService.findAll(specification);
+
+        List<Occupy> occupySet = new LinkedList<>();
+
         Map<String, SalesOrder> salesOrders = new TreeMap<>();
         for (Occupy occupy : occupies) {
             if (occupy.getSalesOrder() != null) {
+                if (salesOrders.get(occupy.getSalesOrder().getID()) == null) {
+                    occupySet.add(occupy);
+                }
                 salesOrders.put(occupy.getSalesOrder().getID(), occupy.getSalesOrder());
             }
         }
@@ -254,15 +288,14 @@ public class PickingItemController {
         int current = Integer.parseInt(map.get("current").toString());
         int numberStart = current > 0 ? (current - 1) * pageSize : 0;
         int numberEnd = current > 0 ? current * pageSize : 0;
-        List<SalesOrder> salesOrderList = new LinkedList<>(salesOrders.values());
         List salesOrdersResult;
-        if (salesOrderList.size() >= numberEnd) {
-            salesOrdersResult = salesOrderList.subList(numberStart, numberEnd);
+        if (occupySet.size() >= numberEnd) {
+            salesOrdersResult = occupySet.subList(numberStart, numberEnd);
         } else {
-            salesOrdersResult = salesOrderList.subList(numberStart, salesOrderList.size());
+            salesOrdersResult = occupySet.subList(numberStart, occupySet.size());
         }
 
-        return new Result(salesOrdersResult, salesOrderList.size(), true, pageSize, current);
+        return new Result(salesOrdersResult, occupySet.size(), true, pageSize, current);
     }
 
     @RequestMapping(path = "/deleteGearPickingOrders")
@@ -406,10 +439,12 @@ public class PickingItemController {
                     }
                 }
                 indexPickingOrder.setWorkFlowName(workFlow.getWorkFlowName());
+                boolean hasCreated=false;
                 for (WorkStep step : workFlow.getWorkSteps()) {
                     WorkStepName workStepName = step.getWorkStepName();
                     if (workStepName != null && workStepName.isCreateOperation()) {
                         if (workFlow.getWorkFlowName() != null) {
+                            hasCreated=true;
                             boolean hasRepeat = false;
                             for (Operation operation : indexPickingOrder.getOperation()) {
                                 if (operation.getR_workStepName() != null && Objects.equals(operation.getR_workStepName().getID(), workStepName.getID())) {
@@ -419,6 +454,7 @@ public class PickingItemController {
                             }
                             if (!hasRepeat) {
                                 Operation operation = new Operation(indexPickingOrder);
+                                operation.setQuantity(indexPickingOrder.getQuantity());
                                 operation.setR_workStepName(workStepName);
                                 operation.setWorkStepName(workStepName.getStepName());
                                 operation.setWorkFlowName(workFlow.getWorkFlowName().getWorkFlowName());
@@ -427,6 +463,15 @@ public class PickingItemController {
                             }
                         }
                     }
+                }
+
+                if(!hasCreated){
+                    Operation operation = new Operation(indexPickingOrder);
+                    operation.setQuantity(indexPickingOrder.getQuantity());
+                    operation.setWorkStepName("结束");
+                    operation.setWorkFlowName(workFlow.getWorkFlowName().getWorkFlowName());
+                    operationService.save(operation);
+                    changePickingOrder.add(indexPickingOrder);
                 }
             }
         }
@@ -451,9 +496,11 @@ public class PickingItemController {
         List<Operation> operations = result.getData();
 
         for (Operation operation : operations) {
-            Set<OperationEquipment> operationEquipments = operation.getR_workStepName().getOperationEquipments();
-            for (OperationEquipment operationEquipment : operationEquipments) {
-                operation.getEquipments().add(operationEquipment.getEquipment());
+            if(operation.getR_workStepName()!=null){
+                Set<OperationEquipment> operationEquipments = operation.getR_workStepName().getOperationEquipments();
+                for (OperationEquipment operationEquipment : operationEquipments) {
+                    operation.getEquipments().add(operationEquipment.getEquipment());
+                }
             }
         }
         return result;
@@ -487,7 +534,7 @@ public class PickingItemController {
             Long id = Long.valueOf(map.get("ID"));
             String equipmentSelected = map.get("equipmentSelected");
             int duration = Integer.parseInt(map.get("duration"));
-            int quantity = Integer.parseInt(map.get("quantity"));
+//            int quantity = Integer.parseInt(map.get("quantity"));
             Optional<Equipment> equipmentOptional = equipmentService.findById(equipmentSelected);
             if (equipmentOptional.isPresent()) {
                 Equipment equipment = equipmentOptional.get();
@@ -496,7 +543,7 @@ public class PickingItemController {
                     Operation operation = operationOptional.get();
                     operation.setDurationTime(duration);
                     operation.setEquipmentName(equipment.getName());
-                    operation.setQuantity(quantity);
+//                    operation.setQuantity(quantity);
                     operationService.save(operation);
                     List<Long> ids = new LinkedList<>();
                     ids.add(operation.getID());

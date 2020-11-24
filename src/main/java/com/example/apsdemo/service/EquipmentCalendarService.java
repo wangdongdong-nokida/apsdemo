@@ -23,11 +23,9 @@ public class EquipmentCalendarService {
         return mapper.findAll();
     }
 
-
     public Page<EquipmentCalendar> findAll(Specification<EquipmentCalendar> specification, Pageable pageable) {
         return mapper.findAll(specification,pageable);
     }
-
 
     public void delete(List<Long> keys) {
         List<EquipmentCalendar> deleteList = mapper.findAllById(keys);
@@ -36,7 +34,6 @@ public class EquipmentCalendarService {
         }
         mapper.flush();
     }
-
 
     public Optional<EquipmentCalendar> findById(Long id){
        return mapper.findById(id);
