@@ -39,13 +39,12 @@ public class SecondOrderData {
     protected String testBrief;
     @Column(name = "DDSL")
     protected String quantity;
-//    @Column(name = "DLID")
-//    protected String circuitId;
+    @Column(name = "rwly")
+    protected String rwly;
 //    @Column(name = "GXRID")
 //    protected String gxrid;
     @Column(name = "GXRQ")
     private Time gxrq;
-
     @Column(name = "HPJHWCRQ")
     protected Date scribingPlanFinishDate;
     @Column(name = "HPJSSJ")

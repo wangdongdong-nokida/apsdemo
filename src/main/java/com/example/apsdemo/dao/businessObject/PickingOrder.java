@@ -33,6 +33,7 @@ public class PickingOrder extends PickingOrderData {
     @OneToOne(targetEntity =WorkFlowName.class)
     private WorkFlowName workFlowName;
 
+
     public WorkFlowName getWorkFlowName() {
         return workFlowName;
     }

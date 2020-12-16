@@ -10,6 +10,7 @@ import java.util.List;
 public class TestItemCreateParams {
 
     private String equipmentId = "";
+    private String testBrief="";
     private int sliceNum = 0;
     private String waferNr="";
     private String[] forecast = new String[]{};

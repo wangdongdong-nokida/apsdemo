@@ -20,6 +20,8 @@ public class OperationData extends ScheduleTask {
     protected String modelNr;
     protected String sliceState;
     protected String bindSalesOrder;
+    protected String bindContract;
+    protected String bindCustomer;
     protected String salesOrderQuantities;
     protected String circuitNr;
     protected String quantity;

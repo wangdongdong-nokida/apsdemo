@@ -18,7 +18,7 @@ public class WaferProductController {
 
     @RequestMapping(path = "/findProductsByWafer")
     public Result findProducts(@RequestBody Map<String, Object> requestPage) {
-        if (requestPage.get("params")==null||((Map)requestPage.get("params")).get("wafer-nr") == null) {
+        if (requestPage.get("params")==null||((Map)requestPage.get("params")).get("==wafer-nr") == null) {
             return new Result();
         }
         return Tools.getResult(requestPage, service);

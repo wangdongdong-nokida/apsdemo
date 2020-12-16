@@ -56,7 +56,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         }
     }
 
-    public ScheduleTestItem(SecondOrder secondOrder, ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime, int quantity, String circuitNr) {
+    public ScheduleTestItem(String testBrief,SecondOrder secondOrder, ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime, int quantity, String circuitNr) {
         this.setSecondOrder(secondOrder);
         this.setWaferNr(waferNr);
         this.setScheduleTask(new ScheduleTask(line, this, durationTime));
@@ -67,6 +67,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         this.setTestType(testType);
         this.setQuantity(quantity);
         this.setCircuitNr(circuitNr);
+        this.setItemBrief(testBrief);
     }
 
 }

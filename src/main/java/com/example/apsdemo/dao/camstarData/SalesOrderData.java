@@ -14,8 +14,8 @@ public class SalesOrderData {
     private String bz;
 //    @Attribute(name = "订单号")
 //    private String ddh;
-    @Attribute(name = "订单数量")
-    private Integer ddsl;
+//    @Attribute(name = "订单数量")
+//    private Integer ddsl;
     @Attribute(name = "订单状态")
     private String ddzt;
     @Attribute(name = "客户")
@@ -152,16 +152,6 @@ public class SalesOrderData {
 
     public void setDdjsrq(Date ddjsrq) {
         this.ddjsrq = ddjsrq;
-    }
-
-    @Basic
-    @Column(name = "DDSL")
-    public Integer getDdsl() {
-        return ddsl;
-    }
-
-    public void setDdsl(Integer ddsl) {
-        this.ddsl = ddsl;
     }
 
     @Basic
@@ -908,6 +898,7 @@ public class SalesOrderData {
 
     @Basic
     @Column(name = "JYWCSJ")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
     public Date getJywcsj() {
         return jywcsj;
     }

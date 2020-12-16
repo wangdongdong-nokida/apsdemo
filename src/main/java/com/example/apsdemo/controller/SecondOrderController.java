@@ -1,15 +1,10 @@
 package com.example.apsdemo.controller;
 
-import com.example.apsdemo.dao.camstarObject.SecondOrder;
-import com.example.apsdemo.domain.RequestPage;
+
 import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.SecondOrderService;
 import com.example.apsdemo.utils.Tools;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +22,11 @@ public class SecondOrderController {
     public Result findByParams(@RequestBody Map<String,Object> requestPage) {
         Object testContainer=requestPage.get("testContainer");
         if(requestPage.get("params")==null){
-            requestPage.put("params",new HashMap<>());
+            requestPage.computeIfAbsent("params", key->new HashMap<>());
+        }
+
+        if("".equals(((Map)requestPage.get("params")).get("status"))||((Map)requestPage.get("params")).get("status")==null){
+            ((Map)requestPage.get("params")).computeIfAbsent("status",key->"已发布");
         }
         if(requestPage.get("noTest")!=null){
             ((Map)requestPage.get("params")).put("!^scribingGroup","");

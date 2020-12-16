@@ -43,6 +43,9 @@ public class WaferWarehouseData {
     protected String bindingSecondOrders;
 
     @Transient
+    protected String bindingScribing;
+
+    @Transient
     protected String bindingContracts;
     @Transient
     protected String bindingCustomers;
@@ -52,5 +55,7 @@ public class WaferWarehouseData {
     protected String bindingQuantity;
     @Transient
     protected String bindingSalesOrderType;
+    @Transient
+    protected String bindingContractBrief;
 
 }

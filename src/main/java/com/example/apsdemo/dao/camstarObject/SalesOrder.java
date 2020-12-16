@@ -1,5 +1,6 @@
 package com.example.apsdemo.dao.camstarObject;
 
+import com.example.apsdemo.dao.businessObject.PickingOrder;
 import com.example.apsdemo.dao.camstarData.SalesOrderData;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -16,6 +17,20 @@ public class SalesOrder extends SalesOrderData {
     private LHt lHt;
 
     private LTgfs lTgfs;
+
+
+    private Set<PickingOrder> pickingOrders=new HashSet<>();
+
+    @JsonIgnore
+    @JoinColumn(name = "bindSalesOrderID",foreignKey = @ForeignKey(name = "",value = ConstraintMode.NO_CONSTRAINT))
+    @OneToMany(targetEntity = PickingOrder.class)
+    public Set<PickingOrder> getPickingOrders() {
+        return pickingOrders;
+    }
+
+    public void setPickingOrders(Set<PickingOrder> pickingOrders) {
+        this.pickingOrders = pickingOrders;
+    }
 
     @JoinColumn(name = "tgfs",foreignKey = @ForeignKey(name="null",value = ConstraintMode.NO_CONSTRAINT))
     @ManyToOne(targetEntity = LTgfs.class)

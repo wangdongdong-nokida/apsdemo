@@ -27,21 +27,6 @@ public class Tools {
         return PageRequest.of(requestPage.getCurrent() > 0 ? requestPage.getCurrent() - 1 : 0, requestPage.getPageSize() == 0 ? 1 : requestPage.getPageSize(), Sort.by(Sort.Direction.ASC, "ID"));
     }
 
-
-    public static Specification getSpecification(Map<String, Object> map) {
-        return new Specification() {
-            @Override
-            public Predicate toPredicate(Root root, CriteriaQuery criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                List<Predicate> predicateList = new LinkedList<>();
-                for (Map.Entry<String, Object> entry : map.entrySet()) {
-                    predicateList.add(criteriaBuilder.equal(root.get(entry.getKey()), entry.getValue()));
-                }
-                return criteriaBuilder.and(predicateList.toArray(new Predicate[predicateList.size()]));
-            }
-        };
-    }
-
-
     public static Specification getSpecificationByParams(Map<String, Object> map) {
         return new Specification() {
             @Override
@@ -57,11 +42,7 @@ public class Tools {
                         for (String key : level) {
                             try {
                                 String replaceKey = key.replace("!", "");
-                                replaceKey = replaceKey.replace("*", "");
-                                replaceKey = replaceKey.replace("^", "");
-                                replaceKey = replaceKey.replace("<>", "");
-                                Path inside = path.get(replaceKey);
-                                path = inside;
+                                path = getPath(path, replaceKey);
                             } catch (Exception e) {
 
                             }
@@ -69,11 +50,7 @@ public class Tools {
                     } else {
                         try {
                             String replaceKey = entry.getKey().replace("!", "");
-                            replaceKey = replaceKey.replace("*", "");
-                            replaceKey = replaceKey.replace("^", "");
-                            replaceKey = replaceKey.replace("<>", "");
-                            Path inside = path.get(replaceKey);
-                            path = inside;
+                            path = getPath(path, replaceKey);
                         } catch (Exception e) {
 
                         }
@@ -94,11 +71,15 @@ public class Tools {
                         } else if (entry.getKey().contains("^")) {
                             predicateList.add(criteriaBuilder.isNull(path));
                         } else if (entry.getKey().contains("<>")) {
-                            predicateList.add(criteriaBuilder.like(path, "%" +(String) entry.getValue()+"%"));
+                            predicateList.add(criteriaBuilder.like(path, "%" + (String) entry.getValue() + "%"));
+                        } else if (entry.getKey().contains("==")) {
+                            if (entry.getValue() != null && !"".equals(entry.getValue())) {
+                                predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
+                            }
                         } else {
                             if (entry.getValue() != null && !"".equals(entry.getValue())) {
                                 if (entry.getValue() instanceof String) {
-                                    predicateList.add(criteriaBuilder.like(path, "%" + entry.getValue() + "%"));
+                                    predicateList.add(criteriaBuilder.like(criteriaBuilder.lower(path), "%" + ((String) entry.getValue()).toLowerCase() + "%"));
                                 } else {
                                     predicateList.add(criteriaBuilder.equal(path, entry.getValue()));
                                 }
@@ -111,12 +92,22 @@ public class Tools {
         };
     }
 
+    private static Path getPath(Path path, String replaceKey) {
+        replaceKey = replaceKey.replace("*", "");
+        replaceKey = replaceKey.replace("^", "");
+        replaceKey = replaceKey.replace("<>", "");
+        replaceKey = replaceKey.replace("==", "");
+        Path inside = path.get(replaceKey);
+        path = inside;
+        return path;
+    }
+
 
     public static Pageable getPageableByPagination(int current, int pageSize, String orderBy) {
         if (current <= 0 || pageSize <= 0) {
             return null;
         }
-        return PageRequest.of(current - 1, pageSize, Sort.by(Sort.Direction.ASC, orderBy == null ? "ID" : orderBy));
+        return PageRequest.of(current - 1, pageSize, Sort.by(orderBy == null ? Sort.Direction.DESC : Sort.Direction.ASC, orderBy == null ? "ID" : orderBy));
     }
 
 

@@ -129,21 +129,21 @@ public class TestItemController {
 
         List<Long> ids = new LinkedList<>();
         for (String forecast : requestPage.getForecast()) {
-            ScheduleTestItem item = new ScheduleTestItem(secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(),secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
             ids.add(task.getID());
         }
         for (String screen : requestPage.getScreen()) {
-            ScheduleTestItem item = new ScheduleTestItem(secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(),secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
             ids.add(task.getID());
         }
         for (String screen : requestPage.getAssessment()) {
-            ScheduleTestItem item = new ScheduleTestItem(secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getAssessmentHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(),secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getAssessmentHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
