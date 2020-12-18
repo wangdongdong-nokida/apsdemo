@@ -57,5 +57,7 @@ public class WaferWarehouseData {
     protected String bindingSalesOrderType;
     @Transient
     protected String bindingContractBrief;
+    @Transient
+    protected String bindingjywcsj;
 
 }

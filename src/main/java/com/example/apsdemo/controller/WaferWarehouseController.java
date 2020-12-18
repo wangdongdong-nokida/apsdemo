@@ -24,6 +24,8 @@ import javax.swing.text.html.Option;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.example.apsdemo.utils.Tools.dayFormat;
+
 @RestController
 @RequestMapping(path = "/waferWarehouse")
 public class WaferWarehouseController {
@@ -151,6 +153,7 @@ public class WaferWarehouseController {
             StringBuilder customerBuilder = new StringBuilder();
             StringBuilder salesOrderTypeBuilder = new StringBuilder();
             StringBuilder contractBriefBuilder = new StringBuilder();
+            StringBuilder jywcsjBuilder = new StringBuilder();
             Set<WaferModelWarehouse> waferModelWarehouses = waferWarehouse.getWaferModelWarehouse();
             for (WaferModelWarehouse waferModelWarehouse : waferModelWarehouses) {
                 Set<SalesOrder> salesOrders = new HashSet<>();
@@ -174,11 +177,13 @@ public class WaferWarehouseController {
                             String customer = lHt.getKh();
                             String orderType = lHt.getDdlx();
                             String brief = lHt.getBz();
+                            Date  jywcsj= salesOrder.getJywcsj();
                             quantityBuilder.append(orderQuantity == null ? "" : orderQuantity).append(";");
                             contractBuilder.append(contact == null ? "" : contact).append(";");
                             customerBuilder.append(customer == null ? "" : customer).append(";");
                             salesOrderTypeBuilder.append(orderType == null ? "" : orderType).append(";");
                             contractBriefBuilder.append(brief == null ? "" : brief).append(";");
+                            jywcsjBuilder.append(jywcsj == null ? "" :  dayFormat.format(jywcsj)).append(";");
                         }
                     }
                 }
@@ -189,6 +194,7 @@ public class WaferWarehouseController {
             waferWarehouse.setBindingSalesOrders(salesOrderBuilder.toString());
             waferWarehouse.setBindingSalesOrderType(salesOrderTypeBuilder.toString());
             waferWarehouse.setBindingContractBrief(contractBriefBuilder.toString());
+            waferWarehouse.setBindingjywcsj(jywcsjBuilder.toString());
         }
 
         return new Result(resultData, waferWarehouses.size(), true, pageSize, current);
@@ -218,7 +224,7 @@ public class WaferWarehouseController {
 
         Result result = Tools.getResult(params, waferModelWarehouseService);
         List<WaferModelWarehouse> data = result.getData();
-        Set<WaferModelWarehouse> waferModelWarehouseSet = new HashSet<>();
+        Map<String,WaferModelWarehouse> waferModelWarehouseSet = new HashMap<>();
         if (data != null && data.size() > 0) {
             for (WaferModelWarehouse product : data) {
                 StringBuilder salesOrders = new StringBuilder();
@@ -230,7 +236,7 @@ public class WaferWarehouseController {
                         if (gearQuantity <= 0) {
                             continue;
                         }
-                        waferModelWarehouseSet.add(waferGearWarehouse.getWaferModelWarehouse());
+                        waferModelWarehouseSet.put(product.getID(),product);
 
                         Set<Occupy> occupies = waferGearWarehouse.getOccupies();
                         for (Occupy occupy : occupies) {
@@ -250,7 +256,7 @@ public class WaferWarehouseController {
                 }
             }
         }
-        result.setData(new ArrayList<>(waferModelWarehouseSet));
+        result.setData(new ArrayList<>(waferModelWarehouseSet.values()));
         result.setTotal(result.getData() != null ? result.getData().size() : 0);
         return result;
     }

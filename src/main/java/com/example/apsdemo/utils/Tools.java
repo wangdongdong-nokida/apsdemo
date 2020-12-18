@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Tools {
-    public static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy/MM/dd");
+    public static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
     public static Pageable getDefaultPageable(RequestPage requestPage) {
         if (requestPage.getCurrent() <= 0 || requestPage.getPageSize() <= 0) {

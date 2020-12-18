@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RestController
 @RequestMapping(path = "/secondOrder")
@@ -19,23 +21,32 @@ public class SecondOrderController {
     SecondOrderService service;
 
     @RequestMapping(path = "/findSecondOrders")
-    public Result findByParams(@RequestBody Map<String,Object> requestPage) {
-        Object testContainer=requestPage.get("testContainer");
-        if(requestPage.get("params")==null){
-            requestPage.computeIfAbsent("params", key->new HashMap<>());
+    public Result findByParams(@RequestBody Map<String, Object> requestPage) {
+        Object testContainer = requestPage.get("testContainer");
+        if (requestPage.get("params") == null) {
+            requestPage.computeIfAbsent("params", key -> new HashMap<>());
         }
 
-        if("".equals(((Map)requestPage.get("params")).get("status"))||((Map)requestPage.get("params")).get("status")==null){
-            ((Map)requestPage.get("params")).computeIfAbsent("status",key->"已发布");
-        }
-        if(requestPage.get("noTest")!=null){
-            ((Map)requestPage.get("params")).put("!^scribingGroup","");
-        }
-        if(testContainer==null){
-            ((Map)requestPage.get("params")).put("!productType-name","载体");
+
+        ((Map) requestPage.get("params")).computeIfAbsent("!status", key -> "未发布");
+
+        Object showState = ((Map) requestPage.get("params")).get("showState");
+
+        if (showState == null || Objects.equals(showState, "uncreated")) {
+            ((Map) requestPage.get("params")).computeIfAbsent("*scheduleTestItems", key -> "");
         }else {
-            ((Map)requestPage.get("params")).put("productType-name","载体");
+            ((Map) requestPage.get("params")).computeIfAbsent("!*scheduleTestItems", key -> "");
         }
-       return Tools.getResult(requestPage,service);
+
+        if (requestPage.get("noTest") != null) {
+            ((Map) requestPage.get("params")).put("!^scribingGroup", "");
+        }
+        if (testContainer == null) {
+            ((Map) requestPage.get("params")).put("!productType-name", "载体");
+        } else {
+            ((Map) requestPage.get("params")).put("productType-name", "载体");
+        }
+        return Tools.getResult(requestPage, service);
     }
+
 }

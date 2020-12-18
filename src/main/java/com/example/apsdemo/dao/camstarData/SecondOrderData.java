@@ -1,5 +1,6 @@
 package com.example.apsdemo.dao.camstarData;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -87,6 +88,7 @@ public class SecondOrderData {
     @Column(name = "SQBZ")
     protected String supplyBrief;
     @Column(name = "SQSJ")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
     protected Date applyDate;
 //    @Column(name = "YGHPL")
 //    protected int planScribingQuantity;

@@ -52,7 +52,7 @@ public class ScribingItemController {
                 paramsMap.put("!*scheduleScribingItems", "created");
                 map.put("params", paramsMap);
             }
-        }else {
+        } else {
             paramsMap.put("*scheduleScribingItems", "uncreated");
             map.put("params", paramsMap);
         }
@@ -75,7 +75,7 @@ public class ScribingItemController {
                     }
                 }
             }
-            TestScribingCenterResult testScribingCenterResult = new TestScribingCenterResult(center, secondOrders.values(),productType.toString(),orderType.toString());
+            TestScribingCenterResult testScribingCenterResult = new TestScribingCenterResult(center, secondOrders.values(), productType.toString(), orderType.toString());
             results.add(testScribingCenterResult);
         }
         result.setData(results);
@@ -83,7 +83,7 @@ public class ScribingItemController {
     }
 
     private void addType(StringBuffer productType, StringBuffer orderType, Map<String, SecondOrder> secondOrders, SecondOrder secondOrder, TestScribingCenter center) {
-        if(secondOrder==null){
+        if (secondOrder == null) {
             return;
         }
         secondOrders.put(secondOrder.getID(), secondOrder);
@@ -105,7 +105,9 @@ public class ScribingItemController {
         } catch (Exception e) {
             throw new Exception("创建划片失败！");
         }
-        HttpController.postHttp(ids, "划片");
+        if (ids.size() > 0) {
+            HttpController.postHttp(ids, "划片");
+        }
     }
 
     @Transactional
@@ -142,7 +144,9 @@ public class ScribingItemController {
         } catch (Exception e) {
             throw new Exception("创建划片失败！");
         }
-        HttpController.postHttp(ids, "划片");
+        if (ids.size() > 0) {
+            HttpController.postHttp(ids, "划片");
+        }
     }
 
     @Transactional

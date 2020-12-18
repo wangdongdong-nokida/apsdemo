@@ -52,6 +52,8 @@ public class TestItemController {
     SecondOrderService secondOrderService;
     @Autowired
     ScheduleMethod scheduleMethod;
+    @Autowired
+    OperationService operationService;
 
     @Autowired
     private SysUserService userService;
@@ -66,7 +68,9 @@ public class TestItemController {
         } catch (Exception e) {
             throw new Exception("创建失败");
         }
-        HttpController.postHttp(ids, "测试");
+        if (ids.size() > 0) {
+            HttpController.postHttp(ids, "测试");
+        }
     }
 
     @Transactional
@@ -116,7 +120,17 @@ public class TestItemController {
             for (String symbol : testSymbol) {
                 TestScribingCenter center = new TestScribingCenter(symbol, requestPage.getWaferNr());
                 testScribingCenterService.save(center);
-                ids.addAll(createItemByParams(order, requestPage, line, testSymbol.length, forecastSize, screenSize, assessmentSize, requestPage.getModelNr(), symbol, center, new TestItemCreateParams.Product()));
+                TestItemCreateParams.Product product = new TestItemCreateParams.Product();
+                try {
+                    int quantity = order.getQuantity() != null ? Integer.parseInt(order.getQuantity()) : 0;
+                    product.setForecast(quantity);
+                    product.setAssessment(quantity);
+                    product.setScreen(quantity);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                ids.addAll(createItemByParams(order, requestPage, line, testSymbol.length, forecastSize, screenSize, assessmentSize, requestPage.getModelNr(), symbol, center, product));
             }
         }
         scheduleMethod.updateScheduleLineDate(equipment);
@@ -129,21 +143,21 @@ public class TestItemController {
 
         List<Long> ids = new LinkedList<>();
         for (String forecast : requestPage.getForecast()) {
-            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(),secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
             ids.add(task.getID());
         }
         for (String screen : requestPage.getScreen()) {
-            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(),secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
             ids.add(task.getID());
         }
         for (String screen : requestPage.getAssessment()) {
-            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(),secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getAssessmentHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getAssessmentHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(), product.getCircuitNr());
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
@@ -167,6 +181,24 @@ public class TestItemController {
             return new Result();
         }
         return Tools.getResult(map, scheduleTaskService);
+    }
+
+
+    @RequestMapping(path = "/findAllBySecondOrder")
+    public Result findAllBySecondOrder(@RequestBody Map<String, Object> map) {
+        if (map.get("params") == null) {
+            return new Result();
+        }
+        return Tools.getResult(map, scheduleTaskService);
+    }
+
+
+    @RequestMapping(path = "/findOperationAll")
+    public Result findOperationAll(@RequestBody Map<String, Object> map) {
+        if (map.get("params") == null || ((Map) map.get("params")).get("scheduleTaskLine-equipment-ID") == null) {
+            return new Result();
+        }
+        return Tools.getResult(map, operationService);
     }
 
 
@@ -201,6 +233,20 @@ public class TestItemController {
                 ScheduleTaskLine line = task.getScheduleTaskLine();
                 line.getScheduleLine().calcScheduleLineDate(scheduleMethod.getBitSetWrapper(line.getEquipment()));
             }
+        }
+    }
+
+
+    @SneakyThrows
+    @RequestMapping(path = "/editSupplyTime")
+    @Transactional
+    public void editSupplyTime(@RequestBody SupplyTime durationTime) {
+        if (durationTime.getIds() == null) {
+            throw new Exception("没有选中测试明细！");
+        }
+        List<ScheduleTask> tasks = scheduleTaskService.findAll(durationTime.getIds());
+        for (ScheduleTask task : tasks) {
+            task.setPlanSupplyDate(durationTime.getSupplyTime());
         }
     }
 

@@ -3,7 +3,6 @@ package com.example.apsdemo.dao.camstarData;
 import lombok.Data;
 
 import javax.persistence.*;
-import java.util.Objects;
 
 @Data
 @MappedSuperclass

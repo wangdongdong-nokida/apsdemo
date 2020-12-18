@@ -7,6 +7,7 @@ import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
 import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
@@ -175,8 +176,8 @@ public class PickingItemController {
                     order.setBindSalesOrderID(salesOrder.getID());
                     order.setSalesOrderQuantities(salesOrder.getDgsl() + "");
                     order.setQuantity(waferGear.getQuantity() + "");
-                    order.setBindCustomer(salesOrder.getlHt()!=null?(salesOrder.getlHt().getKh()==null?"":salesOrder.getlHt().getKh()):"");
-                    order.setBindContract(salesOrder.getlHt()!=null?(salesOrder.getlHt().getlHtname()==null?"":salesOrder.getlHt().getlHtname()):"");
+                    order.setBindCustomer(salesOrder.getlHt() != null ? (salesOrder.getlHt().getKh() == null ? "" : salesOrder.getlHt().getKh()) : "");
+                    order.setBindContract(salesOrder.getlHt() != null ? (salesOrder.getlHt().getlHtname() == null ? "" : salesOrder.getlHt().getlHtname()) : "");
                     for (WaferGearWarehouse waferGearWarehouse : waferGear.getWaferGearWarehouses()) {
                         if (waferGearWarehouse != null && "芯片".equals(waferGearWarehouse.getWLXT())) {
                             GearPickingOrder gearPickingOrder = new GearPickingOrder(order, waferGearWarehouse);
@@ -244,8 +245,8 @@ public class PickingItemController {
                     order.setModelNr(salesOrder.getXh());
                     order.setSliceNr("无片" + random.nextLong());
                     order.setBindSalesOrder(salesOrder.getlDdname());
-                    order.setBindCustomer(salesOrder.getlHt()!=null?(salesOrder.getlHt().getKh()==null?"":salesOrder.getlHt().getKh()):"");
-                    order.setBindContract(salesOrder.getlHt()!=null?(salesOrder.getlHt().getlHtname()==null?"":salesOrder.getlHt().getlHtname()):"");
+                    order.setBindCustomer(salesOrder.getlHt() != null ? (salesOrder.getlHt().getKh() == null ? "" : salesOrder.getlHt().getKh()) : "");
+                    order.setBindContract(salesOrder.getlHt() != null ? (salesOrder.getlHt().getlHtname() == null ? "" : salesOrder.getlHt().getlHtname()) : "");
                     order.setBrief(brief);
                     order.setSalesOrderQuantities(salesOrder.getDgsl() + "");
                     order.setQuantity(quantity + "");
@@ -376,6 +377,28 @@ public class PickingItemController {
             salesOrdersResult = occupySet.subList(numberStart, numberEnd);
         } else {
             salesOrdersResult = occupySet.subList(numberStart, occupySet.size());
+        }
+
+        if (salesOrdersResult.size() > 0) {
+            Collections.sort(salesOrdersResult, new Comparator<Occupy>() {
+                @Override
+                public int compare(Occupy o1, Occupy o2) {
+                    SalesOrder salesOrder1 = o1.getSalesOrder();
+                    SalesOrder salesOrder2 = o2.getSalesOrder();
+
+                    if (salesOrder1 != null && salesOrder2 != null) {
+                        Date data1 = salesOrder1.getJywcsj();
+                        Date date2 = salesOrder2.getJywcsj();
+                        if (data1 != null && date2 != null) {
+                            return  data1.compareTo(date2);
+                        } else {
+                            return data1 == null && date2 == null ? 0 : (data1 == null ? 1 : -1);
+                        }
+                    } else {
+                        return salesOrder1 == null && salesOrder2 == null ? 0 : (salesOrder1 == null ? 1 : -1);
+                    }
+                }
+            });
         }
 
         return new Result(salesOrdersResult, occupySet.size(), true, pageSize, current);
