@@ -866,7 +866,7 @@ public class SalesOrderData {
         this.yqfhwcrq = yqfhwcrq;
     }
 
-    @Basic
+    /*@Basic
     @Column(name = "YQJJWCRQ")
     public Date getYqjjwcrq() {
         return yqjjwcrq;
@@ -874,7 +874,7 @@ public class SalesOrderData {
 
     public void setYqjjwcrq(Date yqjjwcrq) {
         this.yqjjwcrq = yqjjwcrq;
-    }
+    }*/
 
     @Basic
     @Column(name = "CKBZ")
@@ -897,8 +897,8 @@ public class SalesOrderData {
     }
 
     @Basic
-    @Column(name = "JYWCSJ")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm",timezone = "GMT+8")
+    @Column(name = "YQJJWCRQ")
+    @JsonFormat(pattern = "yyyy-MM-dd",timezone = "GMT+8")
     public Date getJywcsj() {
         return jywcsj;
     }

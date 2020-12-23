@@ -168,8 +168,9 @@ public class WaferWarehouseController {
                     if (salesOrder != null) {
                         String orderName = salesOrder.getlDdname();
                         Integer orderQuantity = salesOrder.getDgsl();
+                        Date  jywcsj= salesOrder.getJywcsj();
                         salesOrderBuilder.append(orderName == null ? "" : orderName).append(";");
-
+                        jywcsjBuilder.append(jywcsj == null ? "" :  dayFormat.format(jywcsj)).append(";");
                         LHt lHt = salesOrder.getlHt();
 
                         if (lHt != null) {
@@ -177,13 +178,12 @@ public class WaferWarehouseController {
                             String customer = lHt.getKh();
                             String orderType = lHt.getDdlx();
                             String brief = lHt.getBz();
-                            Date  jywcsj= salesOrder.getJywcsj();
                             quantityBuilder.append(orderQuantity == null ? "" : orderQuantity).append(";");
                             contractBuilder.append(contact == null ? "" : contact).append(";");
                             customerBuilder.append(customer == null ? "" : customer).append(";");
                             salesOrderTypeBuilder.append(orderType == null ? "" : orderType).append(";");
                             contractBriefBuilder.append(brief == null ? "" : brief).append(";");
-                            jywcsjBuilder.append(jywcsj == null ? "" :  dayFormat.format(jywcsj)).append(";");
+
                         }
                     }
                 }
