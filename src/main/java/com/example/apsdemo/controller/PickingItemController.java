@@ -9,6 +9,7 @@ import com.example.apsdemo.utils.Tools;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -346,7 +347,8 @@ public class PickingItemController {
         searchInfo.putAll((Map) map.get("params"));
         Object createState = searchInfo.get("createState");
         Specification specification = Tools.getSpecificationByParams(searchInfo);
-        List<Occupy> occupies = occupyService.findAll(specification);
+        Sort sort = Sort.by(Sort.Order.asc("salesOrder.jywcsj"),Sort.Order.asc("salesOrder.lHt.lHtname"));
+        List<Occupy> occupies = occupyService.findAll(specification,sort);
 
         List<Occupy> occupySet = new LinkedList<>();
 
@@ -379,7 +381,7 @@ public class PickingItemController {
             salesOrdersResult = occupySet.subList(numberStart, occupySet.size());
         }
 
-        if (salesOrdersResult.size() > 0) {
+        /*if (salesOrdersResult.size() > 0) {
             Collections.sort(salesOrdersResult, new Comparator<Occupy>() {
                 @Override
                 public int compare(Occupy o1, Occupy o2) {
@@ -399,7 +401,7 @@ public class PickingItemController {
                     }
                 }
             });
-        }
+        }*/
 
         return new Result(salesOrdersResult, occupySet.size(), true, pageSize, current);
     }
