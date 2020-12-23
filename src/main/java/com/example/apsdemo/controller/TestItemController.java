@@ -5,24 +5,31 @@ import cn.hutool.json.JSONUtil;
 import com.example.apsdemo.admin.authority.security.pojo.SysUser;
 import com.example.apsdemo.admin.authority.security.service.SysUserService;
 import com.example.apsdemo.admin.common.api.CommonResult;
+import com.example.apsdemo.dao.businessData.ScheduleTaskData;
 import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.dao.camstarObject.SecondOrder;
 import com.example.apsdemo.dao.camstarObject.WaferWarehouse;
+import com.example.apsdemo.dao.dto.TestItemDto;
 import com.example.apsdemo.domain.*;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
 import com.example.apsdemo.service.*;
+import com.example.apsdemo.utils.ExcelUtils;
 import com.example.apsdemo.utils.Tools;
 import lombok.SneakyThrows;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
+import java.io.ByteArrayOutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 
@@ -362,5 +369,65 @@ public class TestItemController {
 
     }
 
+    @RequestMapping(path = "/exportTestItemData")
+    public ResponseEntity<byte[]> exportTestItemData(@RequestBody TestItemDto data) throws Exception{
+        try {
+            data.getTestItemParamsList().remove("current");
+            data.getTestItemParamsList().remove("pageSize");
+            if (data.getTestItemParamsList().get("params") == null || ((Map) data.getTestItemParamsList().get("params")).get("scheduleTaskLine-equipment-ID") == null) {
+                return new ResponseEntity<byte[]>(HttpStatus.FAILED_DEPENDENCY);
+            }
+            Result result = Tools.getResult(data.getTestItemParamsList(), scheduleTaskService);
+            List<TestItemDto.TestItem> testItemList = new ArrayList<>();
+            for(ScheduleTask task : (List<ScheduleTask>)result.getData()){
+                testItemList.add(this.convertData(task));
+            }
+            SXSSFWorkbook wb = ExcelUtils.newInstance().createExcelSXSSF(data.getHeaderNameArray(),data.getHeaderKeyArray(),"测试排产",testItemList);
+            if (wb == null)
+                return null;
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            wb.write(os);
+            byte[] bytes = os.toByteArray();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDispositionFormData("fileName", URLEncoder.encode("测试排产", "UTF-8"));
+            List list = new ArrayList<>();
+            list.add(URLEncoder.encode("测试排产"));
+            headers.setAccessControlExposeHeaders(list);
+            headers.setContentType(MediaType.parseMediaType("application/octet-stream"));
+            ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
+            return response;
+        } catch (Exception ex) {
+            return new ResponseEntity<byte[]>(HttpStatus.FAILED_DEPENDENCY);
+        }
+    }
 
+    private TestItemDto.TestItem convertData(ScheduleTask task){
+        TestItemDto.TestItem item = new TestItemDto.TestItem();
+        item.setDurationTime(task.getDurationTime());
+        item.setEndDate(task.getEndDate());
+        item.setStartDate(task.getStartDate());
+        item.setPlanSupplyDate(task.getPlanSupplyDate());
+        item.setArrivalDelay(task.getScheduleTestItem().getArrivalDelay());
+        item.setCircuitNr(task.getScheduleTestItem().getCircuitNr());
+        item.setItemBrief(task.getScheduleTestItem().getItemBrief());
+        item.setOperationStatus(task.getScheduleTestItem().getOperationStatus());
+        item.setProductNr(task.getScheduleTestItem().getProductNr());
+        item.setTestBrief(task.getScheduleTestItem().getTestBrief());
+        item.setTestParameter(task.getScheduleTestItem().getTestParameter());
+        item.setTestType(task.getScheduleTestItem().getTestType());
+        item.setSliceNr(task.getScheduleTestItem().getSliceNr());
+        item.setWaferNr(task.getScheduleTestItem().getWaferNr());
+        if(task.getScheduleTestItem().getSecondOrder() != null){
+            item.setName(task.getScheduleTestItem().getSecondOrder().getName());
+            item.setQuantity(task.getScheduleTestItem().getSecondOrder().getQuantity());
+        }
+        if(task.getScheduleTestItem().getTestScribingCenter() != null && task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse() != null){
+            item.setDpsj(task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getDPSJ());
+            if(task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getlLpjd() != null){
+                item.setJdb(task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getlLpjd().getJdb());
+                item.setRpsj(task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getlLpjd().getRpsj());
+            }
+        }
+        return item;
+    }
 }
