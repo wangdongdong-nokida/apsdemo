@@ -3,6 +3,7 @@ package com.example.apsdemo.controller;
 import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.*;
 import com.example.apsdemo.domain.CreateOperationParams;
+import com.example.apsdemo.domain.PickingItemParams;
 import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
@@ -71,16 +72,17 @@ public class PickingItemController {
     @Autowired
     WaferProductService waferProductService;
 
+
     @RequestMapping(path = "/createPickingOrder")
     @Transactional
-    public void createPickingOrder(@RequestBody Map<String, List<String>> params) {
-        List<String> modelIds = params.get("modelIds");
-        List<String> modelNrs = params.get("modelNrs");
+    public void createPickingOrder(@RequestBody PickingItemParams params) {
+        List<String> modelIds = params.getModelIds();
+        Map<String, String> modelNrs = params.getModelNrs();
         if (modelIds != null && modelIds.size() > 0) {
             List<WaferModelWarehouse> modelWarehouses = waferModelWarehouseService.findAll(modelIds);
             for (WaferModelWarehouse model : modelWarehouses) {
                 PickingOrder order = new PickingOrder(false);
-                order.setModelNr(modelNrs.get(0));
+                order.setModelNr(modelNrs.get(model.getID()));
                 order.setCircuitNr(model.getCircuitNr());
 
                 StringBuilder stringBuilder = new StringBuilder();
@@ -104,7 +106,7 @@ public class PickingItemController {
                         }
                     }
 
-                    if (waferGearWarehouse.getDWID() != null && !Objects.equals("0", waferGearWarehouse.getQuantity()) && stringBuilder.lastIndexOf(waferGearWarehouse.getWLZT()) < 0) {
+                    if (waferGearWarehouse.getDWID() != null && !Objects.equals("0", waferGearWarehouse.getQuantity())&&waferGearWarehouse.getWLZT()!=null && stringBuilder.lastIndexOf(waferGearWarehouse.getWLZT()) < 0) {
                         stringBuilder.append(waferGearWarehouse.getWLZT());
                     }
 
@@ -392,7 +394,7 @@ public class PickingItemController {
                         Date data1 = salesOrder1.getJywcsj();
                         Date date2 = salesOrder2.getJywcsj();
                         if (data1 != null && date2 != null) {
-                            return  data1.compareTo(date2);
+                            return data1.compareTo(date2);
                         } else {
                             return data1 == null && date2 == null ? 0 : (data1 == null ? 1 : -1);
                         }

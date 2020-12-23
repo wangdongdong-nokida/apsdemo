@@ -1,25 +1,25 @@
 package com.example.apsdemo.controller;
 
-import com.example.apsdemo.dao.businessObject.EquipmentCalendar;
-import com.example.apsdemo.dao.camstarObject.Equipment;
-import com.example.apsdemo.dao.businessData.EquipmentCalendarData;
-import com.example.apsdemo.domain.*;
-import com.example.apsdemo.service.EquipmentCalendarService;
-import com.example.apsdemo.service.EquipmentService;
-import com.example.apsdemo.utils.Tools;
-import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+        import com.example.apsdemo.dao.businessObject.EquipmentCalendar;
+        import com.example.apsdemo.dao.camstarObject.Equipment;
+        import com.example.apsdemo.dao.businessData.EquipmentCalendarData;
+        import com.example.apsdemo.domain.*;
+        import com.example.apsdemo.service.EquipmentCalendarService;
+        import com.example.apsdemo.service.EquipmentService;
+        import com.example.apsdemo.utils.Tools;
+        import org.springframework.beans.BeanUtils;
+        import org.springframework.beans.factory.annotation.Autowired;
+        import org.springframework.data.domain.Page;
+        import org.springframework.data.jpa.domain.Specification;
+        import org.springframework.transaction.annotation.Transactional;
+        import org.springframework.web.bind.annotation.RequestBody;
+        import org.springframework.web.bind.annotation.RequestMapping;
+        import org.springframework.web.bind.annotation.RequestMethod;
+        import org.springframework.web.bind.annotation.RestController;
 
-import javax.persistence.criteria.Predicate;
-import javax.validation.Valid;
-import java.util.*;
+        import javax.persistence.criteria.Predicate;
+        import javax.validation.Valid;
+        import java.util.*;
 
 @RestController
 @RequestMapping("/equipmentCalendar")
