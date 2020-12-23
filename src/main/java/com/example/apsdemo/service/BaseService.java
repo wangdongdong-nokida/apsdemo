@@ -2,6 +2,7 @@ package com.example.apsdemo.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -21,7 +22,9 @@ public abstract class BaseService<T extends JpaSpecificationExecutor& JpaReposit
     public List findAll(Specification<T> specification){
         return getMapper().findAll(specification);
     }
-
+    public List findAll(Specification<T> specification, Sort sort){
+        return getMapper().findAll(specification,sort);
+    }
     public List findAll(){
         return getMapper().findAll();
     }
