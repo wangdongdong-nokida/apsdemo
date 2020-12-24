@@ -63,6 +63,7 @@ public class TestItemController {
     @Autowired
     OperationService operationService;
 
+
     @Autowired
     private SysUserService userService;
 
@@ -417,6 +418,16 @@ public class TestItemController {
         if(StringUtils.isEmpty(firstOrderId))
             return new Result();
         List<Map<String,Object>> data = scheduleTestItemService.findSalesOrderByYjrwId(firstOrderId);
+        Result result = new Result();
+        result.setData(data);
+        return result;
+    }
+
+    @RequestMapping(path = "/querySecondOrderInfoByName")
+    public Result querySecondOrderInfoByName(String secondOrderName){
+        if(StringUtils.isEmpty(secondOrderName))
+            return new Result();
+        List<Map<String,Object>> data = scheduleTaskService.querySecondOrderInfoByName(secondOrderName);
         Result result = new Result();
         result.setData(data);
         return result;
