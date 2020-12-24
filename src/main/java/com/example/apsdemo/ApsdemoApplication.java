@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @SpringBootApplication
 @EnableJpaAuditing
 @EnableAspectJAutoProxy
-@MapperScan(basePackages = {"com.example.apsdemo.admin.authority.system.mapper","com.example.apsdemo.admin.authority.security.mapper"})
+@MapperScan(basePackages = {"com.example.apsdemo.admin.authority.system.mapper","com.example.apsdemo.admin.authority.security.mapper","com.example.apsdemo.dao.mapper.mybatisMapper"})
 public class ApsdemoApplication {
 
     public static void main(String[] args) {

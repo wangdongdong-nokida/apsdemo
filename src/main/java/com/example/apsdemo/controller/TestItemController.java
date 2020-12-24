@@ -25,6 +25,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -399,6 +400,26 @@ public class TestItemController {
         } catch (Exception ex) {
             return new ResponseEntity<byte[]>(HttpStatus.FAILED_DEPENDENCY);
         }
+    }
+
+    @RequestMapping(path = "/findYjrwBySecondOrderId")
+    public Result findYjrwBySecondOrderId(String secondOrderId){
+        if(StringUtils.isEmpty(secondOrderId))
+            return new Result();
+        List<Map<String,Object>> data = scheduleTestItemService.findYjrwBySecondOrderId(secondOrderId);
+        Result result = new Result();
+        result.setData(data);
+        return result;
+    }
+
+    @RequestMapping(path = "/findSalesOrderByFirstOrderId")
+    public Result findSalesOrderByFirstOrderId(String firstOrderId){
+        if(StringUtils.isEmpty(firstOrderId))
+            return new Result();
+        List<Map<String,Object>> data = scheduleTestItemService.findSalesOrderByYjrwId(firstOrderId);
+        Result result = new Result();
+        result.setData(data);
+        return result;
     }
 
     private TestItemDto.TestItem convertData(ScheduleTask task){
