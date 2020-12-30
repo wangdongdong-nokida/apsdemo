@@ -243,7 +243,7 @@ public class PickingItemController {
                             e.printStackTrace();
                         }
                     }
-                    PickingOrder order = new PickingOrder(true);
+                    PickingOrder order = new PickingOrder(false);
                     order.setWaferNr(waferNr);
                     order.setModelNr(salesOrder.getXh());
                     order.setSliceNr("无片" + random.nextLong());

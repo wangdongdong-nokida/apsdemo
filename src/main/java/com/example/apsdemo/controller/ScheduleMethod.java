@@ -43,7 +43,7 @@ public class ScheduleMethod {
     synchronized EquipmentCalendarBitSet.BitSetWrapper getBitSetWrapper(Equipment equipment) {
         Calendar start = Calendar.getInstance();
         Calendar end = Calendar.getInstance();
-        end.add(Calendar.YEAR, 2);
+        end.add(Calendar.YEAR, 3);
         ScheduleTaskLine line = getScheduleTaskLine(equipment);
         Date standardTime = line.getStandardTime();
         if ((line.getFirst() != null && line.getFirst().getStartDate() != null)) {
