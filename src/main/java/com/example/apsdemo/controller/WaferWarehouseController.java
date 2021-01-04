@@ -1,15 +1,10 @@
 package com.example.apsdemo.controller;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.*;
-import com.example.apsdemo.domain.RequestPage;
 import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
-import com.google.gson.JsonObject;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,14 +12,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import springfox.documentation.spring.web.json.Json;
 
-import javax.persistence.criteria.*;
-import javax.swing.text.html.Option;
 import java.util.*;
-import java.util.stream.Collectors;
 
-import static com.example.apsdemo.utils.Tools.dayFormat;
+import static com.example.apsdemo.utils.Tools.simpleDateFormat;
 
 @RestController
 @RequestMapping(path = "/waferWarehouse")
@@ -168,9 +159,9 @@ public class WaferWarehouseController {
                     if (salesOrder != null) {
                         String orderName = salesOrder.getlDdname();
                         Integer orderQuantity = salesOrder.getDgsl();
-                        Date  jywcsj= salesOrder.getJywcsj();
+                        Date jywcsj = salesOrder.getJywcsj();
                         salesOrderBuilder.append(orderName == null ? "" : orderName).append(";");
-                        jywcsjBuilder.append(jywcsj == null ? "" :  dayFormat.format(jywcsj)).append(";");
+                        jywcsjBuilder.append(jywcsj == null ? "" : simpleDateFormat.format(jywcsj)).append(";");
                         LHt lHt = salesOrder.getlHt();
 
                         if (lHt != null) {
@@ -224,7 +215,7 @@ public class WaferWarehouseController {
 
         Result result = Tools.getResult(params, waferModelWarehouseService);
         List<WaferModelWarehouse> data = result.getData();
-        Map<String,WaferModelWarehouse> waferModelWarehouseSet = new HashMap<>();
+        Map<String, WaferModelWarehouse> waferModelWarehouseSet = new HashMap<>();
         if (data != null && data.size() > 0) {
             for (WaferModelWarehouse product : data) {
                 StringBuilder salesOrders = new StringBuilder();
@@ -236,7 +227,7 @@ public class WaferWarehouseController {
                         if (gearQuantity <= 0) {
                             continue;
                         }
-                        waferModelWarehouseSet.put(product.getID(),product);
+                        waferModelWarehouseSet.put(product.getID(), product);
 
                         Set<Occupy> occupies = waferGearWarehouse.getOccupies();
                         for (Occupy occupy : occupies) {

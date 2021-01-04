@@ -106,24 +106,24 @@ public class ScheduleTask extends ScheduleTaskData {
         this.son = son;
     }
 
-    public void calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
-        if (getStartDate() != null) {
-            int startAvailable = wrapper.getStartAvailable(getStartDate());
-            int endRange = wrapper.getEndRange(startAvailable, getDurationTime());
-            Calendar calendar = wrapper.getFromStart(startAvailable + endRange);
-            setEndDate(calendar.getTime());
-        }
-        if (getSon() != null) {
-            getSon().setStartDate(this.getEndDate());
-        }
-    }
+//    public void calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
+//        if (getStartDate() != null) {
+//            int startAvailable = wrapper.getStartAvailable(getStartDate());
+//            int endRange = wrapper.getEndRange(startAvailable, getDurationTime());
+//            Calendar calendar = wrapper.getFromStart(startAvailable + endRange);
+//            setEndDate(calendar);
+//        }
+//        if (getSon() != null) {
+//            getSon().setStartDate(this.getEndDate());
+//        }
+//    }
 
-    public void scheduleDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
-        this.calcDate(wrapper);
-        if (getSon() != null) {
-            getSon().scheduleDate(wrapper);
-        }
-    }
+//    public void scheduleDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
+//        this.calcDate(wrapper);
+//        if (getSon() != null) {
+//            getSon().scheduleDate(wrapper);
+//        }
+//    }
 
     @Override
     public String toString() {

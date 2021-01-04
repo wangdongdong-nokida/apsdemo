@@ -12,13 +12,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.persistence.criteria.*;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Tools {
-    public static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+    public static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy/MM/dd");
+    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
+//    public static final Calendar calendarInstance = Calendar.getInstance();
 
     public static Pageable getDefaultPageable(RequestPage requestPage) {
         if (requestPage.getCurrent() <= 0 || requestPage.getPageSize() <= 0) {

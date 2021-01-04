@@ -134,7 +134,11 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
 
         public void calcScheduleLineDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
             if (getContainerFirst() != null) {
-                getContainerFirst().calcDate(wrapper);
+                int i = 0;
+                Container container = getContainerFirst();
+                while (container != null) {
+                    container = container.calcDate(wrapper, i);
+                }
             }
         }
 
@@ -221,28 +225,31 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                 return this;
             }
 
-            public void calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper) {
+            public Container calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper, int i) {
+                i++;
+                if (i % 500 == 0) {
+                    return this;
+                }
+                Calendar calendarOut=Calendar.getInstance();
+
                 if (this.getFather() == null) {
                     this.getSelf().setIndexOrder(1);
                 } else {
                     this.getSelf().setIndexOrder(getFather().getSelf().getIndexOrder() + 1);
                 }
-
                 if (wrapper.getBitSet().isEmpty()) {
                     if (this.getSelf().getStartDate() == null) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.set(Calendar.SECOND, 0);
-                        calendar.set(Calendar.MILLISECOND, 0);
-                        this.getSelf().setStartDate(calendar.getTime());
+                        calendarOut.set(Calendar.SECOND, 0);
+                        calendarOut.set(Calendar.MILLISECOND, 0);
+                        this.getSelf().setStartDate(calendarOut.getTime());
                     }
-                    Calendar calendar = Calendar.getInstance();
-                    calendar.setTime(this.getSelf().getStartDate());
-                    calendar.add(Calendar.MINUTE, this.getSelf().getDurationTime());
-                    this.getSelf().setEndDate(calendar.getTime());
+                    calendarOut.setTime(this.getSelf().getStartDate());
+                    calendarOut.add(Calendar.MINUTE, this.getSelf().getDurationTime());
+                    this.getSelf().setEndDate(calendarOut);
                     Container next = getSon();
                     if (next != null) {
                         next.getSelf().setStartDate(self.getEndDate());
-                        next.calcDate(wrapper);
+                        return next.calcDate(wrapper, i);
                     }
                 } else {
                     if (self.getStartDate() == null) {
@@ -252,13 +259,14 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                     int startAvailable = wrapper.getStartAvailable(self.getStartDate());
                     int endRange = wrapper.getEndRange(startAvailable, self.getDurationTime());
                     Calendar calendar = wrapper.getFromStart(startAvailable + endRange);
-                    self.setEndDate(calendar.getTime());
+                    self.setEndDate(calendar);
                     Container next = getSon();
                     if (next != null) {
                         next.getSelf().setStartDate(self.getEndDate());
-                        next.calcDate(wrapper);
+                        return next.calcDate(wrapper, i);
                     }
                 }
+                return null;
             }
 
             private Container(Container father, Container son, ScheduleTask self) {

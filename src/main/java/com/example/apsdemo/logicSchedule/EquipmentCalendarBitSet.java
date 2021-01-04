@@ -29,6 +29,7 @@ public class EquipmentCalendarBitSet {
         }
 
         public Calendar getFromStart(int range) {
+
             Calendar indexStart = getCalendar(start.getTime());
             indexStart.add(Calendar.MINUTE, range);
             return indexStart;
@@ -65,7 +66,7 @@ public class EquipmentCalendarBitSet {
             long dateTime = date.getTime();
             long startMills = start.getTimeInMillis();
             int minusRange = (int) ((dateTime - startMills) / (60 * 1000));
-            return bitSet.nextSetBit(minusRange<0?0:minusRange);
+            return bitSet.nextSetBit(minusRange < 0 ? 0 : minusRange);
         }
 
         public BitSet getBitSet() {
@@ -205,9 +206,9 @@ public class EquipmentCalendarBitSet {
     }
 
     private Calendar getCalendar(Date time) {
-        Calendar startTime = Calendar.getInstance();
-        startTime.setTime(time);
-        return startTime;
+        Calendar calendarOut=Calendar.getInstance();
+        calendarOut.setTime(time);
+        return calendarOut;
     }
 
     private String getDayString(Calendar today) {

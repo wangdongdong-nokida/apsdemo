@@ -10,7 +10,6 @@ import javax.persistence.MappedSuperclass;
 import java.util.Calendar;
 import java.util.Date;
 
-
 @EqualsAndHashCode(callSuper = true)
 @MappedSuperclass
 @Data
@@ -29,18 +28,16 @@ public class ScheduleTaskData extends DataBase {
     @Column(nullable = false)
     private boolean finished;
 
-    public void setEndDate(Date endDate) {
-        this.endDate = endDate;
+    public void setEndDate(Calendar endDate) {
+        this.endDate = endDate!=null?endDate.getTime():null;
         if (endDate != null) {
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(endDate);
-            calendar.add(Calendar.DAY_OF_MONTH, 3);
+            endDate.add(Calendar.DAY_OF_MONTH, 3);
             if (planSupplyDate != null) {
-                if (calendar.getTime().compareTo(planSupplyDate) != 0) {
-                    this.planSupplyDate = calendar.getTime();
+                if (endDate.getTime().compareTo(planSupplyDate) != 0) {
+                    this.planSupplyDate = endDate.getTime();
                 }
             } else {
-                this.planSupplyDate = calendar.getTime();
+                this.planSupplyDate = endDate.getTime();
             }
         } else {
             this.planSupplyDate = null;
