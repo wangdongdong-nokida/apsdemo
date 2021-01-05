@@ -136,8 +136,19 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             if (getContainerFirst() != null) {
                 int i = 0;
                 Container container = getContainerFirst();
-                while (container != null) {
-                    container = container.calcDate(wrapper, i);
+                if (container != null) {
+                    ScheduleTask task = container.getSelf();
+                    ScheduleTask next = task;
+
+                    while (next.isFinished()) {
+                        next = task.getSon();
+                        deleteFromLine(task.getID());
+                        task = next;
+                    }
+                    container = getContainerFirst();
+                    while (container != null) {
+                        container = getContainerFirst().calcDate(wrapper, i);
+                    }
                 }
             }
         }
@@ -187,7 +198,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                 }
             }
 
-            public void linkTo(Container container, boolean after) {
+            void linkTo(Container container, boolean after) {
                 if (container != null) {
                     if (after) {
 
@@ -219,18 +230,19 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                     setFirst(null);
                     setLast(null);
                 }
+                this.getSelf().setScheduleTaskLine(null);
                 this.getSelf().setSon(null);
                 this.setSon(null);
                 this.setFather(null);
                 return this;
             }
 
-            public Container calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper, int i) {
+            Container calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper, int i) {
                 i++;
                 if (i % 500 == 0) {
                     return this;
                 }
-                Calendar calendarOut=Calendar.getInstance();
+                Calendar calendarOut = Calendar.getInstance();
 
                 if (this.getFather() == null) {
                     this.getSelf().setIndexOrder(1);
@@ -244,7 +256,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                         this.getSelf().setStartDate(calendarOut.getTime());
                     }
                     calendarOut.setTime(this.getSelf().getStartDate());
-                    calendarOut.add(Calendar.MINUTE, this.getSelf().getDurationTime());
+                    calendarOut.add(Calendar.MINUTE, this.getSelf().getDurationTime() + this.getSelf().getDurationDelayTime());
                     this.getSelf().setEndDate(calendarOut);
                     Container next = getSon();
                     if (next != null) {
@@ -257,7 +269,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                         this.getSelf().setStartDate(getStandardTime() == null ? calendar.getTime() : getStandardTime());
                     }
                     int startAvailable = wrapper.getStartAvailable(self.getStartDate());
-                    int endRange = wrapper.getEndRange(startAvailable, self.getDurationTime());
+                    int endRange = wrapper.getEndRange(startAvailable, self.getDurationTime() + self.getDurationDelayTime());
                     Calendar calendar = wrapper.getFromStart(startAvailable + endRange);
                     self.setEndDate(calendar);
                     Container next = getSon();
@@ -296,15 +308,15 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
         return first;
     }
 
-    public void setFirst(ScheduleTask first) {
+    private void setFirst(ScheduleTask first) {
         this.first = first;
     }
 
-    public ScheduleTask getLast() {
+    private ScheduleTask getLast() {
         return last;
     }
 
-    public void setLast(ScheduleTask last) {
+    private void setLast(ScheduleTask last) {
         this.last = last;
         if (last != null) {
             this.setLastTime(last.getEndDate());

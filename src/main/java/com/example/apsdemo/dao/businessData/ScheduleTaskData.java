@@ -16,6 +16,7 @@ import java.util.Date;
 public class ScheduleTaskData extends DataBase {
 
     private int durationTime;
+    private int durationDelayTime;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")
     private Date startDate;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm", timezone = "GMT+8")

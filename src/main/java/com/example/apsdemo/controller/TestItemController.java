@@ -245,6 +245,26 @@ public class TestItemController {
         }
     }
 
+    @SneakyThrows
+    @RequestMapping(path = "/editDurationDelayTime")
+    @Transactional
+    public void editDurationDelayTime(@RequestBody EditDurationTime durationTime) {
+        if (durationTime.getIds() == null) {
+            throw new Exception("没有选中明细！");
+        }
+        List<ScheduleTask> tasks = scheduleTaskService.findAll(durationTime.getIds());
+        for (ScheduleTask task : tasks) {
+            task.setDurationDelayTime(durationTime.getDurationTime());
+        }
+        if (tasks.size() > 0) {
+            ScheduleTask task = tasks.get(0);
+            if (task.getScheduleTaskLine() != null) {
+                ScheduleTaskLine line = task.getScheduleTaskLine();
+                line.getScheduleLine().calcScheduleLineDate(scheduleMethod.getBitSetWrapper(line.getEquipment()));
+            }
+        }
+    }
+
 
     @SneakyThrows
     @RequestMapping(path = "/editSupplyTime")
@@ -372,7 +392,7 @@ public class TestItemController {
     }
 
     @RequestMapping(path = "/exportTestItemData")
-    public ResponseEntity<byte[]> exportTestItemData(@RequestBody TestItemDto data) throws Exception{
+    public ResponseEntity<byte[]> exportTestItemData(@RequestBody TestItemDto data) throws Exception {
         try {
             data.getTestItemParamsList().remove("current");
             data.getTestItemParamsList().remove("pageSize");
@@ -381,10 +401,10 @@ public class TestItemController {
             }
             Result result = Tools.getResult(data.getTestItemParamsList(), scheduleTaskService);
             List<TestItemDto.TestItem> testItemList = new ArrayList<>();
-            for(ScheduleTask task : (List<ScheduleTask>)result.getData()){
+            for (ScheduleTask task : (List<ScheduleTask>) result.getData()) {
                 testItemList.add(this.convertData(task));
             }
-            SXSSFWorkbook wb = ExcelUtils.newInstance().createExcelSXSSF(data.getHeaderNameArray(),data.getHeaderKeyArray(),"测试排产",testItemList);
+            SXSSFWorkbook wb = ExcelUtils.newInstance().createExcelSXSSF(data.getHeaderNameArray(), data.getHeaderKeyArray(), "测试排产", testItemList);
             if (wb == null)
                 return null;
             ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -404,36 +424,36 @@ public class TestItemController {
     }
 
     @RequestMapping(path = "/findYjrwBySecondOrderId")
-    public Result findYjrwBySecondOrderId(String secondOrderId){
-        if(StringUtils.isEmpty(secondOrderId))
+    public Result findYjrwBySecondOrderId(String secondOrderId) {
+        if (StringUtils.isEmpty(secondOrderId))
             return new Result();
-        List<Map<String,Object>> data = scheduleTestItemService.findYjrwBySecondOrderId(secondOrderId);
+        List<Map<String, Object>> data = scheduleTestItemService.findYjrwBySecondOrderId(secondOrderId);
         Result result = new Result();
         result.setData(data);
         return result;
     }
 
     @RequestMapping(path = "/findSalesOrderByFirstOrderId")
-    public Result findSalesOrderByFirstOrderId(String firstOrderId){
-        if(StringUtils.isEmpty(firstOrderId))
+    public Result findSalesOrderByFirstOrderId(String firstOrderId) {
+        if (StringUtils.isEmpty(firstOrderId))
             return new Result();
-        List<Map<String,Object>> data = scheduleTestItemService.findSalesOrderByYjrwId(firstOrderId);
+        List<Map<String, Object>> data = scheduleTestItemService.findSalesOrderByYjrwId(firstOrderId);
         Result result = new Result();
         result.setData(data);
         return result;
     }
 
     @RequestMapping(path = "/querySecondOrderInfoByName")
-    public Result querySecondOrderInfoByName(String secondOrderName){
-        if(StringUtils.isEmpty(secondOrderName))
+    public Result querySecondOrderInfoByName(String secondOrderName) {
+        if (StringUtils.isEmpty(secondOrderName))
             return new Result();
-        List<Map<String,Object>> data = scheduleTaskService.querySecondOrderInfoByName(secondOrderName);
+        List<Map<String, Object>> data = scheduleTaskService.querySecondOrderInfoByName(secondOrderName);
         Result result = new Result();
         result.setData(data);
         return result;
     }
 
-    private TestItemDto.TestItem convertData(ScheduleTask task){
+    private TestItemDto.TestItem convertData(ScheduleTask task) {
         TestItemDto.TestItem item = new TestItemDto.TestItem();
         item.setDurationTime(task.getDurationTime());
         item.setEndDate(task.getEndDate());
@@ -449,13 +469,13 @@ public class TestItemController {
         item.setTestType(task.getScheduleTestItem().getTestType());
         item.setSliceNr(task.getScheduleTestItem().getSliceNr());
         item.setWaferNr(task.getScheduleTestItem().getWaferNr());
-        if(task.getScheduleTestItem().getSecondOrder() != null){
+        if (task.getScheduleTestItem().getSecondOrder() != null) {
             item.setName(task.getScheduleTestItem().getSecondOrder().getName());
             item.setQuantity(task.getScheduleTestItem().getSecondOrder().getQuantity());
         }
-        if(task.getScheduleTestItem().getTestScribingCenter() != null && task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse() != null){
+        if (task.getScheduleTestItem().getTestScribingCenter() != null && task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse() != null) {
             item.setDpsj(task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getDPSJ());
-            if(task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getlLpjd() != null){
+            if (task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getlLpjd() != null) {
                 item.setJdb(task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getlLpjd().getJdb());
                 item.setRpsj(task.getScheduleTestItem().getTestScribingCenter().getWaferWarehouse().getlLpjd().getRpsj());
             }

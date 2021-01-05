@@ -32,6 +32,7 @@ public class OperationData extends ScheduleTask {
     protected String equipmentName;
     protected boolean salesOrder;
     protected String brief;
+    protected String itemBrief;
 
     @Transient
     Set<Equipment> equipments=new HashSet<>();
