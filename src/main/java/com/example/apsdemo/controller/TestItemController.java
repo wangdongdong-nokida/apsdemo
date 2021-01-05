@@ -444,7 +444,7 @@ public class TestItemController {
         item.setItemBrief(task.getScheduleTestItem().getItemBrief());
         item.setOperationStatus(task.getScheduleTestItem().getOperationStatus());
         item.setProductNr(task.getScheduleTestItem().getProductNr());
-        item.setTestBrief(task.getScheduleTestItem().getTestBrief());
+        item.setTestBrief(task.getScheduleTestItem().getSecondOrder().getTestBrief());
         item.setTestParameter(task.getScheduleTestItem().getTestParameter());
         item.setTestType(task.getScheduleTestItem().getTestType());
         item.setSliceNr(task.getScheduleTestItem().getSliceNr());
