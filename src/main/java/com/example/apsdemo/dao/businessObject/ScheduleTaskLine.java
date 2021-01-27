@@ -65,7 +65,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
             if (container == null) {
                 return null;
             }
-            if (containerFirst == container) {
+            if (containerFirst.getSelf().getID() == container.getSelf().getID()) {
                 containerFirst = container.getSon();
             }
             return container.removeFromLine();
@@ -147,7 +147,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                     }
                     container = getContainerFirst();
                     while (container != null) {
-                        container = getContainerFirst().calcDate(wrapper, i);
+                        container =container.calcDate(wrapper, i);
                     }
                 }
             }

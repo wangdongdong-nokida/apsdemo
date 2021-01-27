@@ -2,11 +2,9 @@ package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleTaskData;
 import com.example.apsdemo.dao.camstarObject.Container;
-import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import java.util.Calendar;
 
 @Entity
 @Table(name = "A_ScheduleTask")
@@ -56,7 +54,6 @@ public class ScheduleTask extends ScheduleTaskData {
 
     @OneToOne(targetEntity = ScheduleScribingItem.class, cascade = CascadeType.ALL,mappedBy = "scheduleTask")
     private ScheduleScribingItem scheduleScribingItem;
-
 
     public ScheduleScribingItem getScheduleScribingItem() {
         return scheduleScribingItem;

@@ -15,8 +15,8 @@ public class WorkStepName {
 
     @Column(name = "SPECNAME")
     private String stepName;
-    @Column(name = "gjgx")
 
+    @Column(name = "gjgx")
     private boolean createOperation;
 
     public boolean isCreateOperation() {

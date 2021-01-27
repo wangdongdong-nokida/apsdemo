@@ -5,12 +5,14 @@ import com.example.apsdemo.dao.businessObject.PickingOrder;
 import com.github.dockerjava.api.model.LogConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import javax.persistence.Transient;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 

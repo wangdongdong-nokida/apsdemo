@@ -16,14 +16,18 @@ import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.ExcelUtils;
 import com.example.apsdemo.utils.Tools;
+import com.github.dockerjava.api.model.LogConfig;
 import lombok.SneakyThrows;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -63,20 +67,30 @@ public class TestItemController {
     @Autowired
     OperationService operationService;
 
+    private static final Logger LOG = LoggerFactory.getLogger(LogConfig.class);
 
     @Autowired
     private SysUserService userService;
 
     @SneakyThrows
     @RequestMapping(path = "/create")
-    public synchronized void createTestItem(@RequestBody TestItemCreateParams requestPage) {
+    public void createTestItem(@RequestBody TestItemCreateParams requestPage) {
 
         Set<Long> ids;
         try {
+            LOG.info("createTestItem--------start");
             ids = createItem(requestPage);
+            LOG.info("createTestItem--------end");
         } catch (Exception e) {
             throw new Exception("创建失败");
         }
+        LOG.info("createTestItem--------post start");
+        postHttp(ids);
+        LOG.info("createTestItem--------post end");
+    }
+
+    @Transactional(propagation = Propagation.NEVER)
+    public void postHttp(Set<Long> ids) {
         if (ids.size() > 0) {
             HttpController.postHttp(ids, "测试");
         }
@@ -388,7 +402,6 @@ public class TestItemController {
                 }
             }
         }
-
     }
 
     @RequestMapping(path = "/exportTestItemData")
