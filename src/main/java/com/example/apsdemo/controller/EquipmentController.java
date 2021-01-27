@@ -2,6 +2,7 @@ package com.example.apsdemo.controller;
 
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.domain.Result;
+import com.example.apsdemo.service.EquipmentCService;
 import com.example.apsdemo.service.EquipmentService;
 import com.example.apsdemo.utils.Tools;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class EquipmentController {
     @Autowired
     EquipmentService service;
 
+    @Autowired
+    EquipmentCService cService;
+
     @RequestMapping(path = "/getAllByParams")
     public Result getEquipment(@RequestBody Map<String, Object> requestPage) {
 
@@ -29,7 +33,7 @@ public class EquipmentController {
         map.put("orderBy","name");
         map.put("pageSize","1000");
         map.put("current","1");
-        return Tools.getResult(map, service).getData();
+        return Tools.getResult(map, cService).getData();
     }
 
     @GetMapping(path = "/getEndDate")
