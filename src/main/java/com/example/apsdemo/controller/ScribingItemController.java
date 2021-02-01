@@ -4,16 +4,26 @@ import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.dao.camstarObject.SecondOrder;
 import com.example.apsdemo.dao.camstarObject.WaferWarehouse;
+import com.example.apsdemo.dao.dto.ScribingItemDto;
+import com.example.apsdemo.dao.dto.TestItemDto;
 import com.example.apsdemo.domain.*;
 import com.example.apsdemo.service.*;
+import com.example.apsdemo.utils.ExcelUtils;
 import com.example.apsdemo.utils.Tools;
 import lombok.SneakyThrows;
+import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.ByteArrayOutputStream;
+import java.net.URLEncoder;
 import java.util.*;
 
 
@@ -205,6 +215,54 @@ public class ScribingItemController {
                 testScribingCenterService.save(center);
             }
         }
+    }
+
+    @RequestMapping(path = "/exportScribingItemData")
+    public ResponseEntity<byte[]> exportScribingItemData(@RequestBody TestItemDto data) throws Exception {
+        try {
+            data.getTestItemParamsList().remove("current");
+            data.getTestItemParamsList().remove("pageSize");
+            if (data.getTestItemParamsList().get("params") == null || ((Map) data.getTestItemParamsList().get("params")).get("scheduleTaskLine-equipment-ID") == null) {
+                return new ResponseEntity<byte[]>(HttpStatus.FAILED_DEPENDENCY);
+            }
+            Result result = Tools.getResult(data.getTestItemParamsList(), scheduleTaskService);
+            List<ScribingItemDto.ScribingItem> testItemList = new ArrayList<>();
+            for (ScheduleTask task : (List<ScheduleTask>) result.getData()) {
+                testItemList.add(this.convertData(task));
+            }
+            SXSSFWorkbook wb = ExcelUtils.newInstance().createExcelSXSSF(data.getHeaderNameArray(), data.getHeaderKeyArray(), "测试排产", testItemList);
+            if (wb == null)
+                return null;
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            wb.write(os);
+            byte[] bytes = os.toByteArray();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentDispositionFormData("fileName", URLEncoder.encode("测试排产", "UTF-8"));
+            List list = new ArrayList<>();
+            list.add(URLEncoder.encode("测试排产"));
+            headers.setAccessControlExposeHeaders(list);
+            headers.setContentType(MediaType.parseMediaType("application/octet-stream"));
+            ResponseEntity<byte[]> response = new ResponseEntity<byte[]>(bytes, headers, HttpStatus.OK);
+            return response;
+        } catch (Exception ex) {
+            return new ResponseEntity<byte[]>(HttpStatus.FAILED_DEPENDENCY);
+        }
+    }
+
+
+    private ScribingItemDto.ScribingItem convertData(ScheduleTask task) {
+        ScribingItemDto.ScribingItem item = new ScribingItemDto.ScribingItem();
+        item.setDurationTime(task.getDurationTime());
+        item.setDurationDelayTime(task.getDurationDelayTime());
+        item.setEndDate(task.getEndDate());
+        item.setStartDate(task.getStartDate());
+        item.setOperationStatus(task.getScheduleScribingItem().getOperationStatus());
+        item.setResponsiblePerson(task.getScheduleScribingItem().getResponsiblePerson());
+        item.setBrief(task.getScheduleScribingItem().getBrief());
+        item.setOperationStatus(task.getScheduleScribingItem().getOperationStatus());
+        item.setSliceNr(task.getScheduleScribingItem().getSliceNr());
+        item.setWaferNr(task.getScheduleScribingItem().getWaferNr());
+        return item;
     }
 
 }
