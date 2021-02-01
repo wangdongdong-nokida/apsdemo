@@ -26,6 +26,8 @@ public class OperationData extends ScheduleTask {
     protected String circuitNr;
     protected String quantity;
 
+    protected String salesOrderTestDate;
+
     protected String workStepName;
     protected String workFlowName;
 

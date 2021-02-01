@@ -3,11 +3,13 @@ package com.example.apsdemo.controller;
 import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.*;
 import com.example.apsdemo.domain.CreateOperationParams;
+import com.example.apsdemo.domain.EditBrief;
 import com.example.apsdemo.domain.PickingItemParams;
 import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
 import lombok.Data;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -97,6 +99,7 @@ public class PickingItemController {
                 Map<String, SalesOrder> bindingSalesOrders = new HashMap();
                 StringBuilder bindingContract = new StringBuilder();
                 StringBuilder bindingCustomer = new StringBuilder();
+                StringBuilder bindingTestTime = new StringBuilder();
                 for (WaferGearWarehouse waferGearWarehouse : model.getWaferGearWarehouses()) {
                     if (waferGearWarehouse.getQuantity() != null && !"测试不合格".equals(waferGearWarehouse.getWLZT())) {
                         stockQuantity += Integer.parseInt(waferGearWarehouse.getQuantity());
@@ -106,7 +109,7 @@ public class PickingItemController {
                         }
                     }
 
-                    if (waferGearWarehouse.getDWID() != null && !Objects.equals("0", waferGearWarehouse.getQuantity())&&waferGearWarehouse.getWLZT()!=null && stringBuilder.lastIndexOf(waferGearWarehouse.getWLZT()) < 0) {
+                    if (waferGearWarehouse.getDWID() != null && !Objects.equals("0", waferGearWarehouse.getQuantity()) && waferGearWarehouse.getWLZT() != null && stringBuilder.lastIndexOf(waferGearWarehouse.getWLZT()) < 0) {
                         stringBuilder.append(waferGearWarehouse.getWLZT());
                     }
 
@@ -115,6 +118,9 @@ public class PickingItemController {
                         if (salesOrder.getlDdname() != null) {
                             salesOrders.append(salesOrder.getlDdname()).append(";");
                             salesOrdersQuantity.append(salesOrder.getDgsl()).append(";");
+                        }
+                        if (salesOrder.getYqfhwcrq() != null) {
+                            bindingTestTime.append(salesOrder.getYqfhwcrq().toString()).append(";");
                         }
                         bindingContract.append(salesOrder.getlHt().getlHtname()).append(";");
                         bindingCustomer.append(salesOrder.getlHt().getKh()).append(";");
@@ -127,6 +133,7 @@ public class PickingItemController {
                 order.setSliceState(stringBuilder.toString());
                 order.setBindContract(bindingContract.toString());
                 order.setBindCustomer(bindingCustomer.toString());
+                order.setSalesOrderTestDate(bindingTestTime.toString());
 //                pickingOrderService.save(order);
             }
         }
@@ -179,6 +186,7 @@ public class PickingItemController {
                     order.setBindSalesOrderID(salesOrder.getID());
                     order.setSalesOrderQuantities(salesOrder.getDgsl() + "");
                     order.setQuantity(waferGear.getQuantity() + "");
+                    order.setSalesOrderTestDate(salesOrder.getYqfhwcrq() != null ? salesOrder.getYqfhwcrq().toString() : null);
                     order.setBindCustomer(salesOrder.getlHt() != null ? (salesOrder.getlHt().getKh() == null ? "" : salesOrder.getlHt().getKh()) : "");
                     order.setBindContract(salesOrder.getlHt() != null ? (salesOrder.getlHt().getlHtname() == null ? "" : salesOrder.getlHt().getlHtname()) : "");
                     for (WaferGearWarehouse waferGearWarehouse : waferGear.getWaferGearWarehouses()) {
@@ -248,6 +256,7 @@ public class PickingItemController {
                     order.setModelNr(salesOrder.getXh());
                     order.setSliceNr("无片" + random.nextLong());
                     order.setBindSalesOrder(salesOrder.getlDdname());
+                    order.setSalesOrderTestDate(salesOrder.getYqfhwcrq()!=null?salesOrder.getYqfhwcrq().toString():null);
                     order.setBindCustomer(salesOrder.getlHt() != null ? (salesOrder.getlHt().getKh() == null ? "" : salesOrder.getlHt().getKh()) : "");
                     order.setBindContract(salesOrder.getlHt() != null ? (salesOrder.getlHt().getlHtname() == null ? "" : salesOrder.getlHt().getlHtname()) : "");
                     order.setBrief(brief);
@@ -349,8 +358,8 @@ public class PickingItemController {
         searchInfo.putAll((Map) map.get("params"));
         Object createState = searchInfo.get("createState");
         Specification specification = Tools.getSpecificationByParams(searchInfo);
-        Sort sort = Sort.by(Sort.Order.asc("salesOrder.jywcsj"),Sort.Order.asc("salesOrder.lHt.lHtname"));
-        List<Occupy> occupies = occupyService.findAll(specification,sort);
+        Sort sort = Sort.by(Sort.Order.asc("salesOrder.jywcsj"), Sort.Order.asc("salesOrder.lHt.lHtname"));
+        List<Occupy> occupies = occupyService.findAll(specification, sort);
 
         List<Occupy> occupySet = new LinkedList<>();
 
@@ -563,6 +572,7 @@ public class PickingItemController {
                             }
                             if (!hasRepeat) {
                                 Operation operation = new Operation(indexPickingOrder);
+                                operation.setSalesOrderTestDate(indexPickingOrder.getSalesOrderTestDate());
                                 operation.setQuantity(indexPickingOrder.getQuantity() == null ? "0" : indexPickingOrder.getQuantity());
                                 operation.setR_workStepName(workStepName);
                                 operation.setWorkStepName(workStepName.getStepName());
@@ -578,6 +588,7 @@ public class PickingItemController {
 
                 if (!hasCreated) {
                     Operation operation = new Operation(indexPickingOrder);
+                    operation.setSalesOrderTestDate(indexPickingOrder.getSalesOrderTestDate());
                     operation.setQuantity(indexPickingOrder.getQuantity() == null ? "0" : indexPickingOrder.getQuantity());
                     operation.setWorkStepName("结束");
                     operation.setWorkFlowName(workFlow.getWorkFlowName().getWorkFlowName());
@@ -647,7 +658,7 @@ public class PickingItemController {
             Long id = Long.valueOf(map.get("ID"));
             String equipmentSelected = map.get("equipmentSelected");
             int duration = Integer.parseInt(map.get("duration"));
-            String  itemBrief= map.get("itemBrief");
+            String itemBrief = map.get("itemBrief");
 //            int quantity = Integer.parseInt(map.get("quantity"));
             Optional<Equipment> equipmentOptional = equipmentService.findById(equipmentSelected);
             if (equipmentOptional.isPresent()) {
@@ -674,4 +685,19 @@ public class PickingItemController {
         }
         return packingOrders;
     }
+
+    @SneakyThrows
+    @RequestMapping(path = "/editBrief")
+    @Transactional
+    public void editBrief(@RequestBody EditBrief brief) {
+        if (brief.getIds() == null) {
+            throw new Exception("没有选中测试明细！");
+        }
+        List<Operation> tasks = operationService.findAll(brief.getIds());
+        for (Operation task : tasks) {
+            task.setBrief(brief.getBrief());
+        }
+    }
+
+
 }

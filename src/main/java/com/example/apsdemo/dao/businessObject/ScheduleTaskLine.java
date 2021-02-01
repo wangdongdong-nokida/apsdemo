@@ -147,7 +147,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                     }
                     container = getContainerFirst();
                     while (container != null) {
-                        container =container.calcDate(wrapper, i);
+                        container =container.calcDate(wrapper, i,this.getLine());
                     }
                 }
             }
@@ -180,6 +180,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                     setLast(son.getSelf());
                     getLine().setLast(son.getSelf());
                 }
+                son.getSelf().setScheduleTaskLine(this.getSelf().getScheduleTaskLine());
             }
 
             private void setFatherRelation(Container father) {
@@ -237,7 +238,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                 return this;
             }
 
-            Container calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper, int i) {
+            Container calcDate(EquipmentCalendarBitSet.BitSetWrapper wrapper, int i,ScheduleTaskLine line) {
                 i++;
                 if (i % 500 == 0) {
                     return this;
@@ -255,13 +256,14 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                         calendarOut.set(Calendar.MILLISECOND, 0);
                         this.getSelf().setStartDate(calendarOut.getTime());
                     }
+                    this.getSelf().setScheduleTaskLine(line);
                     calendarOut.setTime(this.getSelf().getStartDate());
                     calendarOut.add(Calendar.MINUTE, this.getSelf().getDurationTime() + this.getSelf().getDurationDelayTime());
                     this.getSelf().setEndDate(calendarOut);
                     Container next = getSon();
                     if (next != null) {
                         next.getSelf().setStartDate(self.getEndDate());
-                        return next.calcDate(wrapper, i);
+                        return next.calcDate(wrapper, i,line);
                     }
                 } else {
                     if (self.getStartDate() == null) {
@@ -275,7 +277,7 @@ public class ScheduleTaskLine extends ScheduleTaskLineData {
                     Container next = getSon();
                     if (next != null) {
                         next.getSelf().setStartDate(self.getEndDate());
-                        return next.calcDate(wrapper, i);
+                        return next.calcDate(wrapper, i,line);
                     }
                 }
                 return null;

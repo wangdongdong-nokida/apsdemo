@@ -20,6 +20,8 @@ public class PickingOrderData extends ScheduleTask {
     protected String bindCustomer;
     protected String bindSalesOrderID;
     protected String salesOrderQuantities;
+    protected String salesOrderTestDate;
+
     protected String circuitNr;
     protected String quantity;
     protected boolean salesOrder;

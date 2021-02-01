@@ -2,6 +2,9 @@ package com.example.apsdemo.logicSchedule;
 
 import com.example.apsdemo.dao.businessObject.EquipmentCalendar;
 import com.example.apsdemo.dao.camstarObject.Equipment;
+import com.example.apsdemo.utils.AspectLogger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -10,6 +13,8 @@ import static com.example.apsdemo.utils.Tools.dayFormat;
 
 @Component
 public class EquipmentCalendarBitSet {
+
+    public static final Logger log = LoggerFactory.getLogger(AspectLogger.class);
 
     public final Map<String, BitSetWrapper> bitSetWrapperMap = new HashMap<>();
 
@@ -161,6 +166,8 @@ public class EquipmentCalendarBitSet {
             }
         }
         ruleCalendars(bitSet, index, repeatCalendars, normalCalendars);
+
+
         start.add(Calendar.DATE, 1);
         index++;
         if (start.before(end)) {
@@ -202,11 +209,20 @@ public class EquipmentCalendarBitSet {
         int position = index * 1440;
         int startMinute = position + (startTime.get(Calendar.HOUR_OF_DAY) * 60) + startTime.get(Calendar.MINUTE);
         int endMinute = position + (endTime.get(Calendar.HOUR_OF_DAY) * 60) + endTime.get(Calendar.MINUTE);
+        if (equipmentCalendar.getRepeatType() == 0) {
+            startMinute = position + (startTime.get(Calendar.HOUR_OF_DAY) * 60) + startTime.get(Calendar.MINUTE);
+            endMinute = (int) ((endTime.getTime().getTime()-startTime.getTime().getTime())/(1000*60)+startMinute);
+        }
+        if (startMinute > endMinute) {
+            log.info("开始时间大于结束时间");
+            log.info("ID:"+equipmentCalendar.getID());
+            return;
+        }
         bitSet.set(startMinute, endMinute, !equipmentCalendar.isBlackName());
     }
 
     private Calendar getCalendar(Date time) {
-        Calendar calendarOut=Calendar.getInstance();
+        Calendar calendarOut = Calendar.getInstance();
         calendarOut.setTime(time);
         return calendarOut;
     }
