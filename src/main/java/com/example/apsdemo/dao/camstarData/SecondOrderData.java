@@ -12,8 +12,8 @@ import java.util.Date;
 @Table(name = "L_RJRW", catalog = "")
 public class SecondOrderData {
 
-    @Column(name = "CJRID")
-    protected String cjrid;
+    /*@Column(name = "CJRID")
+    protected String cjrid;*/
     @Column(name = "CSBZ")
     protected String csbz;
 //    @Column(name = "L_DLLXID")
