@@ -73,6 +73,24 @@ public class WaferWarehouseController {
                     waferWarehouse.setBindingScribing("已绑定明细");
                 }
             }
+            List<WaferWarehouse> data = new ArrayList<>(waferWarehouses);
+            if (data != null && data.size() > 0) {
+                Collections.sort(data, new Comparator<WaferWarehouse>() {
+                    @Override
+                    public int compare(WaferWarehouse waferProduct1, WaferWarehouse waferProduct2) {
+                        if (waferProduct1 != null && waferProduct2 != null) {
+                            if (waferProduct1.getSliceNr() != null && waferProduct2.getSliceNr()  != null) {
+                                return waferProduct1.getSliceNr().compareTo(waferProduct2.getSliceNr());
+                            } else {
+                                return waferProduct1.getSliceNr() == null && waferProduct2.getSliceNr() == null ? 0 : (waferProduct1.getSliceNr() == null ? 1 : -1);
+                            }
+                        } else {
+                            return waferProduct1 == null && waferProduct2 == null ? 0 : (waferProduct1 == null ? 1 : -1);
+                        }
+                    }
+                });
+                result.setData(data);
+            }
         }
         return result;
     }
