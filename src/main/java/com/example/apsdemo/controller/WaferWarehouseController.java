@@ -6,6 +6,7 @@ import com.example.apsdemo.domain.Result;
 import com.example.apsdemo.service.*;
 import com.example.apsdemo.utils.Tools;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -291,7 +292,15 @@ public class WaferWarehouseController {
             Map parameter = (Map) params.computeIfAbsent("params", k -> new HashMap<>());
             parameter.put("waferNr", params.get("waferNr"));
         }
-        return Tools.getResult(params, service);
+        Specification specification = Tools.getSpecificationByParams(params);
+        List<Object> data = service.findAll(specification, Sort.by("DPSJ"));
+        Result result = new Result();
+        result.setData(data);
+        result.setTotal(data.size());
+        result.setPageSize(Integer.valueOf(params.get("pageSize").toString()));
+        result.setCurrent(Integer.valueOf(params.get("current").toString()));
+        return result;
+        //return Tools.getResult(params, service);
     }
 
     @PostMapping(path = "/getWaferGearWarehouse")

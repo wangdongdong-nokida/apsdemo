@@ -24,6 +24,10 @@ public class SecondOrder extends SecondOrderData {
     @ManyToOne(targetEntity = Employee.class)
     private Employee employee;
 
+    @JoinColumn(name ="cjrid" )
+    @ManyToOne(targetEntity = Employee.class)
+    private Employee cjr;
+
     public Employee getEmployee() {
         return employee;
     }
@@ -58,5 +62,13 @@ public class SecondOrder extends SecondOrderData {
 
     public void setProductType(ProductType productType) {
         this.productType = productType;
+    }
+
+    public Employee getCjr() {
+        return cjr;
+    }
+
+    public void setCjr(Employee cjr) {
+        this.cjr = cjr;
     }
 }
