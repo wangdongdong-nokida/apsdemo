@@ -1,9 +1,11 @@
 package com.example.apsdemo.dao.mapper.mybatisMapper;
 
+import com.example.apsdemo.dao.dto.FileDto;
 import org.apache.ibatis.annotations.ResultType;
 import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Blob;
 import java.util.List;
 import java.util.Map;
 
@@ -45,4 +47,38 @@ public interface TestItemMapper {
             "where yjrw.l_yjrwid = #{yjrwId}")
     @ResultType(java.util.Map.class)
     List<Map<String,Object>> findSalesOrderByYjrwId(String yjrwId);
+
+    @Select("SELECT IMG bytes FROM L_BH BH WHERE BH.L_BHNAME = #{bhName}")
+    @ResultType(java.lang.Byte.class)
+    FileDto findImgByName(String bhName);
+
+    @Select("SELECT BH.L_BHID ID, BH.L_BHNAME,LD.L_DLLXNAME," +
+            "BH.PFZR," +
+            "BH.DYS," +
+            "to_char(BH.RQ,'YYYY-MM-DD hh24:mi:ss') RQ," +
+            "BH.HPFS," +
+            "XH.DLXH," +
+            "XH.DLMC," +
+            "XH.DLID," +
+            "XH.PRODUCTID AS PRODUCTNAME," +
+            "XH.BB," +
+            "XH.JBB," +
+            "XH.SL," +
+            "XH.SJS," +
+            "XH.LPCC_X || 'X' || XH.LPCC_Y LPCC," +
+            "XH.BZCC_X || 'X' || XH.BZCC_Y BZCC," +
+            "XH.BZ," +
+            "XH.SFSY," +
+            "BH.YPCC," +
+            "BH.DYCC_X || 'X' || BH.DYCC_Y DYCC," +
+            "BH.HPJJ," +
+            "BH.PH " +
+            "FROM L_BH BH " +
+            "LEFT JOIN L_XH XH ON XH.L_BHID = BH.L_BHID LEFT JOIN L_DLLX LD " +
+            "ON LD.L_DLLXID = XH.L_DLLXID " +
+            "WHERE 1 = 1 " +
+            "And L_BHNAME =  #{bhName}" +
+             "order by to_number(xh.dlxh)")
+    @ResultType(java.util.Map.class)
+    List<Map<String,Object>> findBhInfoByName(String bhName);
 }

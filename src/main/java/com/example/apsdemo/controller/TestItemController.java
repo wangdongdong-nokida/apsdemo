@@ -10,6 +10,7 @@ import com.example.apsdemo.dao.businessObject.*;
 import com.example.apsdemo.dao.camstarObject.Equipment;
 import com.example.apsdemo.dao.camstarObject.SecondOrder;
 import com.example.apsdemo.dao.camstarObject.WaferWarehouse;
+import com.example.apsdemo.dao.dto.FileDto;
 import com.example.apsdemo.dao.dto.TestItemDto;
 import com.example.apsdemo.domain.*;
 import com.example.apsdemo.logicSchedule.EquipmentCalendarBitSet;
@@ -22,6 +23,7 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,8 +35,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.io.ByteArrayOutputStream;
+import javax.activation.MimetypesFileTypeMap;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.net.URLEncoder;
+import java.sql.Blob;
+import java.sql.SQLException;
 import java.util.*;
 
 
@@ -468,6 +474,44 @@ public class TestItemController {
         if (StringUtils.isEmpty(secondOrderName))
             return new Result();
         List<Map<String, Object>> data = scheduleTaskService.querySecondOrderInfoByName(secondOrderName);
+        Result result = new Result();
+        result.setData(data);
+        return result;
+    }
+
+    @RequestMapping(path = "/queryBhImgByName")
+    public byte[] queryBhImgByName(String bhName, HttpServletResponse response) throws SQLException {
+        if (StringUtils.isEmpty(bhName))
+            return null;
+        FileDto fileDto = scheduleTestItemService.findImgByName(bhName);
+        if(fileDto == null)
+            return null;
+        return fileDto.getBytes();
+        /*BufferedOutputStream out = null;
+        try {
+            out = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/octet-stream");// 设置response内容的类型
+            response.setHeader("Content-disposition", "attachment;filename=aaa.jpg");// 设置头部信息
+            out.write((byte[])obj);
+            out.flush();
+        } catch (IOException e) {
+
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }*/
+    }
+
+    @RequestMapping(path = "/queryBhInfoByName")
+    public Result queryBhInfoByName(String bhName) {
+        if (StringUtils.isEmpty(bhName))
+            return new Result();
+        List<Map<String, Object>> data = scheduleTestItemService.findBhInfoByName(bhName);
         Result result = new Result();
         result.setData(data);
         return result;
