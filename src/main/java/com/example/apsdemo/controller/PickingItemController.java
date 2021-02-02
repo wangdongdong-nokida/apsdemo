@@ -256,7 +256,7 @@ public class PickingItemController {
                     order.setModelNr(salesOrder.getXh());
                     order.setSliceNr("无片" + random.nextLong());
                     order.setBindSalesOrder(salesOrder.getlDdname());
-                    order.setSalesOrderTestDate(salesOrder.getYqfhwcrq()!=null?salesOrder.getYqfhwcrq().toString():null);
+                    order.setSalesOrderTestDate(salesOrder.getYqfhwcrq() != null ? salesOrder.getYqfhwcrq().toString() : null);
                     order.setBindCustomer(salesOrder.getlHt() != null ? (salesOrder.getlHt().getKh() == null ? "" : salesOrder.getlHt().getKh()) : "");
                     order.setBindContract(salesOrder.getlHt() != null ? (salesOrder.getlHt().getlHtname() == null ? "" : salesOrder.getlHt().getlHtname()) : "");
                     order.setBrief(brief);
@@ -275,8 +275,8 @@ public class PickingItemController {
         }
         Map params = new HashMap();
         params.put("params", map.get("params"));
-        Result result = Tools.getResult(params, gearPickingOrderService);
-        List<GearPickingOrder> gearPickingOrders = result.getData();
+        Result pickingOrderResult = Tools.getResult(params, gearPickingOrderService);
+        List<GearPickingOrder> gearPickingOrders = pickingOrderResult.getData();
         List<PickingOrder> pickingOrders = new LinkedList<>();
         for (GearPickingOrder gearPickingOrder : gearPickingOrders) {
             PickingOrder pickingOrder = gearPickingOrder.getPickingOrder();
@@ -286,10 +286,26 @@ public class PickingItemController {
         }
         int pageSize = Integer.parseInt(map.get("pageSize").toString());
         int current = Integer.parseInt(map.get("current").toString());
-        int start = (current - 1) * pageSize;
-        int end = (current * pageSize);
 
-        List resultData = pickingOrders.subList(start > 0 ? start : 0, end < pickingOrders.size() ? end : pickingOrders.size());
+        Result result = new Result();
+        result.setTotal(pickingOrders.size());
+        result.setSuccess(true);
+        result.setPageSize(pageSize);
+        result.setCurrent(current);
+        if (current <= 0 || pageSize <= 0 || pickingOrders.size() <= 0) {
+            return result;
+        }
+        int start = (current - 1) * pageSize;
+        int end = (current) * pageSize;
+        int listSize = pickingOrders.size();
+        List resultData;
+        if (start < listSize && listSize >= end) {
+            resultData = pickingOrders.subList(start, end);
+        } else if (start >= listSize) {
+            return result;
+        } else {
+            resultData = pickingOrders.subList(start, listSize);
+        }
         return new Result(resultData, resultData.size(), true, pageSize, current);
     }
 
@@ -383,37 +399,26 @@ public class PickingItemController {
         }
         int pageSize = Integer.parseInt(map.get("pageSize").toString());
         int current = Integer.parseInt(map.get("current").toString());
-        int numberStart = current > 0 ? (current - 1) * pageSize : 0;
-        int numberEnd = current > 0 ? current * pageSize : 0;
-        List salesOrdersResult;
-        if (occupySet.size() >= numberEnd) {
-            salesOrdersResult = occupySet.subList(numberStart, numberEnd);
-        } else {
-            salesOrdersResult = occupySet.subList(numberStart, occupySet.size());
+        Result result = new Result();
+        result.setTotal(occupySet.size());
+        result.setSuccess(true);
+        result.setPageSize(pageSize);
+        result.setCurrent(current);
+        if (current <= 0 || pageSize <= 0 || occupySet.size() <= 0) {
+            return result;
         }
+        int start = (current - 1) * pageSize;
+        int end = (current) * pageSize;
+        int listSize = occupySet.size();
+        List salesOrdersResult;
 
-        /*if (salesOrdersResult.size() > 0) {
-            Collections.sort(salesOrdersResult, new Comparator<Occupy>() {
-                @Override
-                public int compare(Occupy o1, Occupy o2) {
-                    SalesOrder salesOrder1 = o1.getSalesOrder();
-                    SalesOrder salesOrder2 = o2.getSalesOrder();
-
-                    if (salesOrder1 != null && salesOrder2 != null) {
-                        Date data1 = salesOrder1.getJywcsj();
-                        Date date2 = salesOrder2.getJywcsj();
-                        if (data1 != null && date2 != null) {
-                            return data1.compareTo(date2);
-                        } else {
-                            return data1 == null && date2 == null ? 0 : (data1 == null ? 1 : -1);
-                        }
-                    } else {
-                        return salesOrder1 == null && salesOrder2 == null ? 0 : (salesOrder1 == null ? 1 : -1);
-                    }
-                }
-            });
-        }*/
-
+        if (start < listSize && listSize >= end) {
+            salesOrdersResult = occupySet.subList(start, end);
+        } else if (start >= listSize) {
+            return result;
+        } else {
+            salesOrdersResult = occupySet.subList(start, listSize);
+        }
         return new Result(salesOrdersResult, occupySet.size(), true, pageSize, current);
     }
 

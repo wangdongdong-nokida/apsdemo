@@ -79,7 +79,7 @@ public class WaferWarehouseController {
                     @Override
                     public int compare(WaferWarehouse waferProduct1, WaferWarehouse waferProduct2) {
                         if (waferProduct1 != null && waferProduct2 != null) {
-                            if (waferProduct1.getSliceNr() != null && waferProduct2.getSliceNr()  != null) {
+                            if (waferProduct1.getSliceNr() != null && waferProduct2.getSliceNr() != null) {
                                 return waferProduct1.getSliceNr().compareTo(waferProduct2.getSliceNr());
                             } else {
                                 return waferProduct1.getSliceNr() == null && waferProduct2.getSliceNr() == null ? 0 : (waferProduct1.getSliceNr() == null ? 1 : -1);
@@ -145,14 +145,28 @@ public class WaferWarehouseController {
                 }
             }
         }
+        List<WaferWarehouse> resultData = null;
+
+        Result result = new Result();
+        result.setTotal(waferWarehouses.size());
+        result.setSuccess(true);
+        result.setPageSize(pageSize);
+        result.setCurrent(current);
+
+        if (current <= 0 || pageSize <= 0 || waferWarehouses.size() <= 0) {
+            return result;
+        }
 
         int start = (current - 1) * pageSize;
         int end = (current) * pageSize;
-
-        int subStart = 0 <= start && start < waferWarehouses.size() ? start : 0;
-        int subEnd = 0 <= end && end < waferWarehouses.size() ? end : (0 <= start && end > waferWarehouses.size() ? waferWarehouses.size() : 0);
-
-        List<WaferWarehouse> resultData = new LinkedList<>(waferWarehouses).subList(subStart, subEnd);
+        int listSize = waferWarehouses.size();
+        if (start < listSize && listSize >= end) {
+            resultData = new LinkedList<>(waferWarehouses).subList(start, end);
+        } else if (start >= listSize) {
+            return result;
+        } else {
+            resultData = new LinkedList<>(waferWarehouses).subList(start, listSize);
+        }
 
         for (WaferWarehouse waferWarehouse : resultData) {
 
