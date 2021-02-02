@@ -499,12 +499,13 @@ public class PickingItemController {
             for (Operation operation : operations) {
                 pickingOrders.add(operation.getPickingOrder().getID());
                 if (operation.getScheduleTaskLine() != null) {
-                    ScheduleTaskLine.ScheduleLine scheduleLine = operation.getScheduleTaskLine().getScheduleLine();
+                    ScheduleTaskLine line=operation.getScheduleTaskLine();
+                    ScheduleTaskLine.ScheduleLine scheduleLine = line.getScheduleLine();
                     ScheduleTask task = scheduleLine.deleteFromLine(operation.getID());
                     if (task != null) {
                         scheduleTaskService.delete(task);
                     }
-                    scheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(operation.getScheduleTaskLine().getEquipment()));
+                    scheduleLine.calcScheduleLineDate(scheduleMethod.getBitSetWrapper(line.getEquipment()));
                 } else {
                     scheduleTaskService.delete(operation);
                 }

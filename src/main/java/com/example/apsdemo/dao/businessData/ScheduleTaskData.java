@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -28,6 +29,9 @@ public class ScheduleTaskData extends DataBase {
     private int indexOrder;
     @Column(nullable = false)
     private boolean finished;
+
+    @Transient
+    private String equipmentName;
 
     public void setEndDate(Calendar endDate) {
         this.endDate = endDate!=null?endDate.getTime():null;
