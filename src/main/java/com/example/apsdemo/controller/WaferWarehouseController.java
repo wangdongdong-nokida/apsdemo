@@ -293,14 +293,14 @@ public class WaferWarehouseController {
         if (object != null) {
             specification = Tools.getSpecificationByParams((Map<String, Object>) object);
         }
-
-        List<Object> data = service.findAll(specification, Sort.by("DPSJ"));
+        params.put("orderBy","DPSJ");
+        /*List<Object> data = service.findAll(specification, Sort.by("DPSJ"));
         Result result = new Result();
         result.setData(data);
         result.setTotal(data.size());
         result.setPageSize(Integer.valueOf(params.get("pageSize").toString()));
-        result.setCurrent(Integer.valueOf(params.get("current").toString()));
-        return result;
+        result.setCurrent(Integer.valueOf(params.get("current").toString()));*/
+        return Tools.getResult(params,service);
         //return Tools.getResult(params, service);
     }
 
