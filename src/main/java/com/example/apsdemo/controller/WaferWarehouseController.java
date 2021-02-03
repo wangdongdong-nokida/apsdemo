@@ -288,11 +288,12 @@ public class WaferWarehouseController {
     @PostMapping(path = "/getWaferAll")
     public Result getWaferAll(@RequestBody Map<String, Object> params) {
 
-        if (params.get("waferNr") != null) {
-            Map parameter = (Map) params.computeIfAbsent("params", k -> new HashMap<>());
-            parameter.put("waferNr", params.get("waferNr"));
+        Object object = params.get("params");
+        Specification specification = null;
+        if (object != null) {
+            specification = Tools.getSpecificationByParams((Map<String, Object>) object);
         }
-        Specification specification = Tools.getSpecificationByParams(params);
+
         List<Object> data = service.findAll(specification, Sort.by("DPSJ"));
         Result result = new Result();
         result.setData(data);
