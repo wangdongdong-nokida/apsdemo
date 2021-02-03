@@ -31,7 +31,6 @@ public class OperationData extends ScheduleTask {
     protected String workStepName;
     protected String workFlowName;
 
-    protected String equipmentName;
     protected boolean salesOrder;
     protected String brief;
     protected String itemBrief;

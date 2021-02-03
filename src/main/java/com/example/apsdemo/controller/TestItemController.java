@@ -218,14 +218,7 @@ public class TestItemController {
         if (map.get("params") == null) {
             return new Result();
         }
-        Result result = Tools.getResult(map, scheduleTaskService);
-        List<ScheduleTask> tasks=result.getData();
-        for (ScheduleTask task : tasks) {
-            if (task.getScheduleTaskLine() != null && task.getScheduleTaskLine().getEquipment() != null) {
-                task.setEquipmentName(task.getScheduleTaskLine().getEquipment().getName());
-            }
-        }
-        return result;
+        return Tools.getResult(map, scheduleTaskService);
     }
 
 

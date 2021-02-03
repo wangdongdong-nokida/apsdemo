@@ -683,7 +683,7 @@ public class PickingItemController {
                 if (operationOptional.isPresent()) {
                     Operation operation = operationOptional.get();
                     operation.setDurationTime(duration);
-                    operation.setEquipmentName(equipment.getName());
+//                    operation.setEquipmentName(equipment.getName());
                     operation.setItemBrief(itemBrief);
 //                    operation.setQuantity(quantity);
                     operationService.save(operation);

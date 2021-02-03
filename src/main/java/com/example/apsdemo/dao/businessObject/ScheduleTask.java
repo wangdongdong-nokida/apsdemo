@@ -30,7 +30,7 @@ public class ScheduleTask extends ScheduleTaskData {
     }
 
     @JsonIgnore
-    @OneToOne(targetEntity = Container.class,mappedBy = "scheduleTask",cascade = CascadeType.REMOVE)
+    @OneToOne(targetEntity = Container.class, mappedBy = "scheduleTask", cascade = CascadeType.REMOVE)
     private Container container;
 
     public Container getContainer() {
@@ -49,10 +49,10 @@ public class ScheduleTask extends ScheduleTaskData {
     @ManyToOne(targetEntity = ScheduleTaskLine.class, fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
     private ScheduleTaskLine scheduleTaskLine;
 
-    @OneToOne(targetEntity = ScheduleTestItem.class, cascade = CascadeType.ALL,mappedBy = "scheduleTask")
+    @OneToOne(targetEntity = ScheduleTestItem.class, cascade = CascadeType.ALL, mappedBy = "scheduleTask")
     private ScheduleTestItem scheduleTestItem;
 
-    @OneToOne(targetEntity = ScheduleScribingItem.class, cascade = CascadeType.ALL,mappedBy = "scheduleTask")
+    @OneToOne(targetEntity = ScheduleScribingItem.class, cascade = CascadeType.ALL, mappedBy = "scheduleTask")
     private ScheduleScribingItem scheduleScribingItem;
 
     public ScheduleScribingItem getScheduleScribingItem() {
@@ -62,8 +62,6 @@ public class ScheduleTask extends ScheduleTaskData {
     public void setScheduleScribingItem(ScheduleScribingItem scheduleScribing) {
         this.scheduleScribingItem = scheduleScribing;
     }
-
-
 
 
     //    public ScheduleTask getFather() {
@@ -79,6 +77,9 @@ public class ScheduleTask extends ScheduleTaskData {
     }
 
     public void setScheduleTaskLine(ScheduleTaskLine scheduleTaskLine) {
+        if (scheduleTaskLine == null && this.getScheduleTaskLine() != null && this.getScheduleTaskLine().getEquipment() != null) {
+            this.setEquipmentName(this.getScheduleTaskLine().getEquipment().getName());
+        }
         this.scheduleTaskLine = scheduleTaskLine;
     }
 
@@ -125,5 +126,13 @@ public class ScheduleTask extends ScheduleTaskData {
     @Override
     public String toString() {
         return super.toString();
+    }
+
+    @Override
+    public String getEquipmentName() {
+        if (this.getScheduleTaskLine() != null && this.getScheduleTaskLine().getEquipment() != null) {
+            return this.getScheduleTaskLine().getEquipment().getName();
+        }
+        return null;
     }
 }
