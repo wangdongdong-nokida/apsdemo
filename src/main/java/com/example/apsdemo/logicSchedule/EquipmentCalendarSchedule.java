@@ -115,20 +115,4 @@ public class EquipmentCalendarSchedule {
             }
         }
     }
-
-
-
-    private Date getDayDate(String day) {
-        try {
-            return dayFormat.parse(day);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-
-
-
-
 }

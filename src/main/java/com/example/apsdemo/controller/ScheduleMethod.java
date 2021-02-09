@@ -45,13 +45,8 @@ public class ScheduleMethod {
         Calendar end = Calendar.getInstance();
         end.add(Calendar.YEAR, 3);
         ScheduleTaskLine line = getScheduleTaskLine(equipment);
-        Date standardTime = line.getStandardTime();
         if ((line.getFirst() != null && line.getFirst().getStartDate() != null)) {
-            if (standardTime != null) {
-                start.setTime(standardTime.before(line.getFirst().getStartDate()) ? standardTime : line.getFirst().getStartDate());
-            } else {
-                start.setTime(line.getFirst().getStartDate());
-            }
+            start.setTime(line.getFirst().getStartDate());
         }
         return equipmentCalendarBitSet.initialize(start, end, equipment);
     }

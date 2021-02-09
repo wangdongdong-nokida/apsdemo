@@ -711,7 +711,7 @@ public class PickingItemController {
         }
         List<Operation> tasks = operationService.findAll(brief.getIds());
         for (Operation task : tasks) {
-            task.setBrief(brief.getBrief());
+            task.setItemBrief(brief.getBrief());
         }
     }
 

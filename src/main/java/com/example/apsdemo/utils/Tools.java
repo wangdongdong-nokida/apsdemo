@@ -15,7 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class Tools {
-    public static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy/MM/dd");
+    public static SimpleDateFormat dayFormat = new SimpleDateFormat("yyyyMMdd");
     public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 //    public static final Calendar calendarInstance = Calendar.getInstance();
 

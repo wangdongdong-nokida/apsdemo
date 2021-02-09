@@ -32,6 +32,11 @@ public class ScheduleTaskData extends DataBase {
 
     @Transient
     private String equipmentName;
+//camstar备注
+    private String brief;
+//    要求检验完成时间
+    protected String salesOrderTestDate;
+
 
     public void setEndDate(Calendar endDate) {
         this.endDate = endDate!=null?endDate.getTime():null;

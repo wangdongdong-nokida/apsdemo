@@ -113,7 +113,8 @@ public class ScribingItemController {
         try {
             ids = createScribingItemNormal(request);
         } catch (Exception e) {
-            throw new Exception("创建划片失败！");
+            e.printStackTrace();
+            throw e;
         }
         if (ids.size() > 0) {
             HttpController.postHttp(ids, "划片");

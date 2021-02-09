@@ -142,61 +142,86 @@ public class EquipmentCalendarBitSet {
         }
         BitSet bitSet = new BitSet();
 
-        createCalendarRule(bitSet, 0, originalStart, originalEnd, calendarMap);
+
+        createCalendarRule(false, bitSet, 0, originalStart, originalEnd, calendarMap);
+        ruleNormalCalendars(false, start.getTime(), end.getTime(), bitSet, calendarMap.get(0));
+
+        createCalendarRule(true, bitSet, 0, originalStart, originalEnd, calendarMap);
+        ruleNormalCalendars(true, start.getTime(), end.getTime(), bitSet, calendarMap.get(0));
+
         return bitSet;
     }
 
     /*
     /根据开始结束时间获取日历刻度
      */
-    public void createCalendarRule(BitSet bitSet, int index, Calendar start, Calendar end, Map<Integer, Set<EquipmentCalendar>> classifiedCalendar) {
+    public void createCalendarRule(boolean black, BitSet bitSet, int index, Calendar start, Calendar end, Map<Integer, Set<EquipmentCalendar>> classifiedCalendar) {
 
         Set<EquipmentCalendar> repeatCalendars = classifiedCalendar.get(start.get(Calendar.DAY_OF_WEEK));
-        Set<EquipmentCalendar> normalCalendarsAll = classifiedCalendar.get(0);
-        Set<EquipmentCalendar> normalCalendars = new HashSet<>();
-        String standardDay = getDayString(start);
-        if (normalCalendarsAll != null) {
-            for (EquipmentCalendar calendar : normalCalendarsAll) {
-                Calendar calendarDate = Calendar.getInstance();
-                calendarDate.setTime(calendar.getStartTime());
-                String day = getDayString(calendarDate);
-                if (standardDay.equals(day)) {
-                    normalCalendars.add(calendar);
-                }
+        if (black) {
+            ruleRepeatBlackCalendars(bitSet, index, repeatCalendars);
+            start.add(Calendar.DATE, 1);
+            index++;
+            if (start.before(end)) {
+                createCalendarRule(true, bitSet, index, start, end, classifiedCalendar);
+            }
+        } else {
+            ruleCalendars(bitSet, index, repeatCalendars);
+            start.add(Calendar.DATE, 1);
+            index++;
+            if (start.before(end)) {
+                createCalendarRule(false, bitSet, index, start, end, classifiedCalendar);
             }
         }
-        ruleCalendars(bitSet, index, repeatCalendars, normalCalendars);
 
-
-        start.add(Calendar.DATE, 1);
-        index++;
-        if (start.before(end)) {
-            createCalendarRule(bitSet, index, start, end, classifiedCalendar);
-        }
     }
 
-    public void ruleCalendars(BitSet bitSet, int index, Set<EquipmentCalendar> calendars, Set<EquipmentCalendar> normalCalendars) {
-        Set<EquipmentCalendar> blackCalendars = new HashSet<>();
+    public void ruleCalendars(BitSet bitSet, int index, Set<EquipmentCalendar> calendars) {
         if (calendars != null) {
             for (EquipmentCalendar equipmentCalendar : calendars) {
                 if (!equipmentCalendar.isBlackName()) {
                     fillCalendarRule(bitSet, index, equipmentCalendar);
-                } else {
+                }
+            }
+        }
+    }
+
+
+    public void ruleNormalCalendars(boolean black, Date start, Date end, BitSet bitSet, Set<EquipmentCalendar> normalCalendars) {
+        Calendar calendarStart = getStartOfDay(start);
+        if (normalCalendars == null) {
+            return;
+        }
+        for (EquipmentCalendar calendar : normalCalendars) {
+            if ((calendar.isBlackName() == black) && calendar.getStartTime() != null && calendar.getEndTime() != null) {
+                long startIndex = calendar.getStartTime().getTime() - calendarStart.getTime().getTime();
+                long endIndex = calendar.getEndTime().getTime() - calendarStart.getTime().getTime();
+                if (endIndex > 0) {
+                    bitSet.set(startIndex > 0 ? (int) (startIndex / (1000 * 60)) : 0, (int) (endIndex / (1000 * 60)), !calendar.isBlackName());
+                }
+            }
+        }
+    }
+
+    private Calendar getStartOfDay(Date start) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(start);
+        calendar.set(Calendar.MILLISECOND, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        return calendar;
+    }
+
+    public void ruleRepeatBlackCalendars(BitSet bitSet, int index, Set<EquipmentCalendar> calendars) {
+        Set<EquipmentCalendar> blackCalendars = new HashSet<>();
+        if (calendars != null) {
+            for (EquipmentCalendar equipmentCalendar : calendars) {
+                if (equipmentCalendar.isBlackName()) {
                     blackCalendars.add(equipmentCalendar);
                 }
             }
         }
-
-        if (normalCalendars != null) {
-            for (EquipmentCalendar equipmentCalendar : normalCalendars) {
-                if (!equipmentCalendar.isBlackName()) {
-                    fillCalendarRule(bitSet, index, equipmentCalendar);
-                } else {
-                    blackCalendars.add(equipmentCalendar);
-                }
-            }
-        }
-
         for (EquipmentCalendar equipmentCalendar : blackCalendars) {
             fillCalendarRule(bitSet, index, equipmentCalendar);
         }
@@ -211,11 +236,11 @@ public class EquipmentCalendarBitSet {
         int endMinute = position + (endTime.get(Calendar.HOUR_OF_DAY) * 60) + endTime.get(Calendar.MINUTE);
         if (equipmentCalendar.getRepeatType() == 0) {
             startMinute = position + (startTime.get(Calendar.HOUR_OF_DAY) * 60) + startTime.get(Calendar.MINUTE);
-            endMinute = (int) ((endTime.getTime().getTime()-startTime.getTime().getTime())/(1000*60)+startMinute);
+            endMinute = (int) ((endTime.getTime().getTime() - startTime.getTime().getTime()) / (1000 * 60) + startMinute);
         }
         if (startMinute > endMinute) {
             log.info("开始时间大于结束时间");
-            log.info("ID:"+equipmentCalendar.getID());
+            log.info("ID:" + equipmentCalendar.getID());
             return;
         }
         bitSet.set(startMinute, endMinute, !equipmentCalendar.isBlackName());
@@ -227,8 +252,8 @@ public class EquipmentCalendarBitSet {
         return calendarOut;
     }
 
-    private String getDayString(Calendar today) {
-        return dayFormat.format(today.getTime());
+    private int getDayString(Calendar today) {
+        return Integer.parseInt(dayFormat.format(today.getTime()));
     }
 
 }
