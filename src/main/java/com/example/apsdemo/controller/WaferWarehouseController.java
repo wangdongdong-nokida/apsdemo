@@ -47,8 +47,6 @@ public class WaferWarehouseController {
 
     @RequestMapping(path = "/findAllByPage")
     public Result findAllByPage(@RequestBody Map<String, Object> params) {
-        params.remove("current");
-        params.remove("pageSize");
         Result result = findAll(params);
         if (result.getData().size() > 0) {
             List<WaferWarehouse> waferWarehouses = result.getData();
