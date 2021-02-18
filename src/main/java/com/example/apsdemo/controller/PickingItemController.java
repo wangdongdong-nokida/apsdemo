@@ -625,12 +625,12 @@ public class PickingItemController {
         Map<String, Object> map = (Map) params.computeIfAbsent("params", key -> new HashMap<String, Object>());
         if (map.get("showType") != null) {
             if ("uncreated".equals(map.get("showType"))) {
-                map.put("^equipmentName", "");
+                map.put("^startDate", "");
             } else if ("created".equals(map.get("showType"))) {
-                map.put("!^equipmentName", "");
+                map.put("!^startDate", "");
             }
         } else {
-            map.put("^equipmentName", "");
+            map.put("^startDate", "");
         }
         Result result = Tools.getResult(params, operationService);
         List<Operation> operations = result.getData();
