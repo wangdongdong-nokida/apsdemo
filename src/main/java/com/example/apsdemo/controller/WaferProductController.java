@@ -25,6 +25,8 @@ public class WaferProductController {
         if (requestPage.get("params")==null||((Map)requestPage.get("params")).get("==wafer-nr") == null) {
             return new Result();
         }
+        requestPage.remove("current");
+        requestPage.remove("pageSize");
         Result result =  Tools.getResult(requestPage, service);
         List<WaferProduct> data = new ArrayList(result.getData());
         if (data != null && data.size() > 0) {
