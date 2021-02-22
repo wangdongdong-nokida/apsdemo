@@ -33,4 +33,5 @@ public class WaferModelWarehouse extends WaferModelWarehouseData {
     public void setWaferWarehouse(WaferWarehouse waferWarehouse) {
         this.waferWarehouse = waferWarehouse;
     }
+
 }

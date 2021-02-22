@@ -203,15 +203,16 @@ public class PickingItemController {
                         if (waferGearWarehouse != null && "芯片".equals(waferGearWarehouse.getWLXT())) {
                             GearPickingOrder gearPickingOrder = new GearPickingOrder(order, waferGearWarehouse);
                             gearPickingOrderService.save(gearPickingOrder);
-                            if (order.getWaferNr() == null || order.getModelNr() == null) {
+                            if (order.getWaferNr() == null) {
                                 if (waferGearWarehouse.getWaferModelWarehouse() != null && waferGearWarehouse.getWaferModelWarehouse().getWaferWarehouse() != null) {
                                     order.setWaferNr(waferGearWarehouse.getWaferModelWarehouse().getWaferWarehouse().getWaferNr());
-                                    order.setModelNr(waferGearWarehouse.getWaferModelWarehouse().getModelNr());
+
                                     order.setSliceState(waferGearWarehouse.getWLZT());
                                     order.setSliceNr(waferGearWarehouse.getWaferModelWarehouse().getWaferWarehouse().getSliceNr());
                                     order.setCircuitNr(waferGearWarehouse.getWaferModelWarehouse().getCircuitNr());
                                 }
                             }
+                            order.setModelNr(waferGearWarehouse.getXH());
                         }
                     }
                 }
@@ -228,8 +229,6 @@ public class PickingItemController {
         String waferNr = params.get("waferNr").toUpperCase();
         String salesOrderId = params.get("salesOrder");
         String brief = params.get("brief");
-
-//        return Tools.getResult(requestPage, service);
 
         int count = 0;
         try {

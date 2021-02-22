@@ -143,10 +143,10 @@ public class EquipmentCalendarBitSet {
         BitSet bitSet = new BitSet();
 
 
-        createCalendarRule(false, bitSet, 0, originalStart, originalEnd, calendarMap);
+        createCalendarRule(false, bitSet, 0, originalStart.getTime(), originalEnd.getTime(), calendarMap);
         ruleNormalCalendars(false, start.getTime(), end.getTime(), bitSet, calendarMap.get(0));
 
-        createCalendarRule(true, bitSet, 0, originalStart, originalEnd, calendarMap);
+        createCalendarRule(true, bitSet, 0, originalStart.getTime(), originalEnd.getTime(), calendarMap);
         ruleNormalCalendars(true, start.getTime(), end.getTime(), bitSet, calendarMap.get(0));
 
         return bitSet;
@@ -155,7 +155,12 @@ public class EquipmentCalendarBitSet {
     /*
     /根据开始结束时间获取日历刻度
      */
-    public void createCalendarRule(boolean black, BitSet bitSet, int index, Calendar start, Calendar end, Map<Integer, Set<EquipmentCalendar>> classifiedCalendar) {
+    public void createCalendarRule(boolean black, BitSet bitSet, int index, Date startDate, Date endDate, Map<Integer, Set<EquipmentCalendar>> classifiedCalendar) {
+
+        Calendar start=Calendar.getInstance();
+        Calendar end=Calendar.getInstance();
+        start.setTime(startDate);
+        end.setTime(endDate);
 
         Set<EquipmentCalendar> repeatCalendars = classifiedCalendar.get(start.get(Calendar.DAY_OF_WEEK));
         if (black) {
@@ -163,14 +168,14 @@ public class EquipmentCalendarBitSet {
             start.add(Calendar.DATE, 1);
             index++;
             if (start.before(end)) {
-                createCalendarRule(true, bitSet, index, start, end, classifiedCalendar);
+                createCalendarRule(true, bitSet, index, start.getTime(), end.getTime(), classifiedCalendar);
             }
         } else {
             ruleCalendars(bitSet, index, repeatCalendars);
             start.add(Calendar.DATE, 1);
             index++;
             if (start.before(end)) {
-                createCalendarRule(false, bitSet, index, start, end, classifiedCalendar);
+                createCalendarRule(false, bitSet, index, start.getTime(), end.getTime(), classifiedCalendar);
             }
         }
 

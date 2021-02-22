@@ -19,6 +19,7 @@ public class WaferGearWarehouse extends WaferGearWarehouseData {
     @OneToMany(targetEntity = GearPickingOrder.class, fetch = FetchType.LAZY, mappedBy = "waferGearWarehouse")
     private Set<GearPickingOrder> gearPickingOrders = new HashSet<>();
 
+
     @OneToMany(targetEntity = Occupy.class, fetch = FetchType.LAZY, mappedBy = "waferGearWarehouse")
     private Set<Occupy> occupies = new HashSet<>();
 
@@ -45,4 +46,12 @@ public class WaferGearWarehouse extends WaferGearWarehouseData {
     public void setOccupies(Set<Occupy> occupies) {
         this.occupies = occupies;
     }
+
+//    public String getXH() {
+//        return this.getWaferModelWarehouse()!=null?this.getWaferModelWarehouse().get:;
+//    }
+//
+//    public void setXH(String XH) {
+//        this.XH = XH;
+//    }
 }

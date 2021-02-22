@@ -47,7 +47,6 @@ public class WaferGearWarehouseData {
     @Column(name = "XH")
     protected String XH;
 
-
     @Transient
     protected String bindSalesOrder;
 }
