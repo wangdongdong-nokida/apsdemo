@@ -418,7 +418,7 @@ public class TestItemController {
             if (data.getTestItemParamsList().get("params") == null || ((Map) data.getTestItemParamsList().get("params")).get("scheduleTaskLine-equipment-ID") == null) {
                 return new ResponseEntity<byte[]>(HttpStatus.FAILED_DEPENDENCY);
             }
-            data.getTestItemParamsList().put("orderBy","indexOrder");
+            data.getTestItemParamsList().put("orderBy","indexOrder,startDate");
             Result result = Tools.getResult(data.getTestItemParamsList(), scheduleTaskService);
             List<TestItemDto.TestItem> testItemList = new ArrayList<>();
             for (ScheduleTask task : (List<ScheduleTask>) result.getData()) {
