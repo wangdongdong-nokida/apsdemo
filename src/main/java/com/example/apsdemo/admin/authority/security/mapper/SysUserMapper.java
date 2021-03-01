@@ -18,8 +18,8 @@ public interface SysUserMapper extends BaseMapper<SysUser> {
      * @param username 账户名
      * @return
      */
-    @Select("SELECT employeeid userId,employeename username,employeename name,password,emailAddress email,null as avatar" +
-            " FROM employee WHERE employeename = #{username}")
+    @Select("SELECT e.employeeid userId,e.employeename username,e.employeename name,e.password,e.emailAddress email,null as avatar,t.teamname teamName" +
+            " FROM employee e left join team t on e.employee_teamid = t.teamid WHERE employeename = #{username}")
     @Results({
             @Result(property = "sysRoles", column = "userId", javaType = List.class,
                     many = @Many(select = "com.example.apsdemo.admin.authority.security.mapper.SysRoleMapper.findByUserId"))

@@ -30,7 +30,7 @@ public class SysUserController {
     @GetMapping("/userInfo")
     public CommonResult<JSONObject> currentUser() {
         SysUser sysUser = (SysUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        JSONObject jsonObject = JSONUtil.createObj().putOpt("name",sysUser.getUsername()).putOpt("avatar",sysUser.getAvatar());
+        JSONObject jsonObject = JSONUtil.createObj().putOpt("teamName",sysUser.getTeamName()).putOpt("name",sysUser.getUsername()).putOpt("avatar",sysUser.getAvatar());
         return CommonResult.success(jsonObject);
     }
 

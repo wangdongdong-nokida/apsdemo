@@ -42,6 +42,10 @@ public class SysUser implements Serializable, UserDetails {
     private String avatar;
 
     /**
+     * 班组名称
+     */
+    private String teamName;
+    /**
      * 当前用户的角色
      */
     private List<SysRole> sysRoles;
