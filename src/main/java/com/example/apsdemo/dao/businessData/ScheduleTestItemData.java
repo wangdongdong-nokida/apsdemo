@@ -30,5 +30,7 @@ public class ScheduleTestItemData extends DataBase {
 
     @Column(name = "wipstep")
     private String operationStatus;
+    @Column(name = "BGBZ")
+    private String bgbz;
 
 }
