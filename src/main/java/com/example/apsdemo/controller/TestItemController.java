@@ -104,7 +104,6 @@ public class TestItemController {
 
     @Transactional
     public synchronized Set<Long> createItem(TestItemCreateParams requestPage) throws Exception {
-
         Optional<Equipment> equipmentOptional = equipmentService.findById(requestPage.getEquipmentId());
         if (!equipmentOptional.isPresent()) {
             throw new Exception("没有找到设备ID：" + requestPage.getEquipmentId());
@@ -169,24 +168,25 @@ public class TestItemController {
 
 
     public List<Long> createItemByParams(SecondOrder secondOrder, TestItemCreateParams requestPage, ScheduleTaskLine line, int productWaferSize, int forecastSize, int screenSize, int assessmentSize, String modelNr, String sliceNr, TestScribingCenter center, TestItemCreateParams.Product product) {
-
+        SysUser sysUser = (SysUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String teamName=sysUser!=null?sysUser.getTeamName():null;
         List<Long> ids = new LinkedList<>();
         for (String forecast : requestPage.getForecast()) {
-            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, forecast, TestType, (int) ((requestPage.getForecastHours() * 60) / (forecastSize * productWaferSize)), product.getForecast(), product.getCircuitNr(),teamName);
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
             ids.add(task.getID());
         }
         for (String screen : requestPage.getScreen()) {
-            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, ScreenType, (int) ((requestPage.getScreenHours() * 60) / (screenSize * productWaferSize)), product.getScreen(), product.getCircuitNr(),teamName);
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
             ids.add(task.getID());
         }
         for (String screen : requestPage.getAssessment()) {
-            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getAssessmentHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(), product.getCircuitNr());
+            ScheduleTestItem item = new ScheduleTestItem(requestPage.getTestBrief(), secondOrder, line, center, modelNr, requestPage.getWaferNr(), sliceNr, screen, AssessmentType, (int) ((requestPage.getAssessmentHours() * 60) / (assessmentSize * productWaferSize)), product.getAssessment(), product.getCircuitNr(),teamName);
             ScheduleTask task = item.getScheduleTask();
             line.addLast(task);
             scheduleTaskService.save(task);
@@ -235,7 +235,6 @@ public class TestItemController {
     @RequestMapping(path = "/editBrief")
     @Transactional
     public void editBrief(@RequestBody EditBrief brief) {
-//        SysUser sysUser = (SysUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         if (brief.getIds() == null) {
             throw new Exception("没有选中测试明细！");
         }

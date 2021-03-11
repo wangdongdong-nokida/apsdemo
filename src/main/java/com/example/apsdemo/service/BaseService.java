@@ -1,5 +1,6 @@
 package com.example.apsdemo.service;
 
+import com.example.apsdemo.dao.camstarObject.SecondOrder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -57,7 +58,5 @@ public abstract class BaseService<T extends JpaSpecificationExecutor& JpaReposit
     public void delete(Object object){
         getMapper().delete(object);
     }
-
-
 
 }

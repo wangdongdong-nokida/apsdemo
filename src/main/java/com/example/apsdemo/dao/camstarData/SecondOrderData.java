@@ -78,6 +78,7 @@ public class SecondOrderData {
     @Column(name = "RWZT")
     protected String status;
 
+    protected String createdTeamName;
 
 //    @Column(name = "SFTK")
 //    protected String sftk; 是否投考

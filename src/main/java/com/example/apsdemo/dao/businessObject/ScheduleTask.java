@@ -17,6 +17,7 @@ public class ScheduleTask extends ScheduleTaskData {
     public ScheduleTask(ScheduleTaskLine scheduleTaskLine, ScheduleTestItem scheduleTestItem, int durationTime) {
         this.scheduleTestItem = scheduleTestItem;
         setParmas(scheduleTaskLine, durationTime);
+
     }
 
     public ScheduleTask(ScheduleTaskLine scheduleTaskLine, ScheduleScribingItem scheduleScribing, int durationTime) {
@@ -110,6 +111,7 @@ public class ScheduleTask extends ScheduleTaskData {
 //            int endRange = wrapper.getEndRange(startAvailable, getDurationTime());
 //            Calendar calendar = wrapper.getFromStart(startAvailable + endRange);
 //            setEndDate(calendar);
+
 //        }
 //        if (getSon() != null) {
 //            getSon().setStartDate(this.getEndDate());

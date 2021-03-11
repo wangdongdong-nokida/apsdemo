@@ -41,7 +41,7 @@ public class HttpController {
             idMap.put("GXType", type);
             idMap.put("workflow", type);
             list.add(idMap);
-        }
+    }
         postThread(data, map, list);
     }
 
@@ -54,6 +54,7 @@ public class HttpController {
             @Override
             public void run() {
                 LOG.info(listJson);
+                LOG.info(url);
                 LOG.info(client.postForEntity(HttpController.url, map, String.class).getBody());
             }
         };

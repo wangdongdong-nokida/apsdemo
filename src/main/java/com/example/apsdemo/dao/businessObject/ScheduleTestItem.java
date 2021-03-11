@@ -2,12 +2,14 @@ package com.example.apsdemo.dao.businessObject;
 
 import com.example.apsdemo.dao.businessData.ScheduleTestItemData;
 import com.example.apsdemo.dao.camstarObject.SecondOrder;
+import com.example.apsdemo.listener.ScheduleTestItemListener;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "A_scheduleTestItem")
+@EntityListeners(ScheduleTestItemListener.class)
 public class ScheduleTestItem extends ScheduleTestItemData {
 
     @ManyToOne(targetEntity = TestScribingCenter.class, fetch = FetchType.EAGER)
@@ -56,7 +58,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         }
     }
 
-    public ScheduleTestItem(String testBrief,SecondOrder secondOrder, ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime, int quantity, String circuitNr) {
+    public ScheduleTestItem(String testBrief,SecondOrder secondOrder, ScheduleTaskLine line, TestScribingCenter center, String product, String waferNr, String sliceNr, String screen, String testType, int durationTime, int quantity, String circuitNr,String teamName) {
         this.setSecondOrder(secondOrder);
         this.setWaferNr(waferNr);
         this.setScheduleTask(new ScheduleTask(line, this, durationTime));
@@ -68,6 +70,7 @@ public class ScheduleTestItem extends ScheduleTestItemData {
         this.setQuantity(quantity);
         this.setCircuitNr(circuitNr);
         this.setItemBrief(testBrief);
+        this.setTeamName(teamName);
     }
 
 }

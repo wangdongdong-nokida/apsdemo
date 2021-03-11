@@ -16,4 +16,6 @@ public class DataBase {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected long ID;
+
+    protected String teamName;
 }
